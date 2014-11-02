@@ -15,10 +15,13 @@ class CatItemsToCatController extends Controller
     	public function accessRules()
 	{
 		return array(
-
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions'=>array('admin'),
+                'expression' => 'Yii::app()->user->canDo("Catalog")'
+            ),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('delete','orderUp','orderDown','admin'),
-                'expression' => 'Yii::app()->user->canDo("catalogEditor")'
+				'actions'=>array('delete','orderUp','orderDown'),
+                'expression' => 'Yii::app()->user->isAdmin()'
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),

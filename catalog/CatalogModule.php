@@ -8,13 +8,13 @@ class CatalogModule extends CWebModule
 
     public $tidyleadImage = false;
     public $tidyConfig = array(
-        'Three'=>array(
+        'Three' => array(
 
-            'imageTag'=>'admin'
+            'imageTag' => 'admin'
         ),
-        'One'=>array(
+        'One' => array(
 
-            'imageTag'=>'inner_big'
+            'imageTag' => 'inner_big'
         )
     );
 
@@ -40,4 +40,22 @@ class CatalogModule extends CWebModule
 
         return true;
     }
+
+    static public function checkEditAccess($authorId = null)
+    {
+
+        if (!(Yii::app()->user->canDo('AllContentCatalogEditor') || Yii::app()->user->canDo('OwnContentCatalogEditor'))) {
+            throw new CHttpException(403, 'No access.');
+        } else {
+            if (!Yii::app()->user->canDo('AllContentCatalogEditor') && !is_null($authorId)) {
+                if (Yii::app()->user->canDo('OwnContentCatalogEditor')) {
+                    if (Yii::app()->user->id !== $authorId) {
+                        throw new CHttpException(403, 'No access.');
+                    }
+                }
+            }
+        }
+
+    }
+
 }

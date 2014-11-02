@@ -56,7 +56,6 @@ class DefaultController extends Controller
 
 
     public function actionAddRoles($module){
-
         $moduleData = $this->getModuleConfig($module);
 
         $authManager = Yii::app()->authManager;
@@ -68,7 +67,9 @@ class DefaultController extends Controller
             $bizRule=isset($authItem['bizRule'])?$authItem['bizRule']:null;
 
             $authManager->createAuthItem($authName,$type,$description,$bizRule);
+
         }
+
 
         foreach ($moduleData['relations'] as  $authRelation  ){
 

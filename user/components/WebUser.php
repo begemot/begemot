@@ -74,7 +74,7 @@ class WebUser extends CWebUser
         return Yii::app()->getModule('user')->isAdmin();
     }
 
-    public function canDo($authItems = '')
+    public function canDo($authItems = '',$params=null)
     {
 
         if (!is_array($authItems)) {
@@ -85,7 +85,7 @@ class WebUser extends CWebUser
         if (!Yii::app()->user->isAdmin()) {
 
             foreach ($authItems as $authItem) {
-                if (Yii::app()->authManager->checkAccess($authItem, Yii::app()->user->id)) {
+                if (Yii::app()->authManager->checkAccess($authItem, Yii::app()->user->id,$params)) {
                     return true;
                 }
             }
