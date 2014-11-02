@@ -1,4 +1,5 @@
 <?php
+
 return array(
 	'Registration' => 'Регистрация',
 	'Register' => 'Зарегистрироваться',
@@ -13,9 +14,7 @@ return array(
 	"This user's name already exists." => 'Пользователь с таким именем уже существует.',
 	"This user's email address already exists." => 'Пользователь с таким электронным адресом уже существует.',
 	'You registered from {site_name}' => 'Вы зарегистрировались на сайте {site_name}',
-	'User registered from {site_name}' => 'Пользователь зарегистрировался на сайте {site_name}',
 	'Please activate you account go to {activation_url}' => 'Для активации аккаунта пожалуйста перейдите по следующей ссылке {activation_url}',
-	'User {username} created account. Please activate his account go to {activation_url}' => 'Пользователь {username} создал аккаунт. Для его активации необходимо перейти по следующей ссылке {activation_url}',
 	'You account is not activated.' => 'Ваш аккаунт не активирован.',
 	'You account is blocked.' => 'Ваш аккаунт заблокирован.',
 	'Password is incorrect.' => 'Неверный пароль.',
@@ -38,7 +37,7 @@ return array(
 	'activation key' => 'Ключ активации',
 	'User activation' => 'Активация пользователя',
 	'You account is active.' => 'Ваша учетная запись уже активирована.',
-	'You account is activated.' => 'Учетная запись активирована.',
+	'You account is activated.' => 'Ваша учетная запись активирована.',
 	'Incorrect activation URL.' => 'Неправильная ссылка активации учетной записи.',
 	'Registration date' => 'Дата регистрации',
 	'Last visit' => 'Последний визит',
@@ -51,7 +50,6 @@ return array(
 	'New password is saved.' => 'Новый пароль сохранен.',
 	'Change password' => 'Изменить пароль',
 	'Your profile' => 'Ваш профиль',
-	'Thank you for your registration. Please wait until your account will be activated' => 'Регистрация завершена. Пожалуйста, дождитесь активации вашего аккаунта.',
 	'Thank you for your registration. Please check your email or login.' => 'Регистрация завершена. Пожалуйста проверьте свой электронный ящик или выполните вход.',
 	'Thank you for your registration. Please check your email.' => 'Регистрация завершена. Пожалуйста проверьте свой электронный ящик.',
 	'Please check your email. An instructions was sent to your email address.' => 'На Ваш адрес электронной почты было отправлено письмо с инструкциями.',
@@ -132,3 +130,4 @@ return array(
 	'Advanced Search' => 'Расширенный поиск',
 	'You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b> or <b>=</b>) at the beginning of each of your search values to specify how the comparison should be done.'=>'Вы можете использовать операторы сравнения (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b> or <b>=</b>) установив их перед значением.',
 );
+

@@ -34,16 +34,6 @@
                             <textarea name="BuyForm[msg]">Сообщение:</textarea>
 
                         </label>
-                        <?php if (Yii::app()->controller->module->capcha): ?>
-                            <label class="capcha">
-                                <div id="capcha">
-                                    <?php $this->widget('CCaptcha', array('buttonLabel' => 'Новый код'))?>
-                                </div>   
-                                
-                                <?php echo CHtml::activeTextField($buyFormModel, 'verifyCode', array('placeholder'=> 'Код проверки:'))?>
-                            </label>
-                        <?php endif ?>
-                        
                         <div class="success" style="display: none;">Представленная форма контакта!<br>
                             <strong>Мы скоро Вам ответим.</strong>
                         </div>

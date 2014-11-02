@@ -22,8 +22,6 @@ class VideoGalleryModule extends CWebModule
                     if ($controller->id != 'site') {
                         Yii::app()->getComponent('bootstrap');
                     }
-
-                    
 			return true;
 		}
 		else

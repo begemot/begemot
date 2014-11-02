@@ -7,7 +7,6 @@ class CBOrderControllerBehavior extends CBehavior {
   //Значение, по которому группируем
   public $groupId;
 
-  
   public function orderUp($id){
       $model = $this->getOwner()->loadModel($id);
       

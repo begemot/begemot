@@ -51,7 +51,7 @@ class SiteController extends Controller
             'tag_id'=>null,
         ));
     }
-
+    
     public function actionTagIndex($id=null) {
 
         $this->layout = PostModule::$postLayout;
@@ -67,7 +67,7 @@ class SiteController extends Controller
             $criteria = new CDbCriteria(array(
                     'select' => '*',
                     'distinct' => true,
-                    'order'=>"id DESC",
+                    'order'=>'create_time,id',
                     'condition'=>'tag_id = '.$id
                 ));
 
@@ -75,7 +75,7 @@ class SiteController extends Controller
             $criteria = new CDbCriteria(array(
                     'select' => '*',
                     'distinct' => true,
-                    'order'=>"id DESC",
+                    'order'=>'create_time,id',
                     'condition'=>'tag_id <>0'
                 ));
         }

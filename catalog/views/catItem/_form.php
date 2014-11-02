@@ -13,7 +13,7 @@
 
 	<p class="note">Поля со знаком <span class="required">*</span> обязательны для заполнения.</p>
         
-        <div  class="container-fluid">  
+        <div  class="container-fluid">
 	
         <?php echo $form->errorSummary($model); ?>
         
@@ -66,41 +66,19 @@
                 foreach($itemAdditionalRows as $itemRow){
                     echo '<div class="row">';
                     if ($itemRow->type=='text'){
-                        echo CHtml::label($itemRow->name, $itemRow->name_t);
+                        echo $form->labelEx($model,$itemRow->name);
                         $this->widget('begemot.extensions.ckeditor.CKEditor',array('model' => $model, 'attribute' => $itemRow->name_t, 'language' => 'ru', 'editorTemplate' => 'full',));
                     } else{
-                    echo CHtml::label($itemRow->name, $itemRow->name_t);
+                    echo $form->labelEx($model,$itemRow->name);
                     echo $form->textArea($model,$itemRow->name_t);
-
+                 
                     }
                        echo '</div>  ';
                 }
                
          }
         ?>
-    
-    <div class="row">
-        <?php echo $form->labelEx($model,'quantity'); ?>
-        <?php echo $form->textField($model,'quantity'); ?>
-        <?php echo $form->error($model,'quantity'); ?>
-    </div>   
-    <div class="row">
-        <?php echo $form->labelEx($model,'article'); ?>
-        <?php echo $form->textField($model,'article'); ?>
-        <?php echo $form->error($model,'article'); ?>
-    </div>   
-    
-    <div class="row">
-        <?php echo $form->labelEx($model,'delivery_date'); ?>
-        <?php $this->widget(
-            'bootstrap.widgets.TbDatePicker',
-            array(
-                'model'=>$model,
-                'attribute' => 'delivery_date',
 
-            )
-        ); ?>
-    </div>    
     <div class="row">
         <?php
         $this->widget('begemot.extensions.contentKit.widgets.KitFormPart',

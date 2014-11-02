@@ -27,7 +27,6 @@ class BegemotModule extends CWebModule
 		$this->setImport(array(
 			'begemot.models.*',
 			'begemot.components.*',
-			//'crontabs.components.CrontabBase'
 		));
                  Yii::app()->getComponent('bootstrap');
 	}
@@ -43,18 +42,4 @@ class BegemotModule extends CWebModule
 		else
 			return false;
 	}
-
-    static public function crPhpArr($array, $file) {
-
-
-        $code = "<?php
-  return
- " . var_export($array, true) . ";
-?>";
-        file_put_contents($file, $code);
-        chmod ($file, 0777);
-
-    }
-
-
 }

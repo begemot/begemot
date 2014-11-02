@@ -22,15 +22,15 @@ class CatCategory extends CActiveRecord
 	 * @param string $className active record class name.
 	 * @return CatCategory the static model class
 	 */
-    
-    public $categories; 
+         
+        public $categories; 
     
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
 	}
 
-	/**D ` 
+	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
@@ -213,9 +213,9 @@ class CatCategory extends CActiveRecord
             if (count($childs)>0){
                 
                 foreach ($childs as $id=>$child){
-                    $tmpChildsArray=array();
-                    $tmpChildsArray = $this->getCatChilds($child['id']);
-                    $resultArray = array_merge($resultArray,$tmpChildsArray);
+                    $tmpChildsAray=array();
+                    $tmpChildsAray = $this->getCatChilds($id);
+                    $resultArray = array_merge($resultArray,$tmpChildsAray);
                 } 
             }
             return $resultArray;
@@ -268,20 +268,15 @@ class CatCategory extends CActiveRecord
                 if($item['pid']==-1){
                     $menuEnd[$id] = $menuItem;
 
-                    foreach ($this->getAllCatChilds($id) as $item) {
-
-                        $class = ($item['pid'] != $id) ? "sub-sub-item" : "sub-item";
-                        $menuEnd += array($item['id'] => array(
+                    foreach ($this->getAllCatChilds($id) as $id => $item) {
+                        $menuEnd += array($id => array(
                             'label' => $item['name'],
                             'url' => array('catItemsToCat/admin','id'=>$item['id']),
-                            'itemOptions' => array('class'=>$class)
+                            'itemOptions' => array('class'=>'sub-item')
                         ));
                     }
                 }
-
              }
-
-
 
 
 
@@ -367,74 +362,5 @@ class CatCategory extends CActiveRecord
                     return '#';
             }
         }
-
-        public function getAllItems()
-        {
-            return $this->findAll(array(
-                'select' => 'id, pid, name, level',
-            ));
-        }
         
-
-        /*
-        public static function nodetree($nodes) {
-            $refs = array();
-            $list = array();
-
-            foreach ($nodes as $data) {
-                $thisref = &$refs[ $data->id ];
-                $thisref['pid'] = $data->pid;
-                $thisref['name'] = $data->name;
-                if ($data->pid == -1) {
-                    $list[ $data->id ] = &$thisref;
-                } else {
-                    $refs[ $data->pid ]['children'][ $data->id ] = &$thisref;
-                }   
-            }           
-            return $list;
-        }
-
-        /**
-         * [Checks category item for having childs]
-         * @param  [int]  $id
-         * @return boolean
-         *
-        private function hasChilds($items, $id) {
-           
-           foreach ($items as $item) {
-                if ($item['pid'] == $id)
-                    return true;
-           }
-
-           return false; 
-        }
-
-        public static function getTreeChildsId($items) {
-            $refs = array();
-            $list = array();
-            $ids = array();
-            $parent = array();
-            foreach ($items as $data) {
-                $thisref = &$refs[ $data->id ];
-                $thisref['id'] = $data->id;
-                $thisref['pid'] = $data->pid;
-                $thisref['name'] = $data->name;
-                if ($data->pid == -1) {
-                    $list[ $data->id ] = &$thisref;
-                    if (CatCategory::model()->hasChilds($items, $data->id))
-                        $parent[$data->id] = $data->id;
-                    // $id_[] = $data->id;
-                } else {
-                    $list[$parent[$data->id]]['childs'];
-                    $ids[] = &$thisref;
-                }   
-                    $list[$parent[$data->id]]['childs'] = $ids;
-                // $list[ $ ]['childs'] = $ids;
-            }           
-                echo '<pre>';
-                    print_r($id_);
-                echo '</pre>';
-            return $list;
-        }
-         */
 }

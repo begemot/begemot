@@ -8,6 +8,7 @@ $this->breadcrumbs=array(
 );
 
 $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
+
 ?>
 
 <h1>Раздел "<?php echo $category->name;?>"</h1>
@@ -16,14 +17,15 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
 <?php
  Yii::import('begemot.extensions.grid.EImageColumn');
 
+$model = new CatItemsToCat();
+
  $this->widget('bootstrap.widgets.TbGridView',array(
 	'id'=>'test-grid',
-	'dataProvider'=>$model->search($id),//$model->search($id),
-   'filter'=>$model,
+	'dataProvider'=>$dataProvider,//$model->search($id),
 	//'filter'=>CatItemsToCat::model(),
     'type'=>'striped bordered condensed',
 	'columns'=>array(
-               'itemId',
+            
                 array(
                     'class' => 'EImageColumn',
                     'htmlOptions'=>array('width'=>120),
@@ -39,12 +41,11 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
                         'height' => 120,
                     ),
                 ),
-                 array(
-                    'header' => 'Парсится',
-                    'type'=>'raw',
-                    'value'=>'$data->item->combinedWithParser()',
-                ),
-      array('name'=>'item_name', 'value'=>'$data->item->name'),
+                array(
+                      'name'=>'name',
+                      'value'=>'$data->item->name',
+                    
+                  ),
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
                         'updateButtonUrl'=>'Yii::app()->controller->createUrl("catItem/update",array("id"=>$data->itemId))',
