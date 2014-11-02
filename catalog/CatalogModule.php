@@ -6,6 +6,7 @@ class CatalogModule extends CWebModule
     static public $catalogCategoryViewLayout = 'application.views.layouts.catalogCategoryViewLayout';
     static public $catalogItemViewLayout = 'application.views.layouts.catalogItemViewLayout';
 
+    public $capcha = false;
     public $tidyleadImage = false;
     public $tidyConfig = array(
         'Three' => array(
@@ -27,6 +28,7 @@ class CatalogModule extends CWebModule
         $this->setImport(array(
             'catalog.models.*',
             'catalog.components.*',
+            'reviews.models.*'
         ));
 
 

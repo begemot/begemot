@@ -133,7 +133,7 @@ function sendResizeRequest(){
         {
             url: '/pictureBox/default/ajaxMakeFilteredImage/id/catalogItem/elementId/'+resizeData.catId+'/pictureId/'+resizeData.activeImage+'/filterName/'+resizeData.filterName+'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height,
             success: alert('Размер изображения изменен!')
-            });
+        });
 }
 
 var preview = function (img, selection) {

@@ -11,7 +11,6 @@ class MigrationsModule extends CWebModule {
         $this->setImport(array(
         	'migrations.database-migrations.*',
         	'migrations.components.*',
-            'migrations.components.*',
         ));
 
     }

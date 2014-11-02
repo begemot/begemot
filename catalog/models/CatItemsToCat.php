@@ -10,6 +10,8 @@
  */
 class CatItemsToCat extends CActiveRecord
 {
+
+   public $item_name;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -32,6 +34,7 @@ class CatItemsToCat extends CActiveRecord
         {
             return array(
                 'item'=>array(self::BELONGS_TO, 'CatItem', 'itemId'),
+                'cat'=>array(self::BELONGS_TO, 'CatCategory', 'catId'),
             );
         }
         
@@ -55,8 +58,22 @@ class CatItemsToCat extends CActiveRecord
 			array('catId, itemId', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('catId, itemId', 'safe', 'on'=>'search'),
+			array('catId, itemId, item_name', 'safe', 'on'=>'search'),
 		);
+	}
+        
+	public function search($id=null)
+	{
+		$criteria=new CDbCriteria;
+      $criteria->with = 'item';
+      $criteria->condition = '`t`.`catId`='.$id.'';
+      $criteria->compare('itemId',$this->itemId,true);
+      $criteria->compare('catId',$this->catId,true);
+      $criteria->compare('item.name',$this->item_name, true);
+      $criteria->order = 't.order';
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
 	}
         
         public function beforeSave(){

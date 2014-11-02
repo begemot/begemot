@@ -7,15 +7,22 @@ class BuyForm extends CFormModel{
     public $count;
     public $msg;
     public $model;
+    public $verifyCode;
 
     public function rules()
     {
+        $returnArray = array(
+           // array('name','required'),
+            array('phone','phoneOrMail'),
+            array('phone, count, msg, model', 'safe'),
+        );
 
-        return array(
-                       // array('name','required'),
-                        array('phone','phoneOrMail'),
-                        array('phone,email, count, msg, model', 'safe'),
-                    );
+
+        if (Yii::app()->controller->module->capcha) {
+           array_push($returnArray, array('verifyCode','captcha'));
+        }
+
+        return $returnArray;
 
 
     }
@@ -36,6 +43,7 @@ class BuyForm extends CFormModel{
             'phone' => 'Телефон',
             'eMail' => 'e-mail',
             'msg' => 'Сообщение',
+            'verifyCode' => 'Код проверки'
         );
     }
 }

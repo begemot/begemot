@@ -23,6 +23,7 @@ $this->menu = require dirname(__FILE__).'/commonMenu.php';
         'type'=>'striped bordered condensed',
 	'columns'=>array(
 		'itemId',
+		
 		'catId',    
                 array(
                       'name'=>'name',

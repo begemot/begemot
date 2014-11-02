@@ -35,13 +35,14 @@ class DefaultController extends Controller
 	{	
 		$return = '';
 
-		$filenames =CFileHelper::findFiles(Yii::app()->getModule('migrations')->getBasePath() . "/database-migrations");
+		$filenames = array_reverse(CFileHelper::findFiles(Yii::app()->getModule('migrations')->getBasePath() .DIRECTORY_SEPARATOR. "database-migrations"));
 
 		$models = array();
 		foreach ($filenames as $filename)
 		{
 		  //remove off the path
-		  $file = end( explode( '/', $filename ) );
+		  $explode = explode( DIRECTORY_SEPARATOR, $filename );
+		  $file = end( $explode );
 		  // remove the extension, strlen('.php') = 4
 		  $file = substr( $file, 0, strlen($file) - 4);
 		  $models[]= $file;
@@ -65,7 +66,7 @@ class DefaultController extends Controller
 					$return =  "Выполнено";
 				}
 			}
-			else if(file_exists(Yii::app()->getModule('migrations')->getBasePath() . "/database-migrations/" . $_GET['file'] . ".php")){
+			else if(file_exists(Yii::app()->getModule('migrations')->getBasePath() . DIRECTORY_SEPARATOR. "database-migrations" .DIRECTORY_SEPARATOR. $_GET['file'] . ".php")){
 				$model = new $_GET['file'];
 
 				$results = $model->$_GET['go']();

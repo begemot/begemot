@@ -345,13 +345,15 @@ class DefaultController extends Controller
      */
     public function actionAjaxMakeFilteredImage($id, $elementId, $pictureId, $filterName,$x=null,$y=null,$width=null,$height=null)
     {
+
         if (Yii::app()->request->isAjaxRequest) {
+
             $data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
             $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
             $config = $this->getConfigFromSession($id, $elementId);
 
-            $imageExt = end(explode('.', $data['images'][$pictureId]['original']));
-
+            $temp = explode('.', $data['images'][$pictureId]['original']);
+            $imageExt = end($temp);
 
 
             if (isset($config['imageFilters'][$filterName])) {
@@ -364,7 +366,7 @@ class DefaultController extends Controller
                     copy($originalImagePath,$tmpOriginalImagePath);
 
                     $originalPicture->cropImage($width,$height,$x,$y);
-                    $originalPicture->writeImage($originalImagePath);
+                    $originalPicture->writeImage();
                     //$originalPicture->writeImage($originalImagePath.'111');
 
                 }
@@ -373,6 +375,8 @@ class DefaultController extends Controller
                 $filterManager = new FiltersManager($originalImagePath, $filter);
 
                 $filters = $filterManager->getFilteredImages();
+
+
 
                 foreach ($filters as $filterName => $filteredImageFile) {
                     $this->addFilteredImage($pictureId, $filterName, '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, $dir);

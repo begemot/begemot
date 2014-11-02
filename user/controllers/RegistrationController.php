@@ -2,7 +2,7 @@
 
 class RegistrationController extends Controller
 {
-    public $layout = 'application.modules.begemot.views.layouts.column2';
+   public $layout = 'application.modules.begemot.views.layouts.column2';
 	public $defaultAction = 'registration';
 	
 	/**
@@ -52,7 +52,7 @@ class RegistrationController extends Controller
 							$profile->save();
 							if (Yii::app()->controller->module->sendActivationMail) {
 								$activation_url = $this->createAbsoluteUrl('/user/activation/activation',array("activkey" => $model->activkey, "email" => $model->email));
-								UserModule::sendMail($model->email,UserModule::t("You registered from {site_name}",array('{site_name}'=>Yii::app()->name)),UserModule::t("Please activate you account go to {activation_url}",array('{activation_url}'=>$activation_url)));
+                        UserModule::sendMail(Yii::app()->params['adminEmail'], UserModule::t("User registered from {site_name}",array('{site_name}'=>Yii::app()->name)),UserModule::t("User {username} created account. Please activate his account go to {activation_url}",array('{username}'=>$model->username, '{activation_url}'=>$activation_url)));
 							}
 							
 							if ((Yii::app()->controller->module->loginNotActiv||(Yii::app()->controller->module->activeAfterRegister&&Yii::app()->controller->module->sendActivationMail==false))&&Yii::app()->controller->module->autoLogin) {
@@ -68,7 +68,7 @@ class RegistrationController extends Controller
 								} elseif(Yii::app()->controller->module->loginNotActiv) {
 									Yii::app()->user->setFlash('registration',UserModule::t("Thank you for your registration. Please check your email or login."));
 								} else {
-									Yii::app()->user->setFlash('registration',UserModule::t("Thank you for your registration. Please check your email."));
+									Yii::app()->user->setFlash('registration',UserModule::t("Thank you for your registration. Please wait until your account will be activated"));
 								}
 								$this->refresh();
 							}

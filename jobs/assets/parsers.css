@@ -1,0 +1,28 @@
+#search_in_items .active{
+	border: 1px solid black;
+}
+
+
+#search_in_items LI{
+	padding: 5px;
+	list-style: none;
+	margin-left: -25px;
+}
+#error{
+	color: red;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+
+.tableToSearch .addAsNew {
+	width: 90%;
+}
+
+table TR TD:last-child{
+	padding-right: 0px;
+}
+
+.tab-content{
+	overflow: visible;
+}

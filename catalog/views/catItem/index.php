@@ -1,6 +1,9 @@
 <?php
 /* @var $this CatItemController */
 /* @var $model CatItem */
+Yii::app()->clientScript->registerCssFile(
+    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/css/styles.css')
+);
 
 $this->breadcrumbs=array(
 	'Cat Items'=>array('index'),
@@ -42,6 +45,11 @@ $this->menu = $menu;
                     ),
                 ),            
 		'id',
+        array(
+            'header' => 'Парсится',
+            'type'=>'raw',
+            'value'=>'$data->combinedWithParser()',
+        ),
 		'name',    
 
 		array(
