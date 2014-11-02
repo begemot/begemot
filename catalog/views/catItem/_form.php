@@ -56,28 +56,51 @@
 		<?php echo $form->labelEx($model,'seo_title'); ?>
 		<?php echo $form->textField($model,'seo_title',array('size'=>60,'maxlength'=>100)); ?>
 		<?php echo $form->error($model,'seo_title'); ?>
-	</div>    
-        <?php
-        
-        $itemAdditionalRows = CatItemsRow::model()->findAll();
-        
-         if (is_array($itemAdditionalRows)){
-                
-                foreach($itemAdditionalRows as $itemRow){
-                    echo '<div class="row">';
-                    if ($itemRow->type=='text'){
-                        echo $form->labelEx($model,$itemRow->name);
-                        $this->widget('begemot.extensions.ckeditor.CKEditor',array('model' => $model, 'attribute' => $itemRow->name_t, 'language' => 'ru', 'editorTemplate' => 'full',));
-                    } else{
+	</div>
+
+    <div class="row">
+        <?php echo $form->labelEx($model,'authorId'); ?>
+
+
+    <?php
+    if (Yii::app()->controller->action->id=='update' && Yii::app()->user->isAdmin()){
+
+       // Yii::import('user.models.User');
+        $models = User::model()->findAll();
+
+        $list = CHtml::listData($models,
+            'id', 'username');
+
+        echo CHtml::dropDownList('CatItem[authorId]', $model->authorId,
+            $list,
+            array('empty' => '(Выберите пользователя'));
+    }
+
+    ?>
+
+        <?php echo $form->error($model,'authorId'); ?>
+    </div>
+    <?php
+
+    $itemAdditionalRows = CatItemsRow::model()->findAll();
+
+     if (is_array($itemAdditionalRows)){
+
+            foreach($itemAdditionalRows as $itemRow){
+                echo '<div class="row">';
+                if ($itemRow->type=='text'){
                     echo $form->labelEx($model,$itemRow->name);
-                    echo $form->textArea($model,$itemRow->name_t);
-                 
-                    }
-                       echo '</div>  ';
+                    $this->widget('begemot.extensions.ckeditor.CKEditor',array('model' => $model, 'attribute' => $itemRow->name_t, 'language' => 'ru', 'editorTemplate' => 'full',));
+                } else{
+                echo $form->labelEx($model,$itemRow->name);
+                echo $form->textArea($model,$itemRow->name_t);
+
                 }
-               
-         }
-        ?>
+                   echo '</div>  ';
+            }
+
+     }
+    ?>
 
     <div class="row">
         <?php

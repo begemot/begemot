@@ -113,6 +113,7 @@ class CatItemController extends Controller
         }
 
         if (isset($_POST['CatItem'])) {
+
             $model->attributes = $_POST['CatItem'];
             $model->save();
             //	$this->redirect(array('view','id'=>$model->id));
