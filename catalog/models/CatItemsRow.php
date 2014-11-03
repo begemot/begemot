@@ -67,19 +67,22 @@ class CatItemsRow extends CActiveRecord
 		);
 	}
         
-        public function beforeSave(){
-            $this->name_t = $this->mb_transliterate($this->name);
-            return true;
-        }
-        
-        public function afterSave(){
-            Yii::app()->db->createCommand()->addColumn('catItems',$this->name_t,'text');;
-            return true;
-        }
-        public function beforeDelete(){
-            Yii::app()->db->createCommand()->dropColumn('catItems',$this->name_t);;
-            return true;
-        }   
+    public function beforeSave(){
+    	$nameTemp = explode("|", $this->name);
+    	$nameTemp = $nameTemp[0];
+        $this->name_t = $this->mb_transliterate($nameTemp);
+
+        return true;
+    }
+    
+    public function afterSave(){
+        Yii::app()->db->createCommand()->addColumn('catItems',$this->name_t,'text');;
+        return true;
+    }
+    public function beforeDelete(){
+        Yii::app()->db->createCommand()->dropColumn('catItems',$this->name_t);;
+        return true;
+    }   
 	/**
 	 * @return array customized attribute labels (name=>label)
 	 */
@@ -87,10 +90,10 @@ class CatItemsRow extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'name' => 'Name',
-			'name_t' => 'Name T',
-			'type' => 'Type',
-			'data' => 'Data',
+			'name' => 'Значение поля',
+			'name_t' => 'Название для вывода',
+			'type' => 'Тип',
+			'data' => 'Информация',
 		);
 	}
 

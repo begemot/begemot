@@ -127,7 +127,9 @@ class DefaultController extends Controller
             if ($model->validate()) {
 
                 Yii::import('application.modules.pictureBox.components.picturebox');
-                $imageExt = end(explode('.', $model->uploadifyFile));
+                $file = $model->uploadifyFile;
+                $temp = explode('.', $file);
+                $imageExt = end($temp);
 
                 $newImageId = $this->addImage($dir, $model->uploadifyFile->name, $imageExt);
 
@@ -351,6 +353,7 @@ class DefaultController extends Controller
             $config = $this->getConfigFromSession($id, $elementId);
 
             $imageExt = end(explode('.', $data['images'][$pictureId]['original']));
+
 
 
 

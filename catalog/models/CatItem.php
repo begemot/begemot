@@ -97,28 +97,38 @@ class CatItem extends ContentKitModel
 		);
 	}
         
-        public function itemTableName(){
-            return 'catItems_'.$this->id;
-        }
+    public function itemTableName(){
+        return 'catItems_'.$this->id;
+    }
 
-        public function beforeSave(){
-            parent::beforeSave();
 
-            $this->name_t = $this->mb_transliterate($this->name);
-            //$this->Video = $_REQUEST['CatItem']['Video'];
-            $itemAdditionalRows = CatItemsRow::model()->findAll();
-            if (is_array($itemAdditionalRows)){
-                
-                foreach($itemAdditionalRows as $itemRow){
-                  
-                   $paramName =  $itemRow->name_t;
-                   if (isset($_REQUEST['CatItem'][$itemRow->name_t]))
-                    $this->$paramName =$_REQUEST['CatItem'][$itemRow->name_t];
-                   
+
+
+    public function beforeSave()
+    {
+        parent::beforeSave();
+
+        $this->name_t = $this->mb_transliterate($this->name);
+        //$this->Video = $_REQUEST['CatItem']['Video'];
+        $this->delivery_date = strtotime($this->delivery_date);
+        $itemAdditionalRows = CatItemsRow::model()->findAll();
+        if (is_array($itemAdditionalRows)) {
+
+            foreach ($itemAdditionalRows as $itemRow) {
+
+                $paramName = $itemRow->name_t;
+                if (isset($_REQUEST['CatItem'][$itemRow->name_t])) {
+                    if (is_array($_REQUEST['CatItem'][$itemRow->name_t])) {
+                        $this->$paramName = implode(',', $_REQUEST['CatItem'][$itemRow->name_t]);
+
+                    } else $this->$paramName = $_REQUEST['CatItem'][$itemRow->name_t];
                 }
+
+
             }
             return true;
         }
+    }
         
 
         
