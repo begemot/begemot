@@ -83,6 +83,32 @@ class SiteController extends Controller {
 
         $iDsStr = '(' . implode(',', $iDsArray) . ')';
 
+        $criteria = new CDbCriteria;
+
+        $criteria->select = 't.itemId, t.catId';
+        $criteria->condition = '`t`.`catId` in ' . $iDsStr . '';
+        $criteria->with = array(
+            'item'=>array(
+                'condition'=>'published=1'
+            )
+        ); 
+        $criteria->group = 'item.id';
+        $criteria->distinct = true;
+        $criteria->order = 'item.top DESC, t.order ASC';
+
+        if (isset($_GET['sort'])) {
+           $sort = ($_GET['sort'] == 'asc') ? 'asc' : 'desc';
+           $criteria->order = 'item.price '.$sort;
+        }
+            
+        if ( isset($_GET['priceMin']) && isset($_GET['priceMax']) ) {
+           $priceMin = (int)$_GET['priceMin'];
+           $priceMax = (int)$_GET['priceMax'];
+
+           $criteria->addBetweenCondition('price', $priceMin,$priceMax);
+        }
+
+
         $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` in ' . $iDsStr . '', 'with' => 'item', 'order' => '`item`.`top` desc,`item`.`price`', 'distinct' => true, 'group'=>'`t`.`itemId`')));
 
         $dataProvider->pagination = array('pageSize' => 1000);
