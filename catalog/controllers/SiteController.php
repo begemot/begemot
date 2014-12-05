@@ -142,6 +142,11 @@ class SiteController extends Controller {
            $sort = ($_GET['sort'] == 'asc') ? 'asc' : 'desc';
            $criteria->order = 'item.price '.$sort;
         }
+
+        if (isset($_GET['sortByCustomField'])) {
+            $sort = ($_GET['sort'] == 'asc') ? 'asc' : 'desc';
+           $criteria->order = 'item.' . $_GET['sortByCustomField'] . ' '.$sort;
+        }
             
         if ( isset($_GET['priceMin']) && isset($_GET['priceMax']) ) {
            $priceMin = (int)$_GET['priceMin'];

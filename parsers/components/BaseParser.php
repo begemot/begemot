@@ -1,11 +1,11 @@
 <?php
 /* Для того чтобы экземпляр класса рассмативался как файл для парсинга данных, его название должно заканчиваться на ParserJob.php (Пример названия: ArgoParserJob.php) */
 class BaseParser extends BaseJob{
-	protected $items = array();
+    protected $items = array();
     protected $time = 0;
 
 
-	public function addItem($id, $price, $name, $text, $quantity)
+    public function addItem($id, $price, $name, $text, $quantity)
     {
 
         $name = str_replace('&quot;',"\"",  $name);
@@ -28,8 +28,8 @@ class BaseParser extends BaseJob{
 
     public function getLastParsedData()
     {   
-        $file = file_get_contents(Yii::app()->basePath . "/../files/parsersData/" . $this->name . '.data');
-        return json_decode($file);
+        $file = require(Yii::app()->basePath . "/../files/parsersData/" . $this->name . '.data');
+        return $file;
     }
 
 
@@ -39,17 +39,15 @@ class BaseParser extends BaseJob{
         $this->saveTime();
 
         $arr = array_merge(array('name' => $this->name), array('items' => $this->items));
-    	
+        
         $this->saveParserData($arr);
+
+
     }
 
     public function saveParserData($arrayToWrite)
     {
-        $tempFile = fopen(Yii::app()->basePath . "/../files/parsersData/" . $this->name . '.data', 'w');
-
-        fwrite($tempFile, json_encode($arrayToWrite)); 
-
-        fclose($tempFile); 
+        PictureBox::crPhpArr($arrayToWrite, Yii::app()->basePath . "/../files/parsersData/" . $this->name . '.data');
     }
 
     public function saveTime()
@@ -58,23 +56,23 @@ class BaseParser extends BaseJob{
         $this->time = time();
         $dir    = Yii::app()->basePath . "/../files/parsersData/";
 
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777);
+
+        }
         $files  = scandir($dir);
 
         $arr = array($this->name => $this->time);
 
-        $tempFile = fopen($dir . 'time.txt', 'w');
-
         if (array_search('time.txt', $files)) {
-            $json = json_decode(file_get_contents($dir . 'time.txt'));
-            if (is_array($json)) {
-                $arr = array_merge($json, $arr);
+            $array = file_get_contents($dir . 'time.txt');
+            if (is_array($array)) {
+                $arr = array_merge($array, $arr);
             }
             
         }
 
-        fwrite($tempFile, json_encode($arr)); 
-
-        fclose($tempFile); 
+        $this->saveParserData($arr);
 
 
     }

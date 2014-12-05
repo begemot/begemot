@@ -18,28 +18,28 @@ $this->menu = array(
         </tr>
         </thead>
         <tbody>
-
+    
         <?php $number = 0; ?>
         <?php foreach($itemList as $key => $item): ?>
             <tr class='item-<?php echo $number ?>'>
                 <td><?php echo $key?></td>
-                <td><?php echo ($item->executable == true) ? "Да" : "Нет"?></td>
-                <td class='period'><?php if(property_exists($item, 'time')) echo JobManager::timeToString($item->time);?></td>
+                <td><?php echo (isset($item['executable']) & $item['executable'] == true) ? "Да" : "Нет"?></td>
+                <td class='period'><?php if(isset($item['time'])) echo JobManager::timeToString($item['time']);?></td>
                 <td class='time'>
-                    <?php if(property_exists($item, 'hour')) echo JobManager::timeToString($item->hour) . ":00";?></td>
+                    <?php if(isset($item['hour'])) echo JobManager::timeToString($item['hour']) . ":00";?></td>
                 <td>
                     <input type="button"
                            class='btn btn-primary turnOnOff'
                            data-name='<?php echo $key?>'
                            data-turn='1'
                            value='Включить'
-                           style='display: <?php echo ($item->executable == true) ? 'none' : 'inline'?>'>
+                           style='display: <?php echo ($item['executable'] == true) ? 'none' : 'inline'?>'>
                     <input type="button"
                            class='btn btn-danger turnOnOff'
                            data-name='<?php echo $key?>'
                            data-turn='0'
                            value='Отключить'
-                           style='display: <?php echo ($item->executable == true) ? 'inline' : 'none'?>'>
+                           style='display: <?php echo ($item['executable'] == true) ? 'inline' : 'none'?>'>
                     <input type="button"
                            class='btn btn-danger removeTask'
                            data-name='<?php echo $key?>'

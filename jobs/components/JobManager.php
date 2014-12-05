@@ -1,4 +1,6 @@
 <?php 
+
+
 class JobManager extends CApplicationComponent{
 
 	private $dir = '';
@@ -72,13 +74,14 @@ class JobManager extends CApplicationComponent{
         //2 days in a week = 302 400 sec
 
 		$filename = $parameters['filename'];
+		$arrayIndex = $filename . " - " . time() ;
         $parameters['lastExecuted'] = 0;
         $parameters['executable'] = true;
 
-        unset($parameters['filename']);
+        $parameters['filename'];
 
         $arr = array(
-	        $filename => $parameters
+	        $arrayIndex => $parameters
         );
 
         $all = (array) $this->getListCronJob();
@@ -97,8 +100,8 @@ class JobManager extends CApplicationComponent{
 
 		if (array_key_exists($jobIndex, $all)) {
 
-			$all[$jobIndex]->time = $time;
-			$all[$jobIndex]->hour = $hour;
+			$all[$jobIndex]['time'] = $time;
+			$all[$jobIndex]['hour'] = $hour;
 
 			$this->saveConfigFile((array) $all);
 
@@ -113,7 +116,7 @@ class JobManager extends CApplicationComponent{
 		$all = (array) $this->getListCronJob();
 
 		if (array_key_exists($jobIndex, $all)) {
-			$all[$jobIndex]->executable = false;
+			$all[$jobIndex]['executable'] = false;
 
 			$this->saveConfigFile($all);
 
@@ -128,7 +131,7 @@ class JobManager extends CApplicationComponent{
 		$all = (array) $this->getListCronJob();
 
 		if (array_key_exists($jobIndex, $all)) {
-			$all[$jobIndex]->executable = true;
+			$all[$jobIndex]['executable'] = true;
 
 			$this->saveConfigFile($all);
 
@@ -142,13 +145,15 @@ class JobManager extends CApplicationComponent{
 
 	public function removeTask($filename)
 	{
-		$all = (array) $this->getListCronJob();
+		$all = $this->getListCronJob();
 
-		if ($all[$filename]) {
+		if (isset($all[$filename])) {
 			unset($all[$filename]);
 
 	        $this->saveConfigFile($all);
 		}
+
+		print_r($all);
 
     }
 
@@ -175,11 +180,8 @@ class JobManager extends CApplicationComponent{
 
 	private function saveConfigFile($arrayToWrite)
 	{
-		$tempFile = fopen($this->dir . 'cronConfig.php', 'w');
 
-        fwrite($tempFile, json_encode($arrayToWrite)); 
-
-        fclose($tempFile); 
+		PictureBox::crPhpArr($arrayToWrite, $this->dir . 'cronConfig.php');
 	}
 
 	public function getListCronJob()
@@ -189,16 +191,14 @@ class JobManager extends CApplicationComponent{
 
 		$files  = scandir($this->dir);
 
-		if (array_search('cronConfig.php', $files)) {
-		    $json = json_decode(file_get_contents($this->dir . 'cronConfig.php'));
-		    
-		    $array = $json;
 
-		    
-		}
+		if (array_search('cronConfig.php', $files)) {
+
+		    $array = require($this->dir . 'cronConfig.php');	    
+		} 
 		
 
-		return (array) $array;
+		return $array;
 	}
 
 	public function changeTimeOfLastExecuted($name, $time = 0)
@@ -207,14 +207,17 @@ class JobManager extends CApplicationComponent{
 		$array = array();
 		$directory = dirname(Yii::app()->basePath) . "/parsers/history/";
 
+		 if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+
+        }
 		$files  = scandir($directory);
 
 		
 
 		if (array_search('time.txt', $files)) {
-			$tempFile = fopen($directory . 'time.txt', 'c');
 
-		    $json = json_decode(file_get_contents($directory . 'time.txt'));
+		    $json = require($directory . 'time.txt');
 		    //print_r($files);
 		    $array = (array) $json;
 
@@ -223,11 +226,10 @@ class JobManager extends CApplicationComponent{
 			    	$array[$name] = $time;
 			    }
 
-			    fwrite($tempFile, json_encode($array)); 
+
+			    PictureBox::crPhpArr($array, $tempFile);
 		    }
 		    
-
-		    fclose($tempFile); 
 		}
 		
 		return true;
@@ -252,6 +254,9 @@ class JobManager extends CApplicationComponent{
             
         } 
 
+        Yii::import('application.modules.parsers.components.*');
+        Yii::import('application.modules.pictureBox.components.*');
+
 		$all = $this->getListCronJob();
 		$save = array();
 
@@ -264,7 +269,8 @@ class JobManager extends CApplicationComponent{
 						
 					if (($item['lastExecuted'] + $item['time'] + $item['hour'] - 60) < time()) {
 						
-						$classItem = new $filename;
+						$className = $item['filename'];
+						$classItem = new $className;
 						//$classItem->runJob($filename);
 						$classItem->runJob();
 						$this->changeTimeOfLastExecuted($filename, time());

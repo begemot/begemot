@@ -257,24 +257,17 @@ class CatItem extends ContentKitModel
 
     public function getItemWithMaximalPrice($catId)
     {
-
         $returnPrice = 0;
 
-        $items = CatItemsToCat::model()->findAll(array(
-          'select' => 'itemId',
-          'condition' => 'catId = :catId',
-          'params' => array(
-              ':catId' => $catId
-          ),
-        ));
+        $criteria = new CDbCriteria;
+        $criteria->select='max(i.price) as maxprice';
+        $criteria->with = array('item' => array('alias' => 'i'));
+        $criteria->condition = 't.catId = :catId AND i.published = :published';
+        $criteria->params = array(':catId' => $catId, ':published' => 1);
+        $price = CatItemsToCat::model()->find($criteria);
 
 
-        foreach ($items as $item) {
-          $itemModel =  $this->findByAttributes(array('id' => $item->itemId, 'published' => 1));
-
-          if($returnPrice < $itemModel->price) $returnPrice = $itemModel->price;
-        }
-
+        if(isset($price->maxprice)) $returnPrice = $price->maxprice;
 
         return (int) $returnPrice;
     }

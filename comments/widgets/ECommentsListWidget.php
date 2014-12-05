@@ -48,7 +48,7 @@ class ECommentsListWidget extends ECommentsBaseWidget
 	{
         $newComment = $this->createNewComment();
         $comments = $newComment->getCommentsTree();
-        $this->render('ECommentsListWidget', array(
+        $this->render('webroot.themes.' . Yii::app()->theme->name . '.ECommentsListWidget', array(
             'comments' => $comments,
             'newComment' => $newComment,
         ));

@@ -54,7 +54,7 @@ class WebUser extends CWebUser
 
 
     public function model($id=0) {
-        return User::findByPk($id);
+        return User::model()->findByPk($id);
 
     }
 

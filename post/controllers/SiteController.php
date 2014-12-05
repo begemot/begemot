@@ -82,10 +82,12 @@ class SiteController extends Controller
 
         $count = Posts::model()->count($criteria);
 
-        $pages = new CPagination($count);
-        // элементов на страницу
-        $pages->pageSize = 10;
-        $pages->applyLimit($criteria);
+        $pages = null;
+        if ($this->module->limit) {
+            $pages = new CPagination($count);
+            $pages->pageSize = 10;
+            $pages->applyLimit($criteria);
+        }
 
         $models = Posts::model()->published()->findAll($criteria);
 

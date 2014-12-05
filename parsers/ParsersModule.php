@@ -11,7 +11,9 @@ class ParsersModule extends CWebModule {
         $this->setImport(array(
             'parsers.components.*',
             'parsers.models.*',
-            'catalog.models.CatItem',
+            'jobs.components.*',
+            'application.jobs.*',
+
         ));
 
     }

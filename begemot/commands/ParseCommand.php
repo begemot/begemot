@@ -9,6 +9,8 @@ class ParseCommand extends CConsoleCommand
 
         $n->runAll();
 
+        echo "ok";
+
     }
 
 }

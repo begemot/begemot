@@ -4,6 +4,8 @@ $this->menu = array(
     array('label' => 'Все работы', 'url' => array('/jobs/default/jobs')),
 );
 ?>
+
+
 <h1>Все работы</h1>
 
 <table>

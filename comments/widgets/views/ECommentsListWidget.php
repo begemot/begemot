@@ -1,6 +1,6 @@
 <div id="comments" class="start-wrap cf">
     <div class="start">
-        <?php $this->render('ECommentsWidgetComments', array('comments' => $comments));?>
+        <?php $this->render('webroot.themes.' . Yii::app()->theme->name . '.ECommentsWidgetComments', array('comments' => $comments));?>
         <?php
             $this->widget('comments.widgets.ECommentsFormWidget', array(
             'model' => $this->model,
@@ -15,7 +15,7 @@
 <div class="comment-widget" id="<?php echo $this->id?>">
 <h3><?php echo Yii::t('CommentsModule.msg', 'Comments');?></h3>
 <?php
-    $this->render('ECommentsWidgetComments', array('comments' => $comments));
+    $this->render('webroot.themes.' . Yii::app()->theme->name . '.ECommentsWidgetComments', array('comments' => $comments));
     if($this->showPopupForm === true)
     {
         if($this->registeredOnly === false || Yii::app()->user->isGuest === false)

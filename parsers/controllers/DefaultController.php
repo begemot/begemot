@@ -243,9 +243,12 @@ class DefaultController extends Controller
     public function getFiles()
     {
         $fileListOfDirectory = array();
-        $tempfile = file_get_contents(Yii::app()->basePath.'/../files/parsersData/time.txt');
-        $timeArray = json_decode($tempfile);
-        $timeArray = (array)$timeArray;
+        $timeArray = array();
+        if (file_exists(Yii::app()->basePath.'/../files/parsersData/time.txt') ) {
+            $tempfile = file_get_contents(Yii::app()->basePath.'/../files/parsersData/time.txt');
+            $timeArray = json_decode($tempfile);
+            $timeArray = (array)$timeArray;
+        }
 
         foreach(glob(Yii::app()->basePath.'/jobs/*ParserJob.php') as $path) {  
 
@@ -257,9 +260,13 @@ class DefaultController extends Controller
 
             if (array_key_exists($class->getName(), $timeArray)) {
                 $time = $timeArray[$class->getName()];
+            } else{
+                $time = 1;
             }
+
             array_push ( $fileListOfDirectory, array('name' => $class->getName(), 'time' => $time, 'className' => $className) );
         }
+        
 
 
         return $fileListOfDirectory;

@@ -7,8 +7,21 @@ class JobsModule extends CWebModule {
         // you may place code here to customize the module or the application
         // import the module-level models and components
 
+        foreach(glob(Yii::app()->basePath . "/modules/*", GLOB_ONLYDIR) as $path) {    
+
+            if(file_exists($path)){
+                if(file_exists($path . "/jobs")){
+                    Yii::import('application.modules.' . basename($path) . ".jobs.*");
+                }
+            }
+            
+        } 
+
         $this->setImport(array(
         	'jobs.components.*',
+            'pictureBox.components.*',
+            'parsers.components.*',
+            'application.jobs.*',
         ));
 
     }

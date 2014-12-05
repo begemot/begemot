@@ -47,7 +47,7 @@
                 <div>
                     <?php echo CHtml::encode($comment->comment_text);?>
                 </div>
-                <?php if(count($comment->childs) > 0 && $this->allowSubcommenting === true) $this->render('ECommentsWidgetComments', array('comments' => $comment->childs));?>
+                <?php if(count($comment->childs) > 0 && $this->allowSubcommenting === true) $this->render('webroot.themes.' . Yii::app()->theme->name . '.ECommentsWidgetComments', array('comments' => $comment->childs));?>
                 <?php
                     if($this->allowSubcommenting === true && ($this->registeredOnly === false || Yii::app()->user->isGuest === false))
                     {

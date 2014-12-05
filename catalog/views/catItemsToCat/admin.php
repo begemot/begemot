@@ -46,6 +46,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         ),
         array('name' => 'item_name', 'value' => '$data->item->name'),
         array(
+            'header' => 'Переключатель публикации',
+            'type'=>'raw',
+            'value'=>'$data->item->isPublished()',
+        ),
+        array(
             'class' => 'bootstrap.widgets.TbButtonColumn',
             'viewButtonUrl' => 'Yii::app()->controller->createUrl("/catalog/site/itemView",array("item"=>$data->itemId, "name_t"=>$data->item->name_t, "catId" => $data->item->catId))',
             'updateButtonUrl' => 'Yii::app()->controller->createUrl("catItem/update",array("id"=>$data->itemId))',
@@ -61,3 +66,18 @@ $this->widget('bootstrap.widgets.TbGridView', array(
 
 
 ?>
+
+
+
+<script>
+    $(function(){
+        $(document).on("click", ".togglePublished", function(){
+            var button = $(this);
+            $.get('/catalog/catItem/togglePublished/id/' + $(this).attr('data-id'), function(data){
+                button.before("<span class='toDelete'>Сохранено<br/></span>");
+                setTimeout(function() { button.parent().find(".toDelete").remove() }, 500);
+                
+            })
+        })
+    })
+</script>
