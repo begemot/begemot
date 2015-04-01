@@ -65,7 +65,7 @@ class PictureBox extends CWidget {
  " . var_export($array, true) . ";
 ?>";
           file_put_contents($file, $code);
-          chmod ($file, 0777);
+
 
     }
 
