@@ -29,7 +29,7 @@ $this->menu = require dirname(__FILE__).'/commonMenu.php';
 
 <h1>Редактирование позиции "<?php echo $model->name; ?>"</h1>
 
-    <?php $this->widget('bootstrap.widgets.TbMenu', array(
+<?php $this->widget('bootstrap.widgets.TbMenu', array(
     'type'=>'tabs', // '', 'tabs', 'pills' (or 'list')
     'stacked'=>false, // whether this is a stacked menu
     'items'=>array(

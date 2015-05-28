@@ -333,6 +333,22 @@ class CatCategory extends CActiveRecord
             }
         }       
         
+
+        //get picture list array
+        public function getCatVideos(){
+            $imagesDataPath = Yii::getPathOfAlias('webroot').'/files/pictureBox/catalogCategoryVideo/'.$this->id;
+          
+            $favFilePath = $imagesDataPath.'/data.php'; 
+            $images = array();
+            if (file_exists($favFilePath)){
+                 $images = require($favFilePath);
+               };
+            if (isset($images['images'])){
+                return $images['images'];
+            } else{
+                return null;
+            }
+        }  
         //get path of one main picture, wich take from fav or common images list
         public function getCatMainPicture($tag=null){
             
