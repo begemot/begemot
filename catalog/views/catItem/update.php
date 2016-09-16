@@ -3,16 +3,7 @@
 
 /* @var $this CatItemController */
 /* @var $model CatItem */
-$assets = Yii::app()->clientScript;
-Yii::app()->clientScript->registerCssFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/css/multi-select.css')
-);
-Yii::app()->clientScript->registerScriptFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/jquery.multi-select.js'), CClientScript::POS_HEAD
-);
-Yii::app()->clientScript->registerScriptFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/jquery.quicksearch.js'), CClientScript::POS_HEAD
-);
+
 Yii::app()->clientScript->registerScriptFile(
     Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/editItem.js'), CClientScript::POS_HEAD
 );
