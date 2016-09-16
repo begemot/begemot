@@ -212,11 +212,11 @@ function PictureBox(options) {
                                 },
                                 url: '/pictureBox/default/ajaxMakeFilteredImage',
                                 success: function () {
-
                                 }
                             })
-
                     }
+
+                    $('#imageModal').modal('hide');
 
                 });
 
