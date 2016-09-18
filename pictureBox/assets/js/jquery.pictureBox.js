@@ -29,9 +29,9 @@ function PictureBox(options) {
 
         imageFilterId = $(img).attr('image-filter');
 
-        if ( $(img).attr('data-is-filtered-image') == "1") {
-            $(img).attr('data-is-filtered-image','');
-            $(img).parent().children('div').children('img').attr('src',$(img).attr('src'));
+        if ($(img).attr('data-is-filtered-image') == "1") {
+            $(img).attr('data-is-filtered-image', '');
+            $(img).parent().children('div').children('img').attr('src', $(img).attr('src'));
         }
 
         resizeData = areaSelectCollection[imageFilterId].resizeData;
@@ -163,11 +163,19 @@ function PictureBox(options) {
                     var imageId = $(this).attr('data-id');
 
                     var data = PictureBoxObject.loadtAltAndTitle(imageId);
+                    console.log(data[imageId]);
 
+                    var alt ='';
+                    var title ='';
 
-                    $('#titleModal #altInput').attr('value',data[imageId]['alt']);
-                    $('#titleModal #titleInput').attr('value',data[imageId]['title']);
+                    if (data[imageId] != undefined) {
+                        var alt = data[imageId]['alt'];
+                        var title = data[imageId]['title'];
+                    }
 
+                    $('#titleModal #altInput').val( alt);
+                    $('#titleModal #titleInput').val( title);
+                    console.log($('#titleModal #altInput'));
 
                     PictureBoxObject.activeImageForWindow = imageId;
 
@@ -197,17 +205,17 @@ function PictureBox(options) {
                         //alert(resizeData.selection.x1+' '+resizeData.selection.y1+' '+resizeData.selection.width+' '+resizeData.selection.height+' ');
                         $.ajax(
                             {
-                                data:{
-                                    id:resizeData.pb_id,
-                                    elementId:resizeData.pb_element_id,
-                                    pictureId:resizeData.pb_picture_id,
-                                    filterName:resizeData.pb_filter_name,
-                                    x:resizeData.selection.x1,
-                                    y:resizeData.selection.y1,
-                                    width:resizeData.selection.width,
-                                    height:resizeData.selection.height
+                                data: {
+                                    id: resizeData.pb_id,
+                                    elementId: resizeData.pb_element_id,
+                                    pictureId: resizeData.pb_picture_id,
+                                    filterName: resizeData.pb_filter_name,
+                                    x: resizeData.selection.x1,
+                                    y: resizeData.selection.y1,
+                                    width: resizeData.selection.width,
+                                    height: resizeData.selection.height
 
-                       //'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height
+                                    //'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height
 
                                 },
                                 url: '/pictureBox/default/ajaxMakeFilteredImage',
