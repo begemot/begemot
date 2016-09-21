@@ -43,6 +43,7 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
             'id' => 'catalogCategory',
             'elementId' => $model->id,
             'config' => $picturesConfig,
+                'theme' => 'tiles'
                 )
         );
     } else{

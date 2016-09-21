@@ -91,6 +91,7 @@ class PBox
 
     public function getImage($id, $tag)
     {
+//        print_r($this->pictures[$id]);
         if (isset($this->pictures[$id][$tag])) {
             return $this->pictures[$id][$tag];
         } else {
@@ -114,10 +115,14 @@ class PBox
     {
 
         if (is_null($this->favPictures)) {
-            $array = $this->pictures;
+            $array = $this->getSortedImageList();
         } else {
+
             $array = $this->favPictures;
         }
+
+
+
         if (is_array($array)) {
             $id = key($array);
 

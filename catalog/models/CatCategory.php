@@ -351,7 +351,7 @@ class CatCategory extends CActiveRecord
         }  
         //get path of one main picture, wich take from fav or common images list
         public function getCatMainPicture($tag=null){
-            
+
             $imagesDataPath = Yii::getPathOfAlias('webroot').'/files/pictureBox/catalogCategory/'.$this->id;
             $favFilePath = $imagesDataPath.'/favData.php'; 
             
