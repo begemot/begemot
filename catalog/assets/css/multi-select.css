@@ -16,7 +16,7 @@
 
 .ms-container {
     width: 100%;
-    display: none;
+    /*display: none;*/
 }
 
 .search-input {
@@ -41,7 +41,7 @@
 
 .ms-container .ms-selection {
     /*float: right;*/
-    display: none
+    /*display: none*/
 }
 
 .ms-container .ms-list {
@@ -175,5 +175,5 @@
     color: red;
     font-weight: bold;
     text-align: center;
-    display: none;
+    /*display: none;*/
 }

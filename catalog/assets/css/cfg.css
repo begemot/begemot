@@ -1,0 +1,7 @@
+#mainContainer{
+    height:300px;
+}
+
+.option, img.baseImage{
+    position: absolute;
+}

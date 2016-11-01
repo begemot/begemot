@@ -5,30 +5,28 @@ $(document).ready(function () {
     var $itemId = $('.optionsTable').attr('data-item-id');
 
 
-    $('#optionSelectmodal #option-slect-end-btn').click(function () {
+    $('.optionsTable tbody').sortable(
+        {
+            stop: function(event, ui) {
+                var i = 0;
+                var sortCollection = {};
+                $('.optionsTable tbody tr').each(function(){
+                    i++;
+                    sortCollection[i]=$(this).attr('data-item-id');
 
-        var selectedOptions = Array();
-        var deselectedOptions = Array();
-        $('#optionSelectmodal').find('input').each(function (index) {
-            if ($(this).prop('checked')) {
-                selectedOptions.push($(this).parent().parent().attr('data-item-id'));
+                });
+                var itemId = $('.optionsTable').attr('data-item-id');
+                $.ajax({
+                    url: '/catalog/catItemOptions/ajaxNewOptionOrder',
+                    data: {
+                        sortCollection: sortCollection,
+                        itemId:itemId
+                    }
+                })
+            }
+        }
+    );
 
-            } else {
-                deselectedOptions.push($(this).parent().parent().attr('data-item-id'));
-            }
-        });
-        console.log(selectedOptions);
-        console.log($itemId);
-        var $selectedOptionId = $('#optionSelectmodal').attr('data-option-for-relation-id');
-        $.ajax({
-            url: '/catalog/catItemOptions/ajaxUpdateOptionRelation',
-            data: {
-                itemId: $selectedOptionId,
-                optionIdArray: selectedOptions,
-                deselectedOptions:deselectedOptions
-            }
-        })
-    });
 
     $('#option-slect-close-btn').click(function(){
         $('#optionSelectmodal').modal('hide');
@@ -36,15 +34,77 @@ $(document).ready(function () {
 
     $('#optionSelectmodal').on('show', function () {
         var $selectedOptionId = $('#optionSelectmodal').attr('data-option-for-relation-id');
+
+        $target =  $('#optionSelectmodal').attr('data-target');
+
+        if ($target!='conflict'){
+            $msg='Выбираем зависимые опции';
+        } else {
+            $msg='Выбираем конфликтные опции';
+        }
+        $('div.modal-header > h3').html($msg);
         $.ajax({
             url: '/catalog/catItemOptions/LayoutOptionsTable',
             data: {
                 paentItemId: $itemId,
-                selectedOptionId:$selectedOptionId
+                selectedOptionId:$selectedOptionId,
+                target: $('#optionSelectmodal').attr('data-target'),
             }
         }).done(function (data) {
 
             $('#optionSelectmodal .modal-body').html(data);
+
+            $trHtml = $('#optionSelectmodal .modal-body table tbody .getIt').html();
+            $('#optionSelectmodal .modal-body table tbody .getIt').remove();
+            $('#optionSelectmodal .modal-header table tbody').html($trHtml);
+            $('#optionSelectmodal .modal-header table tbody input').remove();
+            $('#optionSelectmodal input').click(function () {
+
+                var $selectedOptionId = $('#optionSelectmodal').attr('data-option-for-relation-id');
+
+                var action = '';
+                if ($(this).prop('checked')) {
+                    action = 'connect';
+
+                } else {
+                    action = 'disconnect';
+                }
+                var childrenOptionId = $(this).parent().parent().attr('data-item-id');
+
+                $.ajax({
+                    url: '/catalog/catItemOptions/ajaxUpdateOptionRelation',
+                    data: {
+                        baseItemId: $selectedOptionId,
+                        childrenOptionId:childrenOptionId,
+                        action:action,
+                        target: $('#optionSelectmodal').attr('data-target')
+                    }
+                })
+
+                $checkedCount = $('#optionSelectmodal input:checkbox:checked').length;
+                if ($checkedCount>0){
+                    btnMsg = 'есть '+$checkedCount;
+                } else {
+                    btnMsg = 'нет опций';
+                }
+                if ($('#optionSelectmodal').attr('data-target')!='conflict') {
+                    $('[data-item-id=' + $selectedOptionId + ']').find('a.btn-add-option-relation').html(btnMsg);
+                } else {
+                    $('[data-item-id=' + $selectedOptionId + ']').find('a.btn-add-option-conflict').html(btnMsg);
+                }
+                return;
+                var selectedOptions = Array();
+                var deselectedOptions = Array();
+                $('#optionSelectmodal').find('input').each(function (index) {
+
+                });
+
+                var $selectedOptionId = $('#optionSelectmodal').attr('data-option-for-relation-id');
+
+
+                //$('#optionSelectmodal input').length;
+
+            })
 
         });
     });
@@ -75,7 +135,7 @@ $(document).ready(function () {
 
     $('.searchable').multiSelect({
         selectableHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Поиск по опциям...'>",
-        //selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Уже в опциях...'>",
+        selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Уже в опциях...'>",
         afterInit: function (ms) {
             var that = this,
                 $selectableSearch = that.$selectableUl.prev(),
@@ -105,15 +165,17 @@ $(document).ready(function () {
             optionSelected(values);
 //                console.log(this.qs1.cache());
         },
-        afterDeselect: function () {
+        afterDeselect: function (values) {
+
             this.qs1.cache();
             this.qs2.cache();
+            optionDeselected(values);
         }
     });
 
     $('.searchable2').multiSelect({
         selectableHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Поиск по опциям...'>",
-        //selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Уже в опциях...'>",
+        selectionHeader: "<input type='text' class='search-input' autocomplete='off' placeholder='Карточка опция у этих позиций'>",
         afterInit: function (ms) {
             var that = this,
                 $selectableSearch = that.$selectableUl.prev(),
@@ -137,13 +199,48 @@ $(document).ready(function () {
                     }
                 });
         },
-        afterSelect: function () {
+        afterSelect: function (values) {
             this.qs1.cache();
             this.qs2.cache();
+            console.log('выбрали');
+            console.log(values);
+
+            var $itemId = values.shift();
+            var $optionId = $('.optionsTable').attr('data-item-id');
+
+            $.ajax({
+                url: '/catalog/catItemOptions/ajaxNewOptionFor',
+                data: {
+                    itemId: $itemId,
+                    optionId: $optionId
+                },
+                success: function (data) {
+
+                }
+            })
+
         },
-        afterDeselect: function () {
+        afterDeselect: function (values) {
             this.qs1.cache();
             this.qs2.cache();
+            console.log('убрали');
+            console.log(values);
+
+
+            var $optionId = values.shift();
+            var $itemId = $('.optionsTable').attr('data-item-id');
+
+            $.ajax({
+                url: '/catalog/catItemOptions/ajaxRemoveOptionFrom',
+                data: {
+                    itemId: $optionId,
+                    optionId:  $itemId
+                },
+                success: function (data) {
+
+                }
+            })
+
         }
     });
 });
@@ -178,6 +275,25 @@ function optionSelected(itemId) {
 
 }
 
+function optionDeselected(itemId) {
+
+    var $optionId = itemId.shift();
+    var $itemId = $('.optionsTable').attr('data-item-id');
+
+    $.ajax({
+        url: '/catalog/catItemOptions/ajaxRemoveOptionFrom',
+        data: {
+            itemId: $itemId,
+            optionId: $optionId
+        },
+        success: function (data) {
+
+        }
+    })
+  $('table.optionsTable [data-item-id = '+$optionId+']').remove();
+
+}
+
 function addTableRow($itemId, $optionId) {
     $.ajax({
         url: '/catalog/catItemOptions/ajaxRenderTableOptionRow',
@@ -203,12 +319,18 @@ function createAllEventHandlerOnTr(jqElem) {
     jqElem.find('.btn-add-option-relation').click(function () {
         itemId = $(this).parent().parent().attr('data-item-id');
         $('#optionSelectmodal').attr('data-option-for-relation-id',itemId);
+        $('#optionSelectmodal').attr('data-target','relation');
         $('#optionSelectmodal').modal({show: true});
         //data-option-for-relation-id
-
-
     });
 
+    jqElem.find('.btn-add-option-conflict').click(function () {
+        itemId = $(this).parent().parent().attr('data-item-id');
+        $('#optionSelectmodal').attr('data-option-for-relation-id',itemId);
+        $('#optionSelectmodal').attr('data-target','conflict');
+        $('#optionSelectmodal').modal({show: true});
+        //data-option-for-relation-id
+    });
 
     jqElem.find('input').click(function () {
 

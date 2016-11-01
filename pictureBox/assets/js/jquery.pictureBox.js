@@ -163,19 +163,11 @@ function PictureBox(options) {
                     var imageId = $(this).attr('data-id');
 
                     var data = PictureBoxObject.loadtAltAndTitle(imageId);
-                    console.log(data[imageId]);
 
-                    var alt ='';
-                    var title ='';
 
-                    if (data[imageId] != undefined) {
-                        var alt = data[imageId]['alt'];
-                        var title = data[imageId]['title'];
-                    }
+                    $('#titleModal #altInput').attr('value', data[imageId]['alt']);
+                    $('#titleModal #titleInput').attr('value', data[imageId]['title']);
 
-                    $('#titleModal #altInput').val( alt);
-                    $('#titleModal #titleInput').val( title);
-                    console.log($('#titleModal #altInput'));
 
                     PictureBoxObject.activeImageForWindow = imageId;
 
@@ -230,26 +222,102 @@ function PictureBox(options) {
 
                 $("img.all-images-btn").click(function (index, domElement) {
 
+                    var $pictureId = $(this).attr("data-id");
+                    var $elementId = elementId;
+                    var $id = id;
+
                     $.ajax({
-                        url: "/pictureBox/default/ajaxLayout",
-                        cache: false,
-                        async: false,
+                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
                         data: {
                             theme: 'tileImagesRisize',
-                            pictureId: $(this).attr("data-id"),
+                            pictureId: $pictureId,
                             elementId: elementId,
-                            id: id
+                            id: $id
 
                         },
                         success: function (html) {
-                            //htmlResult = alert(html);
-
                             jQuery('#imageModal .modal-body').html(html)
-
                         }
-                    });
+                    })
 
-                    jQuery('#imageModal').modal({'show': true});
+
+                    var deleteFilteredImageFunction = function () {
+
+                        var $id = $(this).parent().find('.ladybug_ant').attr('pb-id');
+                        var $pbElementId = $(this).parent().find('.ladybug_ant').attr('pb-element-id');
+                        var $pictureId = $(this).parent().find('.ladybug_ant').attr('pb-picture-id');
+                        var $filter = $(this).parent().find('.ladybug_ant').attr('image-filter');
+
+                        $.ajax(
+                            {
+                                data: {
+                                    id: $id,
+                                    elementId: $pbElementId,
+                                    pictureId: $pictureId,
+                                    filterName: $filter
+                                },
+                                url: '/pictureBox/default/ajaxDeleteFilteredImage',
+                                success:function(){
+                                    $.ajax({
+                                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
+                                        data: {
+                                            theme: 'tileImagesRisize',
+                                            pictureId: $pictureId,
+                                            elementId: elementId,
+                                            id: $id
+
+                                        },
+                                        success: function (html) {
+                                            jQuery('#imageModal .modal-body').html(html);
+                                            $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+                                            $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+                                        }
+                                    })
+                                }
+                            })
+                    };
+
+                    $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+
+                    var createFilteredImageFunction = function () {
+
+                        var $id = $(this).parent().attr('pb-id');
+                        var $pbElementId = $(this).parent().attr('pb-element-id');
+                        var $pictureId = $(this).parent().attr('pb-picture-id');
+                        var $filter = $(this).parent().attr('image-filter');
+
+                        $.ajax(
+                            {
+                                data: {
+                                    id: $id,
+                                    elementId: $pbElementId,
+                                    pictureId: $pictureId,
+                                    filterName: $filter
+                                },
+                                url: '/pictureBox/default/ajaxMakeFilteredImage',
+                                success: function () {
+                                    $.ajax({
+                                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
+                                        data: {
+                                            theme: 'tileImagesRisize',
+                                            pictureId: $pictureId,
+                                            elementId: elementId,
+                                            id: $id
+
+                                        },
+                                        success: function (html) {
+                                            jQuery('#imageModal .modal-body').html(html);
+                                            $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+                                            $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+                                        }
+                                    })
+                                }
+                            })
+                    };
+
+                    $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+
+                    $('#imageModal').modal({'show': true});
 
                     //Удаляем все объекты, иначе после закрытия окна они останутся висеть в воздухе
                     $('#imageModal').on('hidden.bs.modal', function (e) {

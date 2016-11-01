@@ -9,12 +9,13 @@ $image = $pBox->pictures[$pictureId];
 <?php
 if (isset($image['title'])) unset ($image['title']);
 if (isset($image['alt'])) unset ($image['alt']);
-if (isset($image['admin'])) unset ($image['admin']);
+//if (isset($image['admin'])) unset ($image['admin']);
 
 ?>
 
-<?php foreach ($image as $imageKey => $subImage): ?>
+<?php foreach ($config['imageFilters'] as $imageKey => $subImage): ?>
     <?php
+
 
     if ($imageKey == 'original') continue;
 
@@ -25,7 +26,7 @@ if (isset($image['admin'])) unset ($image['admin']);
     $continueKey = true;
 
 
-    foreach ($config['imageFilters'][$imageKey] as $filter) {
+    foreach ($subImage as $filter) {
 
         if (isset($filter['param']['width'])) {
             $continueKey = false;
@@ -37,14 +38,34 @@ if (isset($image['admin'])) unset ($image['admin']);
 
     if ($continueKey) continue;
 
-    ?>
-    <h2><?= $imageKey ?></h2>
-    <div style="float:left;width:100%">
-        <img data-is-filtered-image="1" class="ladybug_ant" pb-id = "<?= $id ?>" pb-element-id="<?= $elementId ?>" pb-picture-id="<?= $pictureId ?>" style="float:left;" filter-height="<?= $filterHeight ?>" filter-width="<?= $filterWidth ?>"
-             image-filter="<?= $imageKey ?>" src="<?= $image['original']?>"/>
-        <div style="position: relative;width:<?= $filterWidth ?>px;height:<?= $filterHeight ?>px;overflow: hidden;">
-            <img style="float:left;position: relative;max-width: none;" class="original" src="<?= $subImage.'?'.rand(1,1000) ?>"/>
-        </div>
 
-    </div>
+    ?>
+    <?php if (isset($image[$imageKey])): ?>
+        <?php
+        $params = [
+            'id'=>$id,
+            'imageKey'=>$imageKey,
+            'elementId'=> $elementId,
+            'pictureId'=>$pictureId,
+            'imageKey'=>$imageKey,
+            'filterHeight'=>$filterHeight,
+            'filterWidth'=>$filterWidth,
+            'image'=>$image
+        ];
+        $this->renderPartial('existingImageLine',$params);
+        ?>
+    <?php else: ?>
+        <?php
+            $params = [
+                'id'=>$id,
+                'imageKey'=>$imageKey,
+                'elementId'=> $elementId,
+                'pictureId'=>$pictureId,
+                'imageKey'=>$imageKey
+            ];
+            $this->renderPartial('notExistingImageLine',$params);
+        ?>
+    <?php endif; ?>
 <?php endforeach; ?>
+
+<br/><br/><br/><br/>

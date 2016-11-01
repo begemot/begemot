@@ -25,7 +25,15 @@ class CatItemOptionsController extends Controller
 
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
 
-                'actions' => ['ajaxRenderTableOptionRow', 'ajaxNewOptionFor', 'ajaxRemoveOptionFrom', 'ajaxChangeIsBaseState', 'layoutOptionsTable', 'ajaxUpdateOptionRelation'],
+                'actions' => [
+                    'ajaxRenderTableOptionRow',
+                    'ajaxNewOptionFor',
+                    'ajaxRemoveOptionFrom',
+                    'ajaxChangeIsBaseState',
+                    'layoutOptionsTable',
+                    'ajaxUpdateOptionRelation',
+                    'ajaxNewOptionOrder'
+                ],
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
             ),
@@ -41,17 +49,19 @@ class CatItemOptionsController extends Controller
 
         if (Yii::app()->request->isAjaxRequest) {
 
-            $item = CatItem::model()->findByPk($itemId);
+            $item = CatItem::model()->with('options')->findByPk($itemId);
 
             $catItemToItem = CatItemsToItems::model()->findByAttributes(['itemId' => $optionForThisId, 'toItemId' => $itemId]);
 
 
             $tableLineViewData = [
+
                 'originalImage' => $item->getItemMainPicture('original'),
                 'adminImage' => $item->getItemMainPicture('admin'),
                 'name' => $item->name,
                 'itemId' => $item->id,
-                'isBase' => $catItemToItem->isBase
+                'isBase' => $catItemToItem->isBase,
+                'options' => $item->options
             ];
 
 
@@ -67,8 +77,46 @@ class CatItemOptionsController extends Controller
         $catItemsToItems->save();
     }
 
-    public function actionAjaxUpdateOptionRelation($itemId)
+    public function actionAjaxNewOptionOrder($itemId)
     {
+        $sortCollection = $_REQUEST['sortCollection'];
+            foreach ($sortCollection as $order => $optionId){
+               $itemToItem = CatItemsToItems::model()->findByAttributes(['itemId'=>$itemId,'toItemId'=>$optionId]);
+                $itemToItem->order = $order;
+                $itemToItem->save();
+            }
+
+    }
+
+    public function actionAjaxUpdateOptionRelation($baseItemId, $childrenOptionId, $action)
+    {
+        if ($action == 'connect') {
+            $catItemsToItems = new CatItemsToItems();
+            $catItemsToItems->itemId = $baseItemId;
+            $catItemsToItems->toItemId = $childrenOptionId;
+
+            if ($_REQUEST['target']=='relation')
+                $catItemsToItems->cantWorkWithOut = 1;
+
+            if ($_REQUEST['target']=='conflict')
+                $catItemsToItems->conflict   = 1;
+
+            $catItemsToItems->save();
+        }
+
+        if ($action == 'disconnect') {
+            $deselected = CatItemsToItems::model()->findByAttributes([
+                'itemId' => $baseItemId,
+                'toItemId' => $childrenOptionId
+            ]);
+
+            if (!is_null($deselected)) {
+
+                $deselected->delete();
+            }
+        }
+
+        return;
         if (isset($_REQUEST['optionIdArray'])) {
             $selectedItemsId = $_REQUEST['optionIdArray'];
             foreach ($selectedItemsId as $selectedId) {
@@ -88,8 +136,18 @@ class CatItemOptionsController extends Controller
                     'itemId' => $itemId,
                     'toItemId' => $deselectedId
                 ]);
+                print_r($deselected);
+                if (!is_null($deselected)) {
 
-                if (!is_null($deselected)) $deselected->delete();
+                    if ($deselected->delete()) {
+                        echo 'deleted';
+                    } else {
+                        echo 'not deleted';
+                    };
+                } else {
+
+                }
+
 
             }
         }
@@ -125,10 +183,14 @@ class CatItemOptionsController extends Controller
     public function actionLayoutOptionsTable($paentItemId = null, $selectedOptionId = null)
     {
         if (Yii::app()->request->isAjaxRequest) {
-
-            $alreadyConnetedOptions = CatItemsToItems::model()->findAllByAttributes([
-                'itemId' => $selectedOptionId
-            ]);
+            $searchParams = ['itemId' => $selectedOptionId];
+            if ($_REQUEST['target']=='relation'){
+                $searchParams['cantWorkWithOut']=1;
+            }
+            if ($_REQUEST['target']=='conflict'){
+                $searchParams['conflict']=1;
+            }
+            $alreadyConnetedOptions = CatItemsToItems::model()->findAllByAttributes($searchParams);
 
             $this->renderPartial('/catItem/optionsAsTable', ['paentItemId' => $paentItemId, 'alreadyConnetedOptions' => $alreadyConnetedOptions]);
         }

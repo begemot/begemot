@@ -1,18 +1,14 @@
 <?php
 
-class m20160504_075001_throught_display_count_row extends Migrations
+class m20160922_122947_optionsOrder extends Migrations
 {
     public function up()
     {
 
         if($this->isConfirmed(true) == true) return false;
 
-        $sql = "ALTER TABLE `catItemsToCat`
-                ADD COLUMN `through_display_count` INT;
-
-                CHANGE COLUMN `through_display_count` `through_display_count` INT(11) NULL DEFAULT 0 ;
-
-                ";
+        $sql = "ALTER TABLE `catItemsToItems`
+	ADD COLUMN `order` INT NULL ;";
         $this->execute($sql);
 
         return true;
@@ -22,8 +18,8 @@ class m20160504_075001_throught_display_count_row extends Migrations
     {
         if($this->isConfirmed(true) == false) return false;
 
-        $sql = "ALTER TABLE `boats`.`catItemsToCat`
-                DROP COLUMN `through_display_count`;";
+        $sql = "ALTER TABLE `catItemsToItems`
+	DROP COLUMN `order`;";
         $this->execute($sql);
 
         return true;
@@ -31,13 +27,13 @@ class m20160504_075001_throught_display_count_row extends Migrations
 
     public function getDescription()
     {
-        return "такие дела";
+        return "Поле учета порядка опций";
     }
 
     public function isConfirmed($returnBoolean = false){
         Yii::app()->db->schema->refresh();
-        $table = Yii::app()->db->schema->getTable('catItemsToCat');
-        $result = isset($table->columns['through_display_count']);
+        $table = Yii::app()->db->schema->getTable('catItemsToItems');
+        $result = isset($table->columns['order']);
 
         if($returnBoolean){
             return $result;
