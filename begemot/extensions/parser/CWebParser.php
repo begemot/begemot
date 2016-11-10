@@ -123,14 +123,14 @@ class CWebParser
         $dirsI = 0;
 
         foreach ($dirsArray as $dir){
-            if ($countOfDirs-$dirsI>5){
+            if ($countOfDirs-$dirsI>$this->processForStore){
 
                 CFileHelper::removeDirectory($dir);
             }
             $dirsI++;
         }
 
-        die();
+
         //удаляем данные из бд
     }
 
