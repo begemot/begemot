@@ -132,6 +132,58 @@ class CWebParser
 
 
         //удаляем данные из бд
+        $dbDataForClear =[
+            [
+                'dbName'=> 'webParser',
+                'dbCol'=>'id'
+            ],
+            [
+                'dbName'=> 'webParserData',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserDownload',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserPage',
+                'dbCol'=>'procId'
+            ],
+            [
+                'dbName'=> 'webParserScenarioTask',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserUrl',
+                'dbCol'=>'procId'
+            ],
+        ];
+
+        foreach ($dbDataForClear as $dbData){
+            //Удаляем из таблица webParser
+            $sql = "SELECT distinct(".($dbData['dbCol']).") FROM ".($dbData['dbName'])." order by ".($dbData['dbCol']).";";
+            $connection=Yii::app()->db;
+            $command=$connection->createCommand($sql);
+            $rows=$command->queryAll();
+
+            $countOfRows = count ($rows);
+            $rowsI = 0;
+
+            foreach ($rows as $row){
+                if ($countOfRows-$rowsI>$this->processForStore){
+
+                    $sql = "DELETE FROM ".($dbData['dbName'])." where ".($dbData['dbCol'])."=".($row[$dbData['dbCol']]).";";
+                    $command=$connection->createCommand($sql);
+                    $command->execute();
+                }
+                $rowsI++;
+            }
+        }
+
+        $this->logVar($rows);
+
+      die();
+
     }
 
     /**
