@@ -182,7 +182,6 @@ class CWebParser
 
         $this->logVar($rows);
 
-      die();
 
     }
 
