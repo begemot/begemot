@@ -50,7 +50,7 @@ class PBox
 
         $this->dataFile = $dataFile;
 
-        $this->favDataFile = $favDatafile = $pictureBoxDir . $galleryId . '/' . $id . '/favData.php';
+        $this->favDataFile = $favDatafile = $pictureBoxDir .'/'. $galleryId . '/' . $id . '/favData.php';
 
         if (file_exists($dataFile)) {
             $array = require($dataFile);
@@ -132,12 +132,18 @@ class PBox
     {
 
         if (is_null($this->favPictures)) {
-            $array = $this->pictures;
+            $array = $this->getSortedImageList();
+
+
         } else {
             $array = $this->favPictures;
         }
+  
         if (is_array($array)) {
-            $id = key($array);
+
+            $keys = array_keys($array);
+            $id = $keys[0];
+
 
             return $this->getImage($id, $tag);
         } else {
