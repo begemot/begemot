@@ -213,10 +213,20 @@ class PBox
         ksort($sortArray);
 
         $images = $this->pictures;
+
+
         $imagesWithSort = [];
-        if (is_array($images))
+        if (is_array($images)) {
+
+
             $imagesWithSort = array_replace(array_fill_keys($sortArray, ''), $images);
 
+            foreach ($imagesWithSort as $key=>$value){
+                if (!is_array($value)){
+                    unset($imagesWithSort[$key]);
+                }
+            }
+        }
         return $imagesWithSort;
     }
 
@@ -288,12 +298,13 @@ class PBox
         $this->saveSortArray();
     }
 
-    public function deleteAll(){
+    public function deleteAll()
+    {
 
         $dir = dirname($this->dataFile);
 
-        foreach (glob($dir.'/*.*') as $filename) {
-            unlink ($filename);
+        foreach (glob($dir . '/*.*') as $filename) {
+            unlink($filename);
         }
     }
 }
