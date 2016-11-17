@@ -45,6 +45,10 @@ class CWebParser
      */
     public $tasksPerExecute = 5;
 
+    /**
+     * @var int Количество данных процесса, которые остаются в базе и на диске. Остальное удаляется.
+     */
+    public $processForStore = 5;
 
     /**
      * Нужно установить. По указанному хосту фильтруются внешние ссылки.
@@ -99,6 +103,84 @@ class CWebParser
         $this->processId = $processId;
 
         $this->taskManager = new TaskManager($processId);
+        $this->deleteAllData();
+
+    }
+
+    /**
+     * Удаляем старые данные, перед тем как начнем новый процесс.
+     */
+    private function deleteAllData(){
+        //удаляем файлы
+
+        WebParserProcess::model()->findAll();
+        $filesDir = Yii::getPathOfAlias('webroot').'/files/webParser/*';
+        $dirsArray = glob($filesDir);
+        sort($dirsArray);
+
+
+        $countOfDirs = count ($dirsArray);
+        $dirsI = 0;
+
+        foreach ($dirsArray as $dir){
+            if ($countOfDirs-$dirsI>$this->processForStore){
+
+                CFileHelper::removeDirectory($dir);
+            }
+            $dirsI++;
+        }
+
+
+        //удаляем данные из бд
+        $dbDataForClear =[
+            [
+                'dbName'=> 'webParser',
+                'dbCol'=>'id'
+            ],
+            [
+                'dbName'=> 'webParserData',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserDownload',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserPage',
+                'dbCol'=>'procId'
+            ],
+            [
+                'dbName'=> 'webParserScenarioTask',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserUrl',
+                'dbCol'=>'procId'
+            ],
+        ];
+
+        foreach ($dbDataForClear as $dbData){
+            //Удаляем из таблица webParser
+            $sql = "SELECT distinct(".($dbData['dbCol']).") FROM ".($dbData['dbName'])." order by ".($dbData['dbCol']).";";
+            $connection=Yii::app()->db;
+            $command=$connection->createCommand($sql);
+            $rows=$command->queryAll();
+
+            $countOfRows = count ($rows);
+            $rowsI = 0;
+
+            foreach ($rows as $row){
+                if ($countOfRows-$rowsI>$this->processForStore){
+
+                    $sql = "DELETE FROM ".($dbData['dbName'])." where ".($dbData['dbCol'])."=".($row[$dbData['dbCol']]).";";
+                    $command=$connection->createCommand($sql);
+                    $command->execute();
+                }
+                $rowsI++;
+            }
+        }
+
+        $this->logVar($rows);
 
 
     }
