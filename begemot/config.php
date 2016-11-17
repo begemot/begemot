@@ -26,6 +26,7 @@ return array(
         'begemot',
         'catalog',
         'jobs',
+        'company',
         'pages'=>[
             'tidyConfig'=>array(
                 'Three'=>array(
@@ -41,6 +42,7 @@ return array(
         'seo',
         'migrations',
         'RolesImport',
+        'priceList',
         'faq',
         'reviews',
         'slider',
@@ -190,6 +192,12 @@ return array(
                 'posts' => 'post/site/tagIndex',
                 'posts/<title:\w+>_<id:\d+>' => 'post/site/tagIndex',
                 'postsView/<title:[\w-]+>_<id:\d+>' => 'post/site/view',
+
+                'company/<title:[\w-]+>_<departId:\d+>' => 'company/site/depart',
+                'employee/<title:[\w-]+>_<empId:\d+>' => 'company/site/emp',
+                'employes'=>'company/site/employes',
+
+
                 'index' => '/',
                 'contacts' => '/site/contact',
                 'katalog' => '/site/ModelsAndPrices',
