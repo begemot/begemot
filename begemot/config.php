@@ -19,6 +19,7 @@ return array(
         'application.modules.vars.*',
         'application.modules.jobs.components.*', // components for jobs
         'application.jobs.*',
+        'application.extensions.editable.bootstrap-editable.*'
     ),
     'language' => 'ru',
     'modules' => array(
@@ -189,13 +190,16 @@ return array(
                 'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w-\"\']+>_<item:\d+>' => 'catalog/site/itemView',
                 //модуль post
-                'posts' => 'post/site/tagIndex',
-                'posts/<title:\w+>_<id:\d+>' => 'post/site/tagIndex',
-                'postsView/<title:[\w-]+>_<id:\d+>' => 'post/site/view',
+                'allPosts'=>'post/site/allPosts',
+//                'posts' => 'post/site/tagIndex',
+                'posts/<title:[\w-\.]+>_<id:\d+>' => 'post/site/tagIndex',
+                'postsView/<title:[\w-_.]+>_<id:\d+>' => 'post/site/view',
 
                 'company/<title:[\w-]+>_<departId:\d+>' => 'company/site/depart',
                 'employee/<title:[\w-]+>_<empId:\d+>' => 'company/site/emp',
                 'employes'=>'company/site/employes',
+
+                'priceList'=>'priceList/site/index',
 
 
                 'index' => '/',

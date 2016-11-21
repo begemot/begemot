@@ -184,8 +184,6 @@ class CompanyDepartController extends Controller
 
 	public function actionOrderUp($id)
 	{
-		$model = $this->loadModel($id);
-
 
 		$this->orderUp($id);
 
@@ -193,9 +191,6 @@ class CompanyDepartController extends Controller
 
 	public function actionOrderDown($id)
 	{
-		$model = $this->loadModel($id);
-
-
 
 		$this->orderDown($id);
 	}

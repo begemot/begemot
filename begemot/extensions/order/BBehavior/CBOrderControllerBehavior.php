@@ -22,7 +22,7 @@ class CBOrderControllerBehavior extends CBehavior {
           if ($this->groupId===null||$this->groupName===null)
             $criteria->condition ='`order`<'.$firstLine->order;
           else
-            $criteria->condition ='`order`<'.$firstLine->order.' AND `'.($this->groupName).'`='.$this->groupId.''; 
+            $criteria->condition ='`order`<'.$firstLine->order.' AND `'.($this->groupName).'`='.$this->groupId.'';
           
         // $criteria->select = 'id, MAX(`order`) as `order`';
           $criteria->order = '`order` DESC';

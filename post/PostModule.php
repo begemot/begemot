@@ -2,8 +2,8 @@
 
 class PostModule extends CWebModule {
 
-    static public $postLayout = 'application.views.layouts.postLayout';
-    static public $postViewLayout = 'application.views.layouts.postViewLayout';
+    public $postLayout = 'application.views.layouts.postLayout';
+    public $postViewLayout = 'application.views.layouts.postViewLayout';
     public $tidyleadImage = false;
     public $limit = 1;
     public $tidyConfig = array(

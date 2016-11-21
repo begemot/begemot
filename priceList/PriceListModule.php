@@ -16,13 +16,18 @@ class PriceListModule extends CWebModule
 
 	public function beforeControllerAction($controller, $action)
 	{
-		if(parent::beforeControllerAction($controller, $action))
-		{
-			// this method is called before any module controller action is performed
-			// you may place customized code here
-			return true;
+
+		if ($controller->id != 'site') {
+
+			$component=Yii::createComponent(array(
+
+				'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+			));
+			Yii::app()->setComponent('bootstrap',$component);
+
 		}
-		else
-			return false;
+
+		return true;
 	}
 }
