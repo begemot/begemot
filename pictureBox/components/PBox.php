@@ -139,7 +139,7 @@ class PBox
             $array = $this->favPictures;
         }
   
-        if (is_array($array)) {
+        if (is_array($array) && count($array)>0) {
 
             $keys = array_keys($array);
             $id = $keys[0];
