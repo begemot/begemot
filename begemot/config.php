@@ -201,6 +201,7 @@ return array(
 
                 'priceList'=>'priceList/site/index',
 
+                'reviews'=>'reviews/site/reviewIndex',
 
                 'index' => '/',
                 'contacts' => '/site/contact',
