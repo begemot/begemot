@@ -82,6 +82,8 @@ class CatCategory extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'subCats'=>array(self::HAS_MANY, 'CatCategory', 'pid','order'=>'`order`'),
+            'items'=>array(self::HAS_MANY, 'CatItemsToCat', 'catId','order'=>'`order`'),
 		);
 	}
 
