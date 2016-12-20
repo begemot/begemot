@@ -82,8 +82,7 @@ class CatCategory extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-            'subCats'=>array(self::HAS_MANY, 'CatCategory', 'pid','order'=>'`order`'),
-            'items'=>array(self::HAS_MANY, 'CatItemsToCat', 'catId','order'=>'`order`'),
+            'childCategories' => array(self::HAS_MANY, 'CatCategory', 'pid','order'=>'`childCategories`.`order` ASC'),
 		);
 	}
 
@@ -353,7 +352,7 @@ class CatCategory extends CActiveRecord
         }  
         //get path of one main picture, wich take from fav or common images list
         public function getCatMainPicture($tag=null){
-            
+
             $imagesDataPath = Yii::getPathOfAlias('webroot').'/files/pictureBox/catalogCategory/'.$this->id;
             $favFilePath = $imagesDataPath.'/favData.php'; 
             
