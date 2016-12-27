@@ -115,14 +115,24 @@ class CWebParser
 
         WebParserProcess::model()->findAll();
         $filesDir = Yii::getPathOfAlias('webroot').'/files/webParser/*';
+
         $dirsArray = glob($filesDir);
-        sort($dirsArray);
+
+
+        $dirsForDelete = [];
+
+        foreach ($dirsArray as $dir){
+            $dirsForDelete[filemtime($dir)] = $dir ;
+        }
+
+        ksort($dirsForDelete);
+        reset($dirsForDelete);
 
 
         $countOfDirs = count ($dirsArray);
         $dirsI = 0;
 
-        foreach ($dirsArray as $dir){
+        foreach ($dirsForDelete as $dir){
             if ($countOfDirs-$dirsI>$this->processForStore){
 
                 CFileHelper::removeDirectory($dir);
@@ -749,7 +759,7 @@ class CWebParser
                 $targetDownloadObject->save();
 
             } else {
-                $this->logError('Ошибка! $targetDownloadObject - NULL');
+                $this->logError(__LINE__.' $targetDownloadObject - NULL');
             }
         }
 
@@ -767,15 +777,21 @@ class CWebParser
      */
     private function downloadFile($fileUrl, $dir)
     {
-        if (is_null($dir)) return;
+        if (is_null($dir)) {
+            $this->logError('function downloadFile входящий параметр с директорией NULL');
+            return;
+        }
 
         $urlHost = parse_url($fileUrl, PHP_URL_HOST);
+
         if (is_null($urlHost)) {
             $fileUrl = $this->host . '/' . $fileUrl;
         }
+
         $fileNameWithPath = parse_url($fileUrl, PHP_URL_PATH);
         $file = Yii::getPathOfAlias('webroot') . '/' . $dir . basename($fileNameWithPath);
         // открываем файл, на сервере, на запись
+
         if (!file_exists($file)) {
             $dest_file = @fopen($file, "w");
 
@@ -800,7 +816,11 @@ class CWebParser
             // закрываем файл
             fclose($dest_file);
         }
-
+        if (file_exists($file)){
+            $this->log('Файл скачался успешно!');
+        } else {
+            $this->logError('После скачивания файл не сохранился и на диске его нет.');
+        }
         return $file;
 
     }
@@ -1346,7 +1366,7 @@ class CWebParser
 
     private function logError($message)
     {
-        Yii::log($message, 'trace', 'webParser');
+        Yii::log('!!!! ERROR !!!! '.$message, 'trace', 'webParser');
         Yii::getLogger()->flush(true);
     }
 
