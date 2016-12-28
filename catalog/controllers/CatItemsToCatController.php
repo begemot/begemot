@@ -72,9 +72,11 @@ class CatItemsToCatController extends Controller
 
     public function actionAdmin($id)
     {
+
         $model = new CatItemsToCat('search');
         $model->unsetAttributes();
         $model->dbCriteria->order="`t`.`order` ASC";
+
         if (isset($_GET['CatItemsToCat']))
             $model->attributes = $_GET['CatItemsToCat'];
 

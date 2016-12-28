@@ -103,6 +103,11 @@ class CatCategoryController extends Controller
 
                         $originalDataDir = dirname($originalPBox->dataFile);
                         $destanationDataDir = dirname($newPBox->dataFile);
+
+                        if (file_exists($destanationDataDir)){
+                            CFileHelper::removeDirectory($destanationDataDir);
+                        }
+
                         mkdir ($destanationDataDir);
 
                         $files = glob ($originalDataDir.'/*');
