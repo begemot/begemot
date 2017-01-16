@@ -76,9 +76,7 @@ class CatItem extends ContentKitModel
             'name' => array(self::BELONGS_TO, 'CatItemsToCat', 'itemId'),
             'category' => array(self::BELONGS_TO, 'CatCategory', 'catId'),
             'reviews' => array(self::HAS_MANY, 'Reviews', 'pid', 'condition' => 'status=1'),
-            'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)','order'=>'options_options.order ASC'),
-            'cantWorkWithOutOptions' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)','condition'=>'cantWorkWithOut = 1','order'=>'cantWorkWithOutOptions_cantWorkWithOutOptions.order ASC'),
-            'conflict' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)','condition'=>'conflict = 1','order'=>'conflict_conflict.order ASC'),
+            'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)'),
         );
     }
 

@@ -164,6 +164,9 @@ function PictureBox(options) {
 
                     var data = PictureBoxObject.loadtAltAndTitle(imageId);
 
+                    if (data[imageId]['alt']==undefined)data[imageId]['alt']='';
+                    if (data[imageId]['title']==undefined)data[imageId]['title']='';
+
 
                     $('#titleModal #altInput').attr('value', data[imageId]['alt']);
                     $('#titleModal #titleInput').attr('value', data[imageId]['title']);

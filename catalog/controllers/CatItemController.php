@@ -16,7 +16,7 @@ class CatItemController extends Controller
     {
         return array(
             'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
+            'ajaxOnly + delete', // we only allow deletion via POST request
         );
     }
 
@@ -362,7 +362,7 @@ class CatItemController extends Controller
         }
 
 
-        if (!isset($_GET['ajax']))
+        if (!Yii::app()->request->isAjaxRequest)
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
     }
 
@@ -380,8 +380,13 @@ class CatItemController extends Controller
         $dataProvider = new CActiveDataProvider('CatItem', array('criteria' => array('order' => '`id` desc')));
 
         $dataProvider = new CatItem('search');
+
+//
         if (isset($_GET['CatItem']))
             $dataProvider->Attributes = $_GET['CatItem'];
+
+
+
         $this->render('index', array(
             'dataProvider' => $dataProvider,
 

@@ -20,6 +20,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     'id' => 'test-grid',
     'dataProvider' => $model->search($id),//$model->search($id),
     'filter' => $model,
+
     //'filter'=>CatItemsToCat::model(),
     'type' => 'striped bordered condensed',
     'columns' => array(
