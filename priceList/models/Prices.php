@@ -29,7 +29,7 @@ class Prices extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('catId, price', 'numerical', 'integerOnly'=>true),
-			array('type','safe'),
+			array('type,text','safe'),
 			array('name', 'length', 'max'=>200),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
@@ -59,6 +59,8 @@ class Prices extends CActiveRecord
 			'catId' => 'Катеогория позиции',
 			'price' => 'Цена',
 			'type' => 'Тип - "цена" или "подкатегория" ',
+			'text' => 'Дополнительное описание к позиции прайс-листа" ',
+
 		);
 	}
 

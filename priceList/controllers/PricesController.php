@@ -1,4 +1,4 @@
-<?php
+e<?php
 
 class PricesController extends Controller
 {
@@ -56,6 +56,12 @@ class PricesController extends Controller
 		));
 	}
 
+	public function actionAdmin()
+	{
+		$this->render('admin',array(
+			'model'=>Prices::model(),
+		));
+	}
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
