@@ -11,7 +11,7 @@ class SiteController extends Controller {
 //            ),
 //        );
 //    }
-
+    public $layout = 'clearNoAnimate';
     public function actions(){
         return array(
             'captcha'=>array(
@@ -21,13 +21,16 @@ class SiteController extends Controller {
     }
 
     public function actionIndex() {
-        
+
+
         $this->layout = CatalogModule::$catalogLayout;
 
-        $categories = CatCategory::model()->findAll(array('condition' => 'level = 0', 'order' => '`order`'));
-        
 
-        $this->render('index', array('categories' => $categories));
+
+        $categories = CatCategory::model()->findAll(array('condition' => 'level = 0', 'order' => '`order`'));
+
+
+        $this->render('index');
     }
 
 
@@ -44,10 +47,17 @@ class SiteController extends Controller {
     }
     
     public function actionItemView($catId = 0, $item = 0) {
+
+        if (!is_null($this->module->itemLayout)) {
+            $this->layout = $this->module->itemLayout;
+        } else{
+            $this->layout = $this->module->baseLayout;
+        }
+
         $uri = $_SERVER['REQUEST_URI'];
 
         $item = CatItem::model()->with('options')->findByPk($item);
-        $this->layout = CatalogModule::$catalogItemViewLayout;
+//        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
 
         $hrefParams = array(

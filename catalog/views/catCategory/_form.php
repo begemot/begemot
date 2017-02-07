@@ -28,7 +28,11 @@
 		<?php echo $form->textField($model,'name',array('size'=>60,'maxlength'=>70)); ?>
 		<?php echo $form->error($model,'name'); ?>
 	</div>
-
+    <div class="row">
+        <?php echo $form->labelEx($model,'name_t'); ?>
+        <?php echo $form->textField($model,'name_t',array('size'=>60,'maxlength'=>70)); ?>
+        <?php echo $form->error($model,'name_t'); ?>
+    </div>
 	<div class="row">
 		<?php echo $form->labelEx($model,'text'); ?>
         <?php
