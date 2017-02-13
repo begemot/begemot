@@ -6,12 +6,14 @@ return array(
     // preloading 'log' component
     'preload' => array('log'),
     // autoloading model and component classes
+    'layout'=>'clearNoAnimate',
     'import' => array(
         'application.models.*',
         'application.components.*',
         'application.modules.begemot.extensions.giix.components.*',
         'application.modules.begemot.components.NestedDynaTree.*',
         'application.modules.begemot.extensions.crontab.*',
+        'application.modules.begemot.extForBaseClasses.*',
         'application.modules.catalog.models.CatItem',
         'application.modules.post.models.Posts',
         'application.modules.user.models.*',
@@ -201,6 +203,7 @@ return array(
 
                 'priceList'=>'priceList/site/index',
 
+                'reviews'=>'reviews/site/reviewIndex',
 
                 'index' => '/',
                 'contacts' => '/site/contact',

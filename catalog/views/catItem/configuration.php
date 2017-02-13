@@ -16,7 +16,7 @@ if (count($pBoxMainPicture->pictures) > 0) {
     $pictureMain = '';
 }
 
-
+123
 echo '
 <div id="mainContainer">
     <div id="mainPicture">

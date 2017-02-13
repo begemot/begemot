@@ -9,15 +9,6 @@ class m20161121_060138_priceList extends Migrations
 
         $sql = "
 
-CREATE TABLE `prices` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(200) DEFAULT NULL COMMENT 'Название позиции',
-  `catId` int(11) DEFAULT NULL COMMENT 'Катеогория позиции',
-  `price` int(11) DEFAULT NULL COMMENT 'Цена',
-  `order` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=398 DEFAULT CHARSET=utf8;
-
 CREATE TABLE `priceCats` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) DEFAULT NULL,
@@ -25,9 +16,18 @@ CREATE TABLE `priceCats` (
   `pid` int(11) DEFAULT NULL,
   `level` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8;
 
-
+CREATE TABLE `prices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) DEFAULT NULL COMMENT 'Название позиции',
+  `catId` int(11) DEFAULT NULL COMMENT 'Катеогория позиции',
+  `price` int(11) DEFAULT NULL COMMENT 'Цена',
+  `order` int(11) DEFAULT NULL,
+  `type` varchar(45) DEFAULT NULL,
+  `text` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
 
 ";
         $this->execute($sql);

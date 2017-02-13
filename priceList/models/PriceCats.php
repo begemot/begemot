@@ -116,7 +116,7 @@ class PriceCats extends CActiveRecord
 
 
         $catsForDelete = $this->subCats();
-        if (count ($catsForDelete)==0) return;
+        if (count ($catsForDelete)==0) return true;
 
         foreach ($catsForDelete as $catForDelete){
             $this->deletePricesOfCat($catForDelete);

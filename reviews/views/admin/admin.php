@@ -25,7 +25,7 @@ $('.search-form form').submit(function(){
 <h1><? echo Yii::t('ReviewsModule.msg', 'Manage Reviews');?></h1>
 
 
-<?php $this->widget('zii.widgets.grid.CGridView', array(
+<?php $this->widget('bootstrap.widgets.TbGridView', array(
 	'id'=>'review-grid',
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
@@ -48,11 +48,11 @@ $('.search-form form').submit(function(){
                     array('defaultText'=>Yii::t('ReviewsModule.msg','Review Text'),'header'=>Yii::t('ReviewsModule.msg', 'Review'),'text'=>$data->getReviewText() )); 
                     }, 'type' => 'raw'
                ),                              
-               array(
-                    'header'=>Yii::t('ReviewsModule.msg', 'Product'),
-                    'value'=>'CHtml::link(Yii::t("ReviewsModule.msg", "Product href"),"/catalog/catItem/update/id/".CHtml::encode($data->pid))',
-                    'type'=>'raw'
-               ),               
+//               array(
+//                    'header'=>Yii::t('ReviewsModule.msg', 'Product'),
+//                    'value'=>'CHtml::link(Yii::t("ReviewsModule.msg", "Product href"),"/catalog/catItem/update/id/".CHtml::encode($data->pid))',
+//                    'type'=>'raw'
+//               ),
                array(
                     'name'=>'status',
                     'value'=>'Reviews::itemAlias("Status",$data->status)',

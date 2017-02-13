@@ -25,7 +25,7 @@
 	<div class="row">
 		<?php
 			$options = PriceCats::model()->findAll(['condition'=>'level=0']);
-		$optionsArray = [];
+		$optionsArray = ['-1'=>'корневой уровень'];
 		foreach ($options as $option){
 			$optionsArray[(string)$option->id] = $option->name;
 

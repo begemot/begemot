@@ -8,6 +8,8 @@ class CatalogModule extends CWebModule
     static public $catalogCategoryViewLayout = 'application.views.layouts.catalogCategoryViewLayout';
     static public $catalogItemViewLayout = 'application.views.layouts.catalogItemViewLayout';
 
+    public $baseLayout = null;
+    public $itemLayout = null;
     public $capcha = false;
     public $tidyleadImage = false;
     public $tidyConfig = array(
@@ -24,6 +26,7 @@ class CatalogModule extends CWebModule
     public function init()
     {
 
+        CatalogModule::$catalogLayout = $this->baseLayout;
         // this method is called when the module is being created
         // you may place code here to customize the module or the application
 
