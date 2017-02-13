@@ -32,8 +32,8 @@ class CatItemController extends Controller
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
 
                 'actions' => array(
-                    'delete','createColor','deleteColor','setColor',
-                    'setColorTo','unsetColorTo',
+                    'delete', 'createColor', 'deleteColor', 'setColor',
+                    'setColorTo', 'unsetColorTo',
                     'deleteModifFromItem',
                     'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'),
 
@@ -209,7 +209,7 @@ class CatItemController extends Controller
                     $item = CatItem::model()->findByPk($itemId);
                     $item->modOfThis = $id;
                     $item->save();
-                    $this->redirect ('/catalog/catItem/update/id/'.$id.'/tab/modifications');
+                    $this->redirect('/catalog/catItem/update/id/' . $id . '/tab/modifications');
 
                 }
             }
@@ -233,7 +233,7 @@ class CatItemController extends Controller
 
             }
 
-             if (isset($_POST['items'])) {
+            if (isset($_POST['items'])) {
                 foreach ($_POST['items'] as $itemId) {
                     $item = new CatItemsToItems();
 
@@ -377,14 +377,19 @@ class CatItemController extends Controller
     public function actionIndex()
     {
 
-        $dataProvider = new CActiveDataProvider('CatItem', array('criteria' => array('order' => '`id` desc')));
+        $dataProvider = new CActiveDataProvider('CatItem',
+            array(
+                'criteria' => array('order' => '`id` desc'),
+                'pagination' => array(
+                    'pageSize' => 1000,
+                ),
+            ));
 
         $dataProvider = new CatItem('search');
 
 //
         if (isset($_GET['CatItem']))
             $dataProvider->Attributes = $_GET['CatItem'];
-
 
 
         $this->render('index', array(
@@ -408,7 +413,6 @@ class CatItemController extends Controller
     }
 
 
-
     public function actionToggleTop($id)
     {
         $model = CatItem::model()->findByPk($id);
@@ -429,10 +433,10 @@ class CatItemController extends Controller
         if (Yii::app()->request->isAjaxRequest) {
 
             $item = CatItem::model()->findByPk($itemId);
-            print_r($item->modOfThis );
+            print_r($item->modOfThis);
             $item->modOfThis = null;
 
-            if(!$item->save()){
+            if (!$item->save()) {
                 echo 'Ошибка!';
             }
 
@@ -499,27 +503,30 @@ class CatItemController extends Controller
         }
     }
 
-    public function actionDeleteColor($colorId){
-        if (Yii::app()->request->isAjaxRequest){
+    public function actionDeleteColor($colorId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
 
             $color = CatColor::model()->findByPk($colorId);
             $color->delete();
-            CatColorToCatItem::model()->deleteAllByAttributes(['colorId'=>$colorId]);
+            CatColorToCatItem::model()->deleteAllByAttributes(['colorId' => $colorId]);
 
             return true;
         }
     }
 
-    public function actionSetColor($colorId,$colorCode){
-        if (Yii::app()->request->isAjaxRequest){
+    public function actionSetColor($colorId, $colorCode)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
             $color = CatColor::model()->findByPk($colorId);
-            $color->colorCode=$colorCode;
+            $color->colorCode = $colorCode;
             $color->save();
-  
+
             return true;
         }
     }
-    public function actionCreateColor($colorName,$colorCode,$catItemId)
+
+    public function actionCreateColor($colorName, $colorCode, $catItemId)
     {
 
         $color = new CatColor();
@@ -528,15 +535,16 @@ class CatItemController extends Controller
         $color->save();
 
         $colorToCatItem = new CatColorToCatItem();
-        $colorToCatItem->catItemId =$catItemId;
-        $colorToCatItem->colorId =$color->id;
+        $colorToCatItem->catItemId = $catItemId;
+        $colorToCatItem->colorId = $color->id;
         $colorToCatItem->save();
 
         $this->redirect('/catalog/catItem/update/id/1309/tab/colors');
     }
 
-    public function actionSetColorTo($colorId,$catItemId){
-        if (Yii::app()->request->isAjaxRequest){
+    public function actionSetColorTo($colorId, $catItemId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
             $color = new CatColorToCatItem();
             $color->catItemId = $catItemId;
             $color->colorId = $colorId;
@@ -546,9 +554,10 @@ class CatItemController extends Controller
         }
     }
 
-    public function actionUnsetColorTo($colorId,$catItemId){
+    public function actionUnsetColorTo($colorId, $catItemId)
+    {
         if (Yii::app()->request->isAjaxRequest) {
-            $color = CatColorToCatItem::model()->findByAttributes(['colorId' => $colorId,'catItemId'=>$catItemId]);
+            $color = CatColorToCatItem::model()->findByAttributes(['colorId' => $colorId, 'catItemId' => $catItemId]);
             $color->delete();
 
             return true;
