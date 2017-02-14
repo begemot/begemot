@@ -22,10 +22,7 @@ $(document).ready(function(){
             });
             $.fn.yiiGridView.update("test-grid");
 
-                $(".gridCheckboxCheckAll").click(function(){
-                    $(".gridCheckbox").click();
-                });
-
+        }
 
 
     });

@@ -81,6 +81,7 @@ class SiteController extends Controller {
     }
 
     public function actionCategoryView($catId = 0) {
+
         $this->layout = CatalogModule::$catalogCategoryViewLayout;
         $category = CatCategory::model()->findByPk($catId);
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
@@ -119,6 +120,7 @@ class SiteController extends Controller {
 //        $this->layout = CatalogModule::$catalogCategoryViewLayout;
 
         $this->layout = $this->module->baseLayout;
+
         $category = CatCategory::model()->findByPk($catId);
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $parentCategory = null;

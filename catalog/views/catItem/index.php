@@ -25,19 +25,23 @@ Yii::app()->clientScript->registerScriptFile($massSelectJsScript);
 
 <?php
 Yii::import('begemot.extensions.grid.EImageColumn');
+
 $js = '
- $(document).ready(function(){
-    $(".gridCheckboxCheckAll").click(function(){
+    function setCheckboxCall(){
+
       $(".gridCheckbox").click();
-    });
- });
-';
+
+
+    }
+ ';
 Yii::app()->clientScript->registerScript('checkBoxScript',$js,1);
 
 $this->widget('bootstrap.widgets.TbGridView', array(
     'id' => 'test-grid',
     'dataProvider' => $dataProvider->search(),
     'filter' => $dataProvider,
+    'selectableRows'=>0,
+
 
     'type' => 'striped bordered condensed',
     'columns' => array(
@@ -57,7 +61,7 @@ $this->widget('bootstrap.widgets.TbGridView', array(
             ),
         ),
         [
-            'header' => '<input  class="gridCheckboxCheckAll" type="checkbox" />',
+            'header' => '<input  onClick="setCheckboxCall();"  class="gridCheckboxCheckAll" type="checkbox" />',
             'type' => 'raw',
             'value' => '"<input data-id=".$data->id." class=\"gridCheckbox\" type=\"checkbox\" />"',
         ],
