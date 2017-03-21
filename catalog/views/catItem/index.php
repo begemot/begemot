@@ -104,6 +104,73 @@ $this->widget(
         ]
     )
 );
+
+$this->widget(
+    'bootstrap.widgets.TbButton',
+    array(
+//        'type'=>'danger',
+        'label' => 'Разделы',
+        'htmlOptions'=>[
+            'class'=>'sectionsBtn',
+            'style'=>'margin-left:10px;'
+        ]
+    )
+);
+
+$this->beginWidget(
+    'bootstrap.widgets.TbModal',
+    array(
+//        'type'=>'danger',
+//        'label' => 'Разделы',
+        'htmlOptions'=>[
+            'id'=>'sectionsModal'
+        ]
+    )
+);
+
+?>
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Массовые операции с позициями и разделами</h4>
+            </div>
+            <div class="modal-body">
+
+                <h4>Выбрано <span id="selectedCount">__</span> позиций</h4>
+                <p>Теперь выберите нужные разделы, куда вы хотите переместить или скопировать выбранные позиции.</p>
+
+                <ul>
+                <?php
+                    $menu = CatCategory::model()->categoriesMenu();
+                    foreach ($menu as $itemId => $menuItem){
+                      echo '<li>';
+                      echo '<input class="sectionCheckBox" type="checkbox" data-id="'.$itemId.'"/>';
+                      echo $menuItem['label'];
+
+
+                      echo '</li>';
+                    }
+//                    print_r( CatCategory::model()->categoriesMenu());
+                ?>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-mass-cat-connect">Добавить в раздел</button>
+                <button type="button" class="btn btn-primary btn-mass-copy">Скопировать</button>
+                <button type="button" class="btn btn-primary btn-mass-move">Переместить</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+
+<?php
+
+$this->endWidget();
 ?>
 
 <script>
