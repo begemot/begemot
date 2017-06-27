@@ -39,7 +39,7 @@ img.delete-btn {
     float:right;
 }
 
-img.delete-btn:hover, img.fav-btn:hover,img.title-btn:hover,img.all-images-btn:hover{
+img.delete-btn:hover, img.fav-btn:hover,img.title-btn:hover,img.all-images-btn:hover,img.eye-btn:hover{
     opacity: 1;
 }
 
@@ -80,3 +80,16 @@ img.all-images-btn{
     opacity: 0.5;
     float:left;
 }
+
+
+img.eye-btn {
+    width:39px;
+    position:relative;
+    z-index: 999;
+    top:-33px;
+    right:179px;
+    opacity: 0.8;
+
+    float:left;
+}
+

@@ -320,6 +320,9 @@ class DefaultController extends Controller
             if (file_exists($favFile)){
 
                 $favArray = require($favFile);
+
+                if ($favArray == null) $favArray=[];
+
             } else {
                 $favArray = [];
             }
@@ -354,10 +357,7 @@ class DefaultController extends Controller
                     $resultArray[$imageKey] = $altArray;
                 }
 
-
             }
-
-
             echo json_encode($resultArray);
         }
     }
@@ -424,6 +424,16 @@ class DefaultController extends Controller
             }
 
             $this->updateSortData($id, $elementId);
+        }
+    }
+
+    public function actionAjaxShowHideImage($id, $elementId, $pictureId)
+    {
+
+        $this->layout = 'pictureBox.views.layouts.ajax';
+        if (Yii::app()->request->isAjaxRequest) {
+           $pbox =  new PBox($id,$elementId);
+            echo $pbox->changeImageShown($pictureId);
         }
     }
 
