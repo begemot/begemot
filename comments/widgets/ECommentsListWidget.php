@@ -14,6 +14,7 @@
  */
 Yii::import('comments.widgets.ECommentsBaseWidget');
 class ECommentsListWidget extends ECommentsBaseWidget
+
 {       
     /**
      * @var boolean showPopupForm
@@ -42,6 +43,8 @@ class ECommentsListWidget extends ECommentsBaseWidget
             if($this->_config['isSuperuser'] !== '')
                 $this->adminMode = $this->evaluateExpression($this->_config['isSuperuser']);
         }
+
+
     }
         
 	public function run()

@@ -56,6 +56,7 @@ class ECommentsBaseWidget extends CWidget
             $commentsModule = Yii::app()->getModule('comments');
             //get model config for comments module
             $this->_config = $commentsModule->getModelConfig($this->model);
+
             if(count($this->_config) > 0)
             {
                 $this->registeredOnly = isset($this->_config['registeredOnly']) ? $this->_config['registeredOnly'] : $this->registeredOnly;

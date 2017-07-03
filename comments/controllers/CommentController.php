@@ -29,7 +29,7 @@ class CommentController extends Controller
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
-            'ajaxOnly + PostComment, Delete, Approve, likeOrDislike',
+            'ajaxOnly + postComment, delete, approve, likeOrDislike',
 		);
 	}
         
@@ -82,17 +82,18 @@ class CommentController extends Controller
         if($comment->setDeleted()){
             $result['code'] = 'success';
 
-            $model=$comment->owner_name::model()->findByPk($comment->owner_id);
+            $model=Comment::model()->findByPk($comment->owner_id);
             $model->comments--;
             if($model->comments < 0) $model->comments = 0;
             $model->save();
         }
         else 
             $result['code'] = 'fail';
+
         echo CJSON::encode($result);
 	}
         
-        /**
+    /**
 	 * Approves a particular model.
 	 * @param integer $id the ID of the model to be approve
 	 */
@@ -138,7 +139,7 @@ class CommentController extends Controller
             else{
 
                 if($comment->save()){
-                    $model=$comment->owner_name::model();
+                    $model=Comment::model();
                     $transaction=$model->dbConnection->beginTransaction();
                     try
                     {
@@ -195,12 +196,9 @@ class CommentController extends Controller
                 echo CActiveForm::validate( array( $comment));
                 
                 Yii::app()->end();
-            } else {
-
-
             }
 
-            return;
+            //return true;
 
             if($comment->save())
             {
