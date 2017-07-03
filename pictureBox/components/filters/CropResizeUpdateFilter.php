@@ -11,18 +11,16 @@ class CropResizeUpdateFilter extends BaseFilter{
 		// get the current image dimensions
 		$geo = $im->getImageGeometry();
 
-		// crop the image
-		if(($geo['width']/$width) < ($geo['height']/$height))
-		{
-		    $im->cropImage($geo['width'], floor($height*$geo['width']/$width), 0, (($geo['height']-($height*$geo['width']/$width))/2));
-		}
-		else
-		{
-		    $im->cropImage(ceil($width*$geo['height']/$height), $geo['height'], (($geo['width']-($width*$geo['height']/$height))/2), 0);
-		}
+	    $im->cropImage(
+	    	$width, 
+	    	$height,
+	    	round($geo['width'] /2) - $width / 2,
+			round($geo['height'] /2) - $height / 2
+	    );
+
 		// thumbnail the image
 
-		$im->ThumbnailImage($width,$height,true);
+		//$im->ThumbnailImage($width,$height,true);
 
         //$im->cropThumbnailImage($this->param['width'],$this->param['height']);
         $im->writeImage($this->newFileName);
