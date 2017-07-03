@@ -1,16 +1,17 @@
 <?php
+/* @var $this InvoicesController */
+/* @var $dataProvider CActiveDataProvider */
 
-$this->breadcrumbs = array(
-	TasksToUser::label(2),
-	'Index',
+$this->breadcrumbs=array(
+	'Tasks Invoices',
 );
 
 $this->menu = require dirname(__FILE__).'/../commonMenu.php';
 ?>
 
-<h1><?php echo GxHtml::encode(TasksToUser::label(2)); ?></h1>
+<h1>Tasks Invoices</h1>
 
 <?php $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view',
-)); 
+)); ?>

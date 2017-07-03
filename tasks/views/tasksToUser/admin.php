@@ -5,10 +5,7 @@ $this->breadcrumbs = array(
 	'Manage',
 );
 
-$this->menu = array(
-		array('label'=>'List' . ' ' . $model->label(2), 'url'=>array('index')),
-		array('label'=>'Create' . ' ' . $model->label(), 'url'=>array('create')),
-	);
+$this->menu = require dirname(__FILE__).'/../commonMenu.php';
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -44,7 +41,6 @@ You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&g
 	'columns' => array(
 		'id',
 		'video_link',
-		'title_t',
 		'text',
 		'price',
 		'update_time',

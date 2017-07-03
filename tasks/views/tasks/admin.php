@@ -5,10 +5,7 @@ $this->breadcrumbs = array(
 	'Manage',
 );
 
-$this->menu = array(
-		array('label'=>'List' . ' ' . $model->label(2), 'url'=>array('index')),
-		array('label'=>'Create' . ' ' . $model->label(), 'url'=>array('create')),
-	);
+$this->menu = require dirname(__FILE__).'/../commonMenu.php';
 
 
 ?>
@@ -30,7 +27,7 @@ $this->menu = array(
 		'likes',
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
-            'template'=>'{view}'
+            'template'=>'{update}{view}{delete}'
 		),
 	),
 )); ?>

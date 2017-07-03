@@ -1,8 +1,8 @@
 <?php
 
-class SiteController extends GxController 
+class DefaultController extends GxController 
 {
-	public $layout = '//layouts/main';
+	public $layout = 'main';
 
 	public function filters() {
 		return array(
@@ -32,6 +32,12 @@ class SiteController extends GxController
 		}
 
 		return true;
+	}
+
+	public function actionIndex()
+	{
+		# code go here
+		echo "ok";
 	}
 
     public function actionDefault(){
@@ -75,10 +81,10 @@ class SiteController extends GxController
 		$doneTasks = Tasks::model()->findAll(array('condition' => 'done = 1', 'order' => $sort . ' ' . $order, 'limit' => 7));
 
 		$tasks = array(
-			'newTasks' => array('data' => $newTasks, 'id' => 'new', 'title' => 'Свежие задания', 'title_t' => 'Svesqe_sadanija'),
-			'hotTasks' => array('data' => $hotTasks, 'id' => 'hot', 'title' => 'Горячие задания', 'title_t' => 'Gorjachie_zadanija'),
-			'doingTasks' => array('data' => $doingTasks, 'id' => 'delajutsa', 'title' => 'Задания на выполнении', 'title_t' => 'Zadanija_na_vypolnenii'),
-			'doneTasks' => array('data' => $doneTasks, 'id' => 'sdelannqe', 'title' => 'Выполненные задания', 'title_t' => 'Vypolnennye_zadanija'),
+			'newTasks' => array('data' => $newTasks, 'id' => 'new', 'title' => 'Свежие задания'),
+			'hotTasks' => array('data' => $hotTasks, 'id' => 'hot', 'title' => 'Горячие задания'),
+			'doingTasks' => array('data' => $doingTasks, 'id' => 'delajutsa', 'title' => 'Задания на выполнении'),
+			'doneTasks' => array('data' => $doneTasks, 'id' => 'sdelannqe', 'title' => 'Выполненные задания'),
 		);
 
 		$this->render('all', array(
@@ -107,27 +113,22 @@ class SiteController extends GxController
 		if($id == 'delajutsa'){
 			$tasks = Tasks::model()->findAll(array('condition' => 'done = 0', 'order' => $sort . ' ' . $order));
 			$title = 'Задания на выполнении';
-			$title_t = 'Zadanija_na_vypolnenii';
 		}
 		else if($id == 'kassovqe'){
 			$tasks = Tasks::model()->findAll(array('condition' => 'price > 0', 'order' => $sort . ' ' . $order));
 			$title = 'Кассовые задания';
-			$title_t = 'Kassovye_zadanija';
 		}
 		else if($id == 'sdelannqe'){
 			$tasks = Tasks::model()->findAll(array('condition' => 'done = 1', 'order' => $sort . ' ' . $order));
 			$title = 'Выполненные задания';
-			$title_t = 'Vypolnennye_zadanija';
 		}
 		else if($id == 'hot'){
 			$tasks = Tasks::model()->findAll(array('order' => 'likes DESC, comments DESC, create_time DESC'));
 			$title = 'Горячие задания';
-			$title_t = 'Gorjachie_zadanija';
 		}
 		else{
 			$tasks = Tasks::model()->findAll(array('order' => $sort . ' ' . $order . ', create_time DESC'));
 			$title = 'Свежие задания';
-			$title_t = 'Svesqe_sadanija';
 		}
 
 		$this->render('category', array(
@@ -235,11 +236,7 @@ class SiteController extends GxController
     public function actionDelete($id) {
 		if (Yii::app()->getRequest()->getIsAjaxRequest()) {
 			$model = $this->loadModel($id, 'Tasks');
-
-			$array = Yii::app()->authManager->getRoles(Yii::app()->user->id);
-	        reset($array);
-	        $first_key = key($array);
-			if($model->user_id == Yii::app()->user->id || $first_key == 'admin joystarter'){
+			if($model->user_id == Yii::app()->user->id){
 				$model->delete();
 				echo json_encode(array('success' => true));
 				Yii::app()->end();
@@ -258,8 +255,6 @@ class SiteController extends GxController
 
 
 	public function actionCreate(){
-
-		$this->layout = '//layouts/modal';
 		$model = new Tasks;
 
 		if(isset($_POST['ajax'])){
@@ -275,13 +270,13 @@ class SiteController extends GxController
 				if ($model->save()) {
 
 					if (Yii::app()->getRequest()->isAjaxRequest){
-						$json['redirect'] = Yii::app()->createUrl("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new'));
+						$json['redirect'] = Yii::app()->createUrl('/tasks/view', array('id' => $model->id));
 						$json['success'] = true;
 						echo json_encode($json);
 						Yii::app()->end();
 					}
 					else
-						$this->redirect(array("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new')));
+						$this->redirect(array('view', 'id' => $model->id));
 				}
 			}
 			else{
@@ -293,20 +288,18 @@ class SiteController extends GxController
 		}
 		else{
 			if(Yii::app()->request->isAjaxRequest){
-				$this->renderPartial('create',array('model'=>$model), false, true);
+				$this->renderPartial('/tasks/create',array('model'=>$model), false, true);
 
 			} else{
-				$this->render('create', array( 'model' => $model));
+				$this->render('/tasks/create', array( 'model' => $model));
 			}
 		}
 
 	}
 
 	public function actionUpdate($id){
-		$this->layout = '//layouts/modal';
 		$model = $this->loadModel($id, 'Tasks');
-
-
+		$model->image = $model->getItemMainPicture('main', false);
 
 		if($model->user_id != Yii::app()->user->id){
 			throw new Exception("Ошибка запроса", 1);
@@ -325,13 +318,13 @@ class SiteController extends GxController
 				if ($model->save()) {
 
 					if (Yii::app()->getRequest()->isAjaxRequest){
-						$json['redirect'] = Yii::app()->createUrl("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new'));
+						$json['redirect'] = Yii::app()->createUrl('/tasks/view', array('id' => $model->id));
 						$json['success'] = true;
 						echo json_encode($json);
 						Yii::app()->end();
 					}
 					else
-						$this->redirect(array("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new')));
+						$this->redirect(array('view', 'id' => $model->id));
 				}
 			}
 			else{
@@ -342,19 +335,12 @@ class SiteController extends GxController
 			}
 		}
 		else{
-			$d = 0;
-			if($model->getItemMainPicture('main', false, true) != ""){
-				$model->image = str_replace('_main', '', $model->getItemMainPicture('main', false, true));
-
-				$image = new Imagick(dirname(Yii::app()->basePath) . $model->image);
-				$d = $image->getImageGeometry(); 
-			}
-
 			if(Yii::app()->request->isAjaxRequest){
-				$this->renderPartial('update',array('model'=>$model, 'image_width' => $d['width']), false, true);
+				$this->renderPartial('/tasks/update',array('model'=>$model), false, true);
 
 			} else{
-				$this->render('update', array( 'model' => $model, 'image_width' => $d['width']));
+				$this->layout = 'modal';
+				$this->render('/tasks/update', array( 'model' => $model));
 			}
 		}
 
@@ -392,11 +378,11 @@ class SiteController extends GxController
 		}
 		else{
 			if(Yii::app()->request->isAjaxRequest){
-				$this->renderPartial('willDo',array('model'=>$model), false, true);
+				$this->renderPartial('/tasks/willDo',array('model'=>$model), false, true);
 
 			} else{
 				$this->layout = 'modal';
-				$this->render('willDo', array( 'model' => $model));
+				$this->render('/tasks/willDo', array( 'model' => $model));
 			}
 		}
 
@@ -434,11 +420,11 @@ class SiteController extends GxController
 		}
 		else{
 			if(Yii::app()->request->isAjaxRequest){
-				$this->renderPartial('subscribe',array('model'=>$model), false, true);
+				$this->renderPartial('/tasks/subscribe',array('model'=>$model), false, true);
 
 			} else{
 				$this->layout = 'modal';
-				$this->render('subscribe', array( 'model' => $model));
+				$this->render('/tasks/subscribe', array( 'model' => $model));
 			}
 		}
 

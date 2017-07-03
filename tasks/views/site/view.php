@@ -5,8 +5,18 @@ $this->breadcrumbs = array(
 	GxHtml::valueEx($model),
 ); ?>
 
-<div class="container">
+<div class="container containerHeader">
     <h1 class="pad-bot40"><?php echo $model->title?></h1>
+    <?php 
+        $array = Yii::app()->authManager->getRoles(Yii::app()->user->id);
+        reset($array);
+        $first_key = key($array);
+    ?>
+    <?php if ($first_key == 'admin joystarter'): ?>
+        <button class="btn btn-filled deleteOnConfirm" href="<?php echo Yii::app()->createUrl("/tasks/site/delete", array('id' => $model->id))?>" data-remove=".taskHeader, main, .deleteOnConfirm">Удалить задание<i class= aria-hidden="true"></i></button>
+        <br/>
+        <br/>
+    <?php endif ?>
 </div>
 <section class="taskHeader">
     <div class="img-block">
@@ -27,6 +37,7 @@ $this->breadcrumbs = array(
         </div>
     </div>
     <div class="taskHeader__buttons">
+
         <?php if ($getWhoWillDoExists = $model->getWhoWillDo()): //estj ispolnitelj?>
             <?php if ($model->willDoId != 0): ?>
                 <?php if ($model->donated >= $model->price && $model->done == 1): ?>
@@ -43,7 +54,11 @@ $this->breadcrumbs = array(
 
             <?php else: ?>
                 <p class="taskHeader__buttons_title">сбор денег
-                    <a class="showDonats" href="#donatq"><span class="tablet-text">История донатов</span><span class="mobile-text">донаты</span> <i class="fa fa-long-arrow-right" aria-hidden="true"></i></a>
+                    <a class="showDonats" href="#donatq">
+                        <span class="tablet-text">История донатов</span>
+                        <span class="mobile-text">донаты</span> 
+                        <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                    </a>
                 </p>
 
             <?php endif; ?>
@@ -51,27 +66,37 @@ $this->breadcrumbs = array(
             
         <?php endif; //estj ispolnitelj?>
 
-        <p class="price"><?php echo $model->price?> р.</p>
+        <?php if ($model->price > 0): ?>
+            <p class="price"><?php echo $model->price?> р.</p>
+        <?php endif ?>
+        
 
 
         
         
         <?php if ($getWhoWillDoExists && $model->willDoId == 0): //estj ispolnitelj?>
             <p>Собрано / <?php echo $model->donatedCount ?> донатеров</p>
-            <div class="slider-block">
-                <div class="slider">
-                    <div class="slider-range" style="width:<?php echo $model->getDonatedPercent() ?>%"></div>
+            <?php if ($model->price > 0): ?>
+                <div class="slider-block">
+                    <div class="slider">
+                        <div class="slider-range" style="width:<?php echo $model->getDonatedPercent() ?>%"></div>
+                    </div>
+                   
+                    <span class="slider-text"><?php echo $model->getDonatedPercent() ?> %</span>
                 </div>
-                <span class="slider-text"><?php echo $model->getDonatedPercent() ?> %</span>
-            </div>
+            <?php endif ?>
              <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/payment/form', array('task_id' => $model->id))?>">Задонатить</a>
              <a class="subscribe open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
         <?php endif ?>
+
+
        
        <?php if ($model->willDoId == 0): ?>
            <a class="btn btn-filled open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/willDo', array('task_id' => $model->id))?>">Хочу выполнить</a>
        <?php endif ?>
-       
+
+       <br/><br/>
+
         <?php if (!$getWhoWillDoExists): ?>
             <a class="subscribe2 open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
         <?php endif ?>
@@ -105,6 +130,7 @@ $this->breadcrumbs = array(
         <a href="http://www.facebook.com/share.php?u=<?php echo $_SERVER['REQUEST_URI'] ?>&title=<?php echo $model->title?>"><i class="fa fa-facebook" aria-hidden="true"></i></a>
 
     </div>
+
     <h2>Описание</h2>
     <?php echo $model->text ?>
 

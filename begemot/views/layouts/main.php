@@ -38,12 +38,16 @@
                         array('label'=>'Контент', 'url'=>array(''),
                             'items'=>array(
                                 array('label'=>'Каталог', 'url'=>array('/catalog/catItem'),'visible'=>Yii::app()->hasModule('catalog')),
+                                array('label'=>'Задания', 'url'=>array('/tasks/tasks/admin'),'visible'=>Yii::app()->hasModule('tasks')),
                                 array('label'=>'Статьи', 'url'=>array('/post/default/admin'),'visible'=>Yii::app()->hasModule('post')),
                                 array('label'=>'HTML', 'url'=>array('/pages'),'visible'=>Yii::app()->hasModule('pages')),
                                 array('label'=>'Vars', 'url'=>array('/vars'),'visible'=>Yii::app()->hasModule('vars')),
                                 array('label'=>'Слайдер', 'url'=>array('/slider/admin'),'visible'=>Yii::app()->hasModule('slider')),
+
                             ),
                         ),
+
+
 
                         array('label'=>'Другие',
                             'items'=>array(

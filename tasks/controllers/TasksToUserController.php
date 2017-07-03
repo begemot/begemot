@@ -5,8 +5,8 @@ class TasksToUserController extends GxController {
 
 	public function filters() {
 		return array(
-				'accessControl', 
-				);
+			'accessControl', 
+		);
 	}
 
 	/**
@@ -15,18 +15,18 @@ class TasksToUserController extends GxController {
 	 * @return array access control rules
 	 */
 	public function accessRules()
-	{
-		return array(
+    {
+        return array(
 
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('index','newMigration'),
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions'=>array('index', 'view', 'create', 'update','admin', 'delete'),
                 'expression'=>'Yii::app()->user->canDo("")'
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
-		);
-	}
+            ),
+            array('deny',  // deny all users
+                'users'=>array('*'),
+            ),
+        );
+    }
 
 	public function actionView($id) {
 		$this->render('view', array(

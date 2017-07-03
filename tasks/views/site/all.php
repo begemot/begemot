@@ -71,7 +71,7 @@
 					
 					<?php if (count($taskHolder['data']) > 6): ?>
 						<div class="showmore-container">
-					        <a class="showmore btn btn-border" href="<?php echo Yii::app()->createUrl("/tasks/category", array('id' => $taskHolder['id']))?>">Показать еще</a>
+					        <a class="showmore btn btn-border" href="<?php echo Yii::app()->createUrl("/tasks/site/category", array('id' => $taskHolder['id']))?>">Показать еще</a>
 					    </div>
 					<?php endif ?>
 				    

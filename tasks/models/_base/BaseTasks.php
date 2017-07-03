@@ -24,6 +24,7 @@ Yii::import('begemot.extensions.contentKit.ContentKitModel');
 abstract class BaseTasks extends ContentKitModel {
 	public $image = null;
 	public $imagePath = null;
+	public $new_picture = 0;
 
 	public static function model($className=__CLASS__) {
 		return parent::model($className);
@@ -84,13 +85,13 @@ abstract class BaseTasks extends ContentKitModel {
 
 					$image = new Imagick($image);
 					$randId = rand(10000, 1000000);
-					$this->imagePath = Yii::getPathOfAlias('webroot') . '/files/temp/' . $randId .  "-" . Yii::app()->user->id . "." . $image->getImageFormat();
+					$this->imagePath = Yii::getPathOfAlias('webroot') . '/files/temp/' . $randId .  "-" . Yii::app()->user->id . "." . strtolower($image->getImageFormat());
 					if (isset($_POST['cords_w']) && isset($_POST['cords_h']) && isset($_POST['cords_x1']) && isset($_POST['cords_y1'])) {
 
-						$w = intval($_POST['cords_w']) * ($image->getImageWidth() / intval($_POST['current_w']));
-						$postHeight = intval($_POST['cords_h']);
-						$h = $w/1.53;
-						$image->cropImage($w, $h, intval($_POST['cords_x1']), intval($_POST['cords_y1']));
+						$ratio = ($image->getImageWidth() / floatval($_POST['current_w']));
+						$w = floatval($_POST['cords_w']) * $ratio;
+						$h = $w / floatval($_POST['aspectRatio']);
+						$image->cropImage($w, $h, floatval($_POST['cords_x1']) * $ratio, floatval($_POST['cords_y1']) * $ratio);
 
 						$image->writeImage($this->imagePath);
 						$image->clear();
@@ -146,7 +147,7 @@ abstract class BaseTasks extends ContentKitModel {
     } 
 
 	//get path of one main picture, wich take from fav or common images list
-    public function getItemMainPicture($tag=null, $returnPolyfillImage = true){
+    public function getItemMainPicture($tag=null, $returnPolyfillImage = true, $noTime = false){
     
         
         $imagesDataPath = Yii::getPathOfAlias('webroot').'/files/pictureBox/tasks/'.$this->id;
@@ -181,7 +182,10 @@ abstract class BaseTasks extends ContentKitModel {
         }
         else{
             if (isset($itemImage[$tag]))
-                return $itemImage[$tag]  . "?" . time();
+            	if($noTime){
+            		return $itemImage[$tag];
+            	}
+                else return $itemImage[$tag]  . "?" . time();
             else{
             	if ($returnPolyfillImage) {
             		return '/img/project' . $tagPath . '.jpg'; 

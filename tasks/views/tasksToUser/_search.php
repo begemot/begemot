@@ -16,11 +16,6 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model, 'title_t'); ?>
-		<?php echo $form->textField($model, 'title_t', array('maxlength' => 255)); ?>
-	</div>
-
-	<div class="row">
 		<?php echo $form->label($model, 'text'); ?>
 		<?php echo $form->textArea($model, 'text'); ?>
 	</div>

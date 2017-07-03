@@ -51,6 +51,9 @@
     <input type="hidden" name='cords_y2' id='cords_y2'/>
     <input type="hidden" name='cords_w' id='cords_w'/>
     <input type="hidden" name='cords_h' id='cords_h'/>
+    <?php if (isset($image_width)): ?>
+    	<input type="hidden" name='image_width' id='image_width' value='<?php echo $image_width?>'/>
+    <?php endif ?>
     <input type="hidden" name='current_w' id='current_w' />
     <?php echo CHtml::submitButton($model->isNewRecord ? 'Добавить задание' : 'Изменить задание', array('class' => 'btn btn-border')); ?>
 

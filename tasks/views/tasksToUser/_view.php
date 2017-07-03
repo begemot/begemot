@@ -7,9 +7,6 @@
 	<?php echo GxHtml::encode($data->getAttributeLabel('video_link')); ?>:
 	<?php echo GxHtml::encode($data->video_link); ?>
 	<br />
-	<?php echo GxHtml::encode($data->getAttributeLabel('title_t')); ?>:
-	<?php echo GxHtml::encode($data->title_t); ?>
-	<br />
 	<?php echo GxHtml::encode($data->getAttributeLabel('text')); ?>:
 	<?php echo GxHtml::encode($data->text); ?>
 	<br />

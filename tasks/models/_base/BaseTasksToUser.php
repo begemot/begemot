@@ -123,7 +123,6 @@ abstract class BaseTasksToUser extends GxActiveRecord {
 		return array(
 			'id' => Yii::t('app', 'ID'),
 			'video_link' => Yii::t('app', 'Video Link'),
-			'title_t' => Yii::t('app', 'Title T'),
 			'text' => Yii::t('app', 'Text'),
 			'price' => Yii::t('app', 'Price'),
 			'update_time' => Yii::t('app', 'Update Time'),
@@ -137,7 +136,6 @@ abstract class BaseTasksToUser extends GxActiveRecord {
 
 		$criteria->compare('id', $this->id);
 		$criteria->compare('video_link', $this->video_link, true);
-		$criteria->compare('title_t', $this->title_t, true);
 		$criteria->compare('text', $this->text, true);
 		$criteria->compare('price', $this->price);
 		$criteria->compare('update_time', $this->update_time, true);

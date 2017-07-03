@@ -5,8 +5,8 @@ public $layout='begemot.views.layouts.column2';
 
 	public function filters() {
 		return array(
-				'accessControl', 
-				);
+			'accessControl', 
+		);
 	}
 
 	/**

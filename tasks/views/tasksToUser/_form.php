@@ -19,11 +19,6 @@
 		<?php echo $form->error($model,'video_link'); ?>
 		</div><!-- row -->
 		<div class="row">
-		<?php echo $form->labelEx($model,'title_t'); ?>
-		<?php echo $form->textField($model, 'title_t', array('maxlength' => 255)); ?>
-		<?php echo $form->error($model,'title_t'); ?>
-		</div><!-- row -->
-		<div class="row">
 		<?php echo $form->labelEx($model,'text'); ?>
 		<?php echo $form->textArea($model, 'text'); ?>
 		<?php echo $form->error($model,'text'); ?>

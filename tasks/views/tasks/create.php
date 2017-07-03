@@ -5,10 +5,7 @@ $this->breadcrumbs = array(
 	'Create',
 );
 
-$this->menu = array(
-	array('label'=>'List' . ' ' . $model->label(2), 'url' => array('index')),
-	array('label'=>'Manage' . ' ' . $model->label(2), 'url' => array('admin')),
-);
+$this->menu = require dirname(__FILE__).'/../commonMenu.php';
 ?>
 
 <h1><?php echo 'Create' . ' ' . GxHtml::encode($model->label()); ?></h1>
