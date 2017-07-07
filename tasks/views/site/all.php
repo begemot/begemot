@@ -43,7 +43,7 @@
 					            <?php if ($task->price): ?>
 					            	<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo $task->price?> р.
 					            <?php endif ?>
-					                <span class="likes"><?php echo $task->likes?></span>
+					                <span class="likes like-<?php echo $task->id?>"><?php echo $task->likes?></span>
 					                <img class="icon-like" src="/img/icon-like.svg" onerror="this.onerror=null; this.src='img/icon-like.png'" alt="">
 					            </div>
 					        </div>
@@ -58,8 +58,9 @@
 					            	<?php if ($task->price): ?>
 					            		<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo $task->price?> р.
 					            	<?php endif?>
-					                <div class="likes-increase">
-					                    <span class="likes"><?php echo $task->likes?></span>
+					                <?php $likeClass = (Yii::app()->user->isGuest) ? "" : "likes-increase" ?>
+                                    <div class="<?php echo $likeClass ?>" data-id='<?php echo $task->id?>' data-option='1' data-elem='.like-<?php echo $task->id?>'>
+					                    <span class="likes like-<?php echo $task->id?>"><?php echo $task->likes?></span>
 						                <img class="icon-like" src="/img/icon-like.svg" onerror="this.onerror=null; this.src='img/icon-like.png'" alt="">
 						                
 					                </div>

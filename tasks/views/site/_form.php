@@ -37,12 +37,12 @@
     	<div id='image_holder'></div>
     	<input type="hidden" name='new_picture' id='new_picture' value='1' />
     <?php endif ?>
-	
+	<div id='loader' style='display: none'><img src="/img/balls.gif" alt='Загрузка...'/></div>
 	<div class="form-group file-group file-input">
         <a href="#" class="btn btn-border uploadImageTemp">обзор</a>
     </div>
     <p id='image_error' class='hide'></p>
-    <p>Рекомендуемый размер изображения 1024*768 (максимальный размер 2мб)</p>
+    <p>Рекомендуемый размер изображения 1024*768 (максимальный размер 6мб)</p>
     
 	<input type="hidden" name='aspectRatio' value='1.53' id='aspectRatio'/>
     <input type="hidden" name='cords_x1' id='cords_x1'/>

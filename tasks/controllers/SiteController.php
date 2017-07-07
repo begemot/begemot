@@ -141,8 +141,18 @@ class SiteController extends GxController
 
 	public function actionLikeOrDislike($id, $doLikeOrDislike){
 
-        if (Yii::app()->user->id != null) {
-        	$needToDowngrade = false;
+		$task=Tasks::model()->findByPk($id);
+		$needToDowngrade = false;
+
+
+    	if(Yii::app()->user->id != null && count(TasksLikesAndDislikes::model()->findByAttributes(array(
+    			'user_id' => Yii::app()->user->id, 
+    			'task_id' => $id, 
+    			'like_or_dislike' => intval($doLikeOrDislike)
+    	))) === 0){
+
+
+    	
         	if(TasksLikesAndDislikes::model()->deleteAllByAttributes(array('user_id' => Yii::app()->user->id, 'task_id' => $id))){
         		$needToDowngrade = true;
         	}
@@ -153,13 +163,13 @@ class SiteController extends GxController
             $addNewOne->like_or_dislike = intval($doLikeOrDislike);
             if($addNewOne->save()){
 
-            	$model=Tasks::model();
-				$transaction=$model->dbConnection->beginTransaction();
+            	
+				$transaction=$task->dbConnection->beginTransaction();
 				try
 				{
 				    // поиск и сохранение — шаги, между которыми могут быть выполнены другие запросы,
 				    // поэтому мы используем транзакцию, чтобы удостовериться в целостности данных
-				    $task=$model->findByPk($id);
+				    
 				    if(intval($doLikeOrDislike)){
 				    	$task->likes++;
 				    	if($needToDowngrade) $task->dislikes--;

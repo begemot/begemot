@@ -30,8 +30,8 @@ $this->breadcrumbs = array(
                 </div>
                 <div class="likes-block">
                     <?php $taskLikeOrDislike = (Yii::app()->user->isGuest) ? "" : "taskLikeOrDislike" ?>
-                    <span class="likes-block__dislike <?php echo $taskLikeOrDislike?>" data-id='<?php echo $model->id?>' data-option='0'><?php echo $model->likes?></span>
-                    <span class="likes-block__like <?php echo $taskLikeOrDislike?>" data-id='<?php echo $model->id?>' data-option='1'><?php echo $model->dislikes?></span>
+                    <span class="likes-block__dislike <?php echo $taskLikeOrDislike?>" data-id='<?php echo $model->id?>' data-option='0'><?php echo $model->dislikes?></span>
+                    <span class="likes-block__like <?php echo $taskLikeOrDislike?>" data-id='<?php echo $model->id?>' data-option='1'><?php echo $model->likes?></span>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@ $this->breadcrumbs = array(
         
         
         <?php if ($getWhoWillDoExists && $model->willDoId == 0): //estj ispolnitelj?>
-            <p>Собрано / <?php echo $model->donatedCount ?> донатеров</p>
+            <p>Собрано <?php echo $model->donated ?> руб. / <?php echo $model->donatedCount ?> донатеров</p>
             <?php if ($model->price > 0): ?>
                 <div class="slider-block">
                     <div class="slider">
@@ -132,7 +132,7 @@ $this->breadcrumbs = array(
     </div>
 
     <h2>Описание</h2>
-    <?php echo $model->text ?>
+    <p><?php echo $model->text ?></p>
 
     <div class="canDoTask-container">
         <h3><span>Могут выполнить<sup><?php echo count($model->user_tasks);?></sup></span></h3>
