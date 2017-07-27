@@ -135,7 +135,8 @@ class UserModule extends CWebModule
 
             ));
             Yii::app()->setComponent('bootstrap',$component);
-            Yii::app()->theme = 'bootstrap';
+            //Совсем не понятно зачем такой дикий баг оставили в системе
+            //Yii::app()->theme = 'bootstrap';
         }
     }
 	
