@@ -15,18 +15,24 @@
 Yii::import('comments.widgets.ECommentsBaseWidget');
 class ECommentsFormWidget extends ECommentsBaseWidget
 {       
-        /**
-         * Is used for display validation errors
-         * @var Comment newComment 
-         */
-        public $validatedComment;
+    /**
+     * Is used for display validation errors
+     * @var Comment newComment 
+     */
+    public $validatedComment;
         
 	public function run()
 	{
 
             if($this->registeredOnly === false || Yii::app()->user->isGuest === false)
             {
-                $this->render('ECommentsFormWidget', array(
+
+                if(isset(Yii::app()->theme) && Yii::app()->theme->name != ""){
+                    $path = 'webroot.themes.' . Yii::app()->theme->name . '.views.ECommentsListWidget.ECommentsFormWidget';
+                }
+                else $path = 'ECommentsFormWidget';
+
+                $this->render($path, array(
                     'newComment' => $this->validatedComment ? $this->validatedComment : $this->createNewComment(),
                 ));
             }

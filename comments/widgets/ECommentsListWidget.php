@@ -52,7 +52,7 @@ class ECommentsListWidget extends ECommentsBaseWidget
         $newComment = $this->createNewComment();
 
         $comments = $newComment->getCommentsTree();
-        $this->render('webroot.themes.' . $this->theme . '.ECommentsListWidget', array(
+        $this->render('ECommentsListWidget', array(
             'comments' => $comments,
             'newComment' => $newComment,
             'theme' => $this->theme
