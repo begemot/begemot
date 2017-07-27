@@ -208,6 +208,7 @@ abstract class BaseTasks extends ContentKitModel {
 		}
 
 		$this->title_t = $this->mb_transliterate($this->title);
+		$this->title_t = str_replace(".", "", $this->title_t);
 		$this->update_time = time();
 
 		return true;

@@ -37,7 +37,7 @@
 				            <p><?php echo $task->title?></p>
 				            <div class="price">
 				            <?php if ($task->price): ?>
-				            	<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo $task->price?> р.
+				            	<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo number_format($task->price,0,',',' ')?> р.
 				            <?php endif ?>
 				                <span class="likes like-<?php echo $task->id?>"><?php echo $task->likes?></span>
 				                <img class="icon-like" src="/img/icon-like.svg" onerror="this.onerror=null; this.src='img/icon-like.png'" alt="">
@@ -45,14 +45,16 @@
 				        </div>
 				        <div class="task-block__overlay">
 				        	<?php if ($task->done): ?>
-                                <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl("/tasks/site/view", array('itemName' => $task->title_t, 'id' => $task->id, 'catId' => $id))?>">Посмотреть видео</a>
+                                <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl("/tasks/site/view", array('itemName' => $task->title_t, 'id' => $task->id, 'catId' => $taskHolder['id']))?>">Посмотреть видео</a>
+                            <?php elseif (Yii::app()->user->isGuest): ?>
+                                <a class="btn btn-border" href="<?php echo Yii::app()->createUrl("/tasks/site/view", array('itemName' => $task->title_t, 'id' => $task->id, 'catId' => $id))?>">Подробнее</a> 
                             <?php else: ?>
                                 <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/payment/form', array('task_id' => $task->id))?>">Задонатить</a>
+                                <a class="btn" href="<?php echo Yii::app()->createUrl("/tasks/site/view", array('itemName' => $task->title_t, 'id' => $task->id, 'catId' => $id))?>">Подробнее</a>
                             <?php endif ?>
-				            <a class="btn" href="<?php echo Yii::app()->createUrl("/tasks/site/view", array('itemName' => $task->title_t, 'id' => $task->id, 'catId' => $id))?>">Подробнее</a>
 				            <div class="price">
 				            	<?php if ($task->price): ?>
-				            		<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo $task->price?> р.
+				            		<img class="icon-money" src="/img/icon-money.svg" onerror="this.onerror=null; this.src='img/icon-money.png'" alt=""><?php echo number_format($task->price,0,',',' ')?> р.
 				            	<?php endif?>
 				                <?php $likeClass = (Yii::app()->user->isGuest) ? "" : "likes-increase" ?>
                                 <div class="<?php echo $likeClass ?>" data-id='<?php echo $task->id?>' data-option='1' data-elem='.like-<?php echo $task->id?>'>

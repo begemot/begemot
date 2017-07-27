@@ -317,8 +317,10 @@ class SiteController extends GxController
 		$model = $this->loadModel($id, 'Tasks');
 
 
-
-		if($model->user_id != Yii::app()->user->id){
+		if (Yii::app()->user->isGuest) {
+			throw new Exception("Ошибка запроса", 1);
+		}
+		if(!Yii::app()->user->isAdmin() && $model->user_id != Yii::app()->user->id){
 			throw new Exception("Ошибка запроса", 1);
 		}
 

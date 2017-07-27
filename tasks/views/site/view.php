@@ -67,7 +67,7 @@ $this->breadcrumbs = array(
         <?php endif; //estj ispolnitelj?>
 
         <?php if ($model->price > 0): ?>
-            <p class="price"><?php echo $model->price?> р.</p>
+            <p class="price"><?php echo number_format($model->price,0,',',' ')?> р.</p>
         <?php endif ?>
         
 
@@ -75,7 +75,7 @@ $this->breadcrumbs = array(
         
         
         <?php if ($getWhoWillDoExists && $model->willDoId == 0): //estj ispolnitelj?>
-            <p>Собрано <?php echo $model->donated ?> руб. / <?php echo $model->donatedCount ?> донатеров</p>
+            <p>Собрано <?php echo number_format($model->donated,0,',',' ') ?> руб. / <?php echo $model->donatedCount ?> донатеров</p>
             <?php if ($model->price > 0): ?>
                 <div class="slider-block">
                     <div class="slider">
@@ -85,20 +85,32 @@ $this->breadcrumbs = array(
                     <span class="slider-text"><?php echo $model->getDonatedPercent() ?> %</span>
                 </div>
             <?php endif ?>
-             <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/payment/form', array('task_id' => $model->id))?>">Задонатить</a>
-             <a class="subscribe open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
+            
+             
+        <?php endif ?>
+
+        <?php if (!Yii::app()->user->isGuest): ?>
+            <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/payment/form', array('task_id' => $model->id))?>">Задонатить</a>
+            <a class="subscribe open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
+        <?php else: ?>
+            <a class="subscribe2 open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
         <?php endif ?>
 
 
-       
-       <?php if ($model->willDoId == 0): ?>
-           <a class="btn btn-filled open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/willDo', array('task_id' => $model->id))?>">Хочу выполнить</a>
-       <?php endif ?>
+       <?php if (!Yii::app()->user->isGuest): ?>
+           <?php if ($model->willDoId == 0): ?>
+               <a class="btn btn-filled open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/willDo', array('task_id' => $model->id))?>">Хочу выполнить</a>
+           <?php endif ?>
 
-       <br/><br/>
+           <br/><br/>
 
-        <?php if (!$getWhoWillDoExists): ?>
-            <a class="subscribe2 open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a>
+            <?php if (!$getWhoWillDoExists): ?>
+                <!-- <a class="subscribe2 open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/subscribe', array('task_id' => $model->id))?>">Подписаться на рассылку</a> -->
+            <?php endif ?>
+        <?php endif ?>
+
+        <?php if (Yii::app()->user->isAdmin() OR (isset(Yii::app()->user->id) && Yii::app()->user->id == $model->user_id)): ?>
+            <a class="btn btn-border open-popup-link" data-to="#popup" href="<?php echo Yii::app()->createUrl('/tasks/site/update/', array('id' => $model->id))?>">Редактировать задание</a>
         <?php endif ?>
     </div>
 </section>
@@ -132,7 +144,7 @@ $this->breadcrumbs = array(
     </div>
 
     <h2>Описание</h2>
-    <p><?php echo $model->text ?></p>
+    <p class='pre-line'><?php echo $model->text ?></p>
 
     <div class="canDoTask-container">
         <h3><span>Могут выполнить<sup><?php echo count($model->user_tasks);?></sup></span></h3>
@@ -145,8 +157,8 @@ $this->breadcrumbs = array(
                     <p><?php echo $user_task->text?></p>
                     <p class="vote-block">
                         <span class='voteCount'><?php echo $user_task->likes?></span> голосов
-                        <?php if (!Yii::app()->user->isGuest): ?>
-                            <?php if (!$user_task->isVoted()): ?>
+                        <?php if (!Yii::app()->user->isGuest && $user_task->user_id != Yii::app()->user->id): ?>
+                            <?php if (!$user_task->canVote()): ?>
                                 <a href="#" class="btn btn-border taskToUserLike" data-id='<?php echo $user_task->id?>'>Проголосовать</a>    
                             <?php endif ?>
                         <?php endif ?>
@@ -179,7 +191,7 @@ $this->breadcrumbs = array(
                     <img src="<?php echo Image::getProfileImage($payment->user_id);?>" alt="">
                     <h5><?php echo ModelHelper::getFullName($payment->user_id)?></h5>
                     <p><i class="fa fa-calendar-minus-o"></i><?php echo date('d.m.Y', strtotime($payment->paid_at))?></p>
-                    <div class="price"><?php echo $payment->amount?> р.</div>
+                    <div class="price"><?php echo number_format($payment->amount,0,',',' ')?> р.</div>
                 </div>
             <?php endforeach ?>
             

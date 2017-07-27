@@ -76,10 +76,12 @@ abstract class BaseTasksToUser extends GxActiveRecord {
         return null;
 	}
 
-	public function isVoted()
+	public function canVote()
 	{
-		if(TasksToUserLikes::model()->findByAttributes(array('tasks_to_user_id' => $this->id, 'user_id' => Yii::app()->user->id))){
-			return true;
+		if(Invoice::model()->findByAttributes(array('user_id' => Yii::app()->user->id, 'task_id' => $this->task_id))){
+			if(TasksToUserLikes::model()->findByAttributes(array('tasks_to_user_id' => $this->task_id, 'user_id' => Yii::app()->user->id))){
+				return true;
+			}
 		}
 
 		return false;
