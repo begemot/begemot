@@ -551,9 +551,12 @@ class DefaultController extends Controller
         }
 
         if ($tab == 'allSynched') {
-            $itemList = new ParsersLinking;
+            $itemList = new ParsersLinking('searchb');
 
             $itemList->filename = $file;
+
+            if (isset($_GET['ParsersLinking']))
+                $itemList->Attributes = $_GET['ParsersLinking'];
         }
 
         if (isset($_GET['ParsersStock']))
@@ -672,9 +675,9 @@ class DefaultController extends Controller
 
         $parserDataDir = Yii::getPathOfAlias('webroot') . '/files/parsersData/';
         $parserTimeFile = $parserDataDir . 'time.txt';
-  
 
-        if (!file_exists($parserDataDir)){
+
+        if (!file_exists($parserDataDir)) {
             mkdir($parserDataDir);
         }
 
