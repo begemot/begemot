@@ -158,6 +158,44 @@ function PictureBox(options) {
                         });
                 });
 
+                $("img.eye-btn").click(function (index,  domElement) {
+
+                    var eyeKey = null;
+
+                    $.ajax({
+                        url: "/pictureBox/default/ajaxShowHideImage",
+                        cache: false,
+                        async: false,
+                        data: {
+                            pictureId: $(this).attr("data-id"),
+                            elementId: elementId,
+                            id: id
+
+                        },
+                        success: function (html) {
+
+                            if (html==1){
+                                eyeKey =true;
+
+                            }else{
+                                eyeKey =false;
+                            }
+                        }
+                    });
+                    console.log(this);
+
+                    if (eyeKey){
+                        $(this).attr('src','/protected/modules/pictureBox/assets/images-tiles/eye.png');
+                    }else{
+                        $(this).attr('src','/protected/modules/pictureBox/assets/images-tiles/eye-off.png');
+
+                    }
+
+
+                });
+
+
+
                 $("img.title-btn").click(function (e) {
 
                     var imageId = $(this).attr('data-id');

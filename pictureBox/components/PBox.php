@@ -231,6 +231,8 @@ class PBox
                 if (!is_array($value)){
                     unset($imagesWithSort[$key]);
                 }
+
+                if (isset($value['params']['show']) && !$value['params']['show']) unset($imagesWithSort[$key]);
             }
         }
         return $imagesWithSort;
@@ -302,6 +304,25 @@ class PBox
         $this->sortArray = $sortArrray;
 
         $this->saveSortArray();
+    }
+
+    public function changeImageShown($pictureid)
+    {
+
+
+        if (isset($this->pictures[$pictureid]['params']['show'])){
+            if ($this->pictures[$pictureid]['params']['show']== true){
+                $this->pictures[$pictureid]['params']['show'] = false;
+            } else {
+                $this->pictures[$pictureid]['params']['show'] = true;
+            }
+
+        } else {
+            $this->pictures[$pictureid]['params']['show'] = false;
+        }
+        $this->saveToFile();
+
+        return $this->pictures[$pictureid]['params']['show'];
     }
 
     public function deleteAll()

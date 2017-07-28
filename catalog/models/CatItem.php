@@ -276,6 +276,7 @@ class CatItem extends ContentKitModel
         $criteria->order = '`id` desc';
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
+            'pagination'=>array('pageSize'=>50),
         ));
     }
 

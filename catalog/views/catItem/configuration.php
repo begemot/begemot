@@ -18,9 +18,11 @@ if (count($pBoxMainPicture->pictures) > 0) {
     $pictureMain = '';
 }
 
+
 ?>
 
 <div id="mainContainer" style="height:1000px">
+
     <div id="mainPicture">
       123
     </div>

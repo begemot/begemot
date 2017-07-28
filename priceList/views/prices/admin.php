@@ -48,6 +48,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
 )); ?>
 
 <?php
+return;
 /* @var $this PricesController */
 /* @var $model Prices */
 /* @var $form CActiveForm */

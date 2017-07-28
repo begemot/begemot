@@ -22,7 +22,7 @@ $dataProvider->setPagination(false);
 
 $dataProvider->criteria->order = '`level`,`order`';
 
-$priceCats = PriceCats::model()->findAllByAttributes(['pid' => -1], ['order' => '`order`']);
+$priceCats = PriceCats::model()->findAllByAttributes(['level' => 0], ['order' => '`order`']);
 $resultArray = [];
 
 foreach ($priceCats as $priceCat) {

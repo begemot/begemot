@@ -26,8 +26,17 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'catId'); ?>
-		<?php echo $form->textField($model,'catId'); ?>
+		<?php
+
+		$catsModels = PriceCats::model()->findAll();
+		$catssArray=['-1'=>'без категории'];
+		foreach ($catsModels as $catModel){
+			$catssArray[$catModel->id] = $catModel->name;
+		}
+
+			echo $form->labelEx($model,'catId');
+		?>
+		<?php echo $form->dropDownList($model,'catId',$catssArray); ?>
 		<?php echo $form->error($model,'catId'); ?>
 	</div>
 
@@ -37,17 +46,27 @@
 		<?php echo $form->error($model,'price'); ?>
 	</div>
 
+    <div class="row">
+        <?php echo $form->labelEx($model,'text'); ?>
+        <?php echo $form->textArea($model,'text'); ?>
+        <?php echo $form->error($model,'text'); ?>
+    </div>
+
 	<div class="row">
-		<?php echo $form->labelEx($model,'type'); ?>
-		<?php echo $form->textField($model,'type'); ?>
+		<?php
+
+		$typesArray=[
+			'цена'=>"цена",
+			'подкатегория'=>"подкатегория",
+		];
+
+				echo $form->labelEx($model,'type');
+		?>
+		<?php echo $form->dropDownList($model,'type',$typesArray); ?>
 		<?php echo $form->error($model,'type'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'order'); ?>
-		<?php echo $form->textField($model,'order'); ?>
-		<?php echo $form->error($model,'order'); ?>
-	</div>
+
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

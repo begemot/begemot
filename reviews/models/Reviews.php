@@ -38,7 +38,7 @@ class Reviews extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('name, type, email, pluses, cons, general', 'required'),
+			array('name,general', 'required'),
 			array('pid, type, status', 'numerical', 'integerOnly'=>true),
          array('created_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => true, 'on' => 'insert'),
          array('status', 'default', 'value' => '0', 'setOnEmpty' => true, 'on' => 'insert'),
