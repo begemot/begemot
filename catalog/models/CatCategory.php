@@ -83,6 +83,7 @@ class CatCategory extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
             'childCategories' => array(self::HAS_MANY, 'CatCategory', 'pid','order'=>'`childCategories`.`order` ASC'),
+            'childPublishedCategories' => array(self::HAS_MANY, 'CatCategory', 'pid','order'=>'`childPublishedCategories`.`order` ASC','condition'=>'`published`=1'),
 		);
 	}
 
