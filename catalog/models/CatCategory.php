@@ -67,7 +67,7 @@ class CatCategory extends CActiveRecord
 			array('pid, dateCreate, dateUpdate, status', 'numerical', 'integerOnly'=>true),
 			array('name, name_t', 'length', 'max'=>70),
 			array('layout, viewFile, itemViewFile, seo_title', 'length', 'max'=>255),
-			array('text,level,seo_title', 'safe'),
+			array('text,level,seo_title,published', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('name, text, picSettings,  dateCreate, dateUpdate, status, name_t', 'safe', 'on'=>'search'),
@@ -101,6 +101,7 @@ class CatCategory extends CActiveRecord
 			'dateUpdate' => 'Date Update',
 			'status' => 'Status',
 			'name_t' => 'T Name',
+            'published'=>'Публиковать на сайте'
 		);
 	}
 
