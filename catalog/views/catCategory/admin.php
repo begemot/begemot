@@ -90,8 +90,6 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         array(
             'class' => 'begemot.extensions.order.gridView.CBOrderColumn',
             "header"=>"порядок",
-
-            
         ),
     ),
 ));

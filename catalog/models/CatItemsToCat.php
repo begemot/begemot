@@ -22,15 +22,15 @@ class CatItemsToCat extends CActiveRecord
 	{
 		return parent::model($className);
 	}
-        
+
     public function behaviors(){
             return array(
                     'CBOrderModelBehavior' => array(
                             'class' => 'begemot.extensions.contentKit.behavior.CBOrderModelBehavior',
                     )
             );
-    }   
-    
+    }
+
     public function relations()
     {
         return array(
@@ -38,7 +38,7 @@ class CatItemsToCat extends CActiveRecord
             'cat'=>array(self::BELONGS_TO, 'CatCategory', 'catId'),
         );
     }
-        
+
 	/**
 	 * @return string the associated database table name
 	 */
@@ -62,7 +62,7 @@ class CatItemsToCat extends CActiveRecord
 			array('catId, itemId, item_name', 'safe', 'on'=>'search'),
 		);
 	}
-        
+
 	public function search($id=null)
 	{
 		$criteria=new CDbCriteria;
@@ -76,12 +76,12 @@ class CatItemsToCat extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
-        
+
     public function beforeSave(){
         if ($this->isNewRecord){
             $result = count( $this->model()->findAll(array('condition'=>'catId ='.$this->catId.' and itemId='.$this->itemId)));
 
-            if ($result!=0) 
+            if ($result!=0)
                 return false;
             else{
                 $this->order = $this->getLastOrderValue();

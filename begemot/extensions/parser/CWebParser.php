@@ -45,6 +45,10 @@ class CWebParser
      */
     public $tasksPerExecute = 5;
 
+    /**
+     * @var int Количество данных процесса, которые остаются в базе и на диске. Остальное удаляется.
+     */
+    public $processForStore = 5;
 
     /**
      * Нужно установить. По указанному хосту фильтруются внешние ссылки.
@@ -99,6 +103,94 @@ class CWebParser
         $this->processId = $processId;
 
         $this->taskManager = new TaskManager($processId);
+        $this->deleteAllData();
+
+    }
+
+    /**
+     * Удаляем старые данные, перед тем как начнем новый процесс.
+     */
+    private function deleteAllData(){
+        //удаляем файлы
+
+        WebParserProcess::model()->findAll();
+        $filesDir = Yii::getPathOfAlias('webroot').'/files/webParser/*';
+
+        $dirsArray = glob($filesDir);
+
+
+        $dirsForDelete = [];
+
+        foreach ($dirsArray as $dir){
+            $dirsForDelete[filemtime($dir)] = $dir ;
+        }
+
+        ksort($dirsForDelete);
+        reset($dirsForDelete);
+
+
+        $countOfDirs = count ($dirsArray);
+        $dirsI = 0;
+
+        foreach ($dirsForDelete as $dir){
+            if ($countOfDirs-$dirsI>$this->processForStore){
+
+                CFileHelper::removeDirectory($dir);
+            }
+            $dirsI++;
+        }
+
+
+        //удаляем данные из бд
+        $dbDataForClear =[
+            [
+                'dbName'=> 'webParser',
+                'dbCol'=>'id'
+            ],
+            [
+                'dbName'=> 'webParserData',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserDownload',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserPage',
+                'dbCol'=>'procId'
+            ],
+            [
+                'dbName'=> 'webParserScenarioTask',
+                'dbCol'=>'processId'
+            ],
+            [
+                'dbName'=> 'webParserUrl',
+                'dbCol'=>'procId'
+            ],
+        ];
+
+        foreach ($dbDataForClear as $dbData){
+            //Удаляем из таблица webParser
+            $sql = "SELECT distinct(".($dbData['dbCol']).") FROM ".($dbData['dbName'])." order by ".($dbData['dbCol']).";";
+            $connection=Yii::app()->db;
+            $command=$connection->createCommand($sql);
+            $rows=$command->queryAll();
+
+            $countOfRows = count ($rows);
+            $rowsI = 0;
+
+            foreach ($rows as $row){
+                if ($countOfRows-$rowsI>$this->processForStore){
+
+                    $sql = "DELETE FROM ".($dbData['dbName'])." where ".($dbData['dbCol'])."=".($row[$dbData['dbCol']]).";";
+                    $command=$connection->createCommand($sql);
+                    $command->execute();
+                }
+                $rowsI++;
+            }
+        }
+
+        $this->logVar($rows);
 
 
     }
@@ -667,7 +759,7 @@ class CWebParser
                 $targetDownloadObject->save();
 
             } else {
-                $this->logError('Ошибка! $targetDownloadObject - NULL');
+                $this->logError(__LINE__.' $targetDownloadObject - NULL');
             }
         }
 
@@ -685,15 +777,21 @@ class CWebParser
      */
     private function downloadFile($fileUrl, $dir)
     {
-        if (is_null($dir)) return;
+        if (is_null($dir)) {
+            $this->logError('function downloadFile входящий параметр с директорией NULL');
+            return;
+        }
 
         $urlHost = parse_url($fileUrl, PHP_URL_HOST);
+
         if (is_null($urlHost)) {
             $fileUrl = $this->host . '/' . $fileUrl;
         }
+
         $fileNameWithPath = parse_url($fileUrl, PHP_URL_PATH);
         $file = Yii::getPathOfAlias('webroot') . '/' . $dir . basename($fileNameWithPath);
         // открываем файл, на сервере, на запись
+
         if (!file_exists($file)) {
             $dest_file = @fopen($file, "w");
 
@@ -718,7 +816,11 @@ class CWebParser
             // закрываем файл
             fclose($dest_file);
         }
-
+        if (file_exists($file)){
+            $this->log('Файл скачался успешно!');
+        } else {
+            $this->logError('После скачивания файл не сохранился и на диске его нет.');
+        }
         return $file;
 
     }
@@ -1264,7 +1366,7 @@ class CWebParser
 
     private function logError($message)
     {
-        Yii::log($message, 'trace', 'webParser');
+        Yii::log('!!!! ERROR !!!! '.$message, 'trace', 'webParser');
         Yii::getLogger()->flush(true);
     }
 

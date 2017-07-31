@@ -5,7 +5,7 @@ Yii::app()->clientScript->registerCssFile('/protected/modules/catalog/assets/col
 
 Yii::app()->clientScript->registerScriptFile('/protected/modules/catalog/views/catItem/colors.js');
 
-$colors = CatColorToCatItem::model()->findAll();
+$colors = CatColorToCatItem::model()->findAllByAttributes(['catItemId'=>$_REQUEST['id']]);
 
 ?>
 <h2>Цвета этого товара</h2>

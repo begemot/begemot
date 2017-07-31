@@ -106,7 +106,7 @@ Yii::app()->clientScript->registerCssFile('/protected/modules/pictureBox/assets/
     </div>
     <div class="modal-footer">
         <a href="#" onclick="$('#titleModal').modal('hide')" class="btn">Отмена</a>
-        <a href="#" id="altTitleSaveBtn" class="btn btn-primary">Сохранить</a>
+        <a href="#" id="resizeImgSaveBtn" class="btn btn-primary">Сохранить</a>
     </div>
 </div>
 

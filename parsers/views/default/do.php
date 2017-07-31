@@ -13,7 +13,7 @@ require(dirname(__FILE__).'/../menu.php');
     "type"=>"tabs", // "", "tabs", "pills" (or "list")
     "stacked"=>false, // whether this is a stacked menu
     "items"=>array(
-        array("label"=>"Изменились", "url"=>"/parsers/default/do/filename/".$filename . "/tab/changed", "active"=>$tab=="changed"),
+        array("label"=>"Изменились", "url"=>"/parsers/default/do/file/".$filename . "/tab/changed", "active"=>$tab=="changed"),
         array("label"=>"Новые изображения", "url"=>"/parsers/default/do/file/".$filename . "/tab/changedImages", "active"=>$tab=="changedImages"),
         array("label"=>"Игнорируемые изображения", "url"=>"/parsers/default/do/file/".$filename . "/tab/ignoredImages", "active"=>$tab=="ignoredImages"),
         array("label"=>"Новые", "url"=>"/parsers/default/do/file/".$filename . "/tab/new", "active"=>$tab=="new"),

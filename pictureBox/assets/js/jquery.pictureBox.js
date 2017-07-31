@@ -29,9 +29,9 @@ function PictureBox(options) {
 
         imageFilterId = $(img).attr('image-filter');
 
-        if ( $(img).attr('data-is-filtered-image') == "1") {
-            $(img).attr('data-is-filtered-image','');
-            $(img).parent().children('div').children('img').attr('src',$(img).attr('src'));
+        if ($(img).attr('data-is-filtered-image') == "1") {
+            $(img).attr('data-is-filtered-image', '');
+            $(img).parent().children('div').children('img').attr('src', $(img).attr('src'));
         }
 
         resizeData = areaSelectCollection[imageFilterId].resizeData;
@@ -158,14 +158,61 @@ function PictureBox(options) {
                         });
                 });
 
+                $("img.eye-btn").click(function (index,  domElement) {
+
+                    var eyeKey = null;
+
+                    $.ajax({
+                        url: "/pictureBox/default/ajaxShowHideImage",
+                        cache: false,
+                        async: false,
+                        data: {
+                            pictureId: $(this).attr("data-id"),
+                            elementId: elementId,
+                            id: id
+
+                        },
+                        success: function (html) {
+
+                            if (html==1){
+                                eyeKey =true;
+
+                            }else{
+                                eyeKey =false;
+                            }
+                        }
+                    });
+                    console.log(this);
+
+                    if (eyeKey){
+                        $(this).attr('src','/protected/modules/pictureBox/assets/images-tiles/eye.png');
+                    }else{
+                        $(this).attr('src','/protected/modules/pictureBox/assets/images-tiles/eye-off.png');
+
+                    }
+
+
+                });
+
+
+
                 $("img.title-btn").click(function (e) {
 
                     var imageId = $(this).attr('data-id');
 
-                    PictureBoxObject.loadtAltAndTitle(imageId);
+                    var data = PictureBoxObject.loadtAltAndTitle(imageId);
+
+                    if (data[imageId]['alt']==undefined)data[imageId]['alt']='';
+                    if (data[imageId]['title']==undefined)data[imageId]['title']='';
+
+
+                    $('#titleModal #altInput').attr('value', data[imageId]['alt']);
+                    $('#titleModal #titleInput').attr('value', data[imageId]['title']);
+
+
                     PictureBoxObject.activeImageForWindow = imageId;
 
-                    jQuery('#titleModal').modal({'show': true});
+                    $('#titleModal').modal('show');
                 });
 
                 $('#resizeImgSaveBtn').click(function (index, domElement) {
@@ -191,51 +238,127 @@ function PictureBox(options) {
                         //alert(resizeData.selection.x1+' '+resizeData.selection.y1+' '+resizeData.selection.width+' '+resizeData.selection.height+' ');
                         $.ajax(
                             {
-                                data:{
-                                    id:resizeData.pb_id,
-                                    elementId:resizeData.pb_element_id,
-                                    pictureId:resizeData.pb_picture_id,
-                                    filterName:resizeData.pb_filter_name,
-                                    x:resizeData.selection.x1,
-                                    y:resizeData.selection.y1,
-                                    width:resizeData.selection.width,
-                                    height:resizeData.selection.height
+                                data: {
+                                    id: resizeData.pb_id,
+                                    elementId: resizeData.pb_element_id,
+                                    pictureId: resizeData.pb_picture_id,
+                                    filterName: resizeData.pb_filter_name,
+                                    x: resizeData.selection.x1,
+                                    y: resizeData.selection.y1,
+                                    width: resizeData.selection.width,
+                                    height: resizeData.selection.height
 
-                       //'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height
+                                    //'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height
 
                                 },
                                 url: '/pictureBox/default/ajaxMakeFilteredImage',
                                 success: function () {
-
                                 }
                             })
-
                     }
+
+                    $('#imageModal').modal('hide');
 
                 });
 
                 $("img.all-images-btn").click(function (index, domElement) {
 
+                    var $pictureId = $(this).attr("data-id");
+                    var $elementId = elementId;
+                    var $id = id;
+
                     $.ajax({
-                        url: "/pictureBox/default/ajaxLayout",
-                        cache: false,
-                        async: false,
+                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
                         data: {
                             theme: 'tileImagesRisize',
-                            pictureId: $(this).attr("data-id"),
+                            pictureId: $pictureId,
                             elementId: elementId,
-                            id: id
+                            id: $id
 
                         },
                         success: function (html) {
-                            //htmlResult = alert(html);
-
                             jQuery('#imageModal .modal-body').html(html)
-
                         }
-                    });
+                    })
 
-                    jQuery('#imageModal').modal({'show': true});
+
+                    var deleteFilteredImageFunction = function () {
+
+                        var $id = $(this).parent().find('.ladybug_ant').attr('pb-id');
+                        var $pbElementId = $(this).parent().find('.ladybug_ant').attr('pb-element-id');
+                        var $pictureId = $(this).parent().find('.ladybug_ant').attr('pb-picture-id');
+                        var $filter = $(this).parent().find('.ladybug_ant').attr('image-filter');
+
+                        $.ajax(
+                            {
+                                data: {
+                                    id: $id,
+                                    elementId: $pbElementId,
+                                    pictureId: $pictureId,
+                                    filterName: $filter
+                                },
+                                url: '/pictureBox/default/ajaxDeleteFilteredImage',
+                                success:function(){
+                                    $.ajax({
+                                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
+                                        data: {
+                                            theme: 'tileImagesRisize',
+                                            pictureId: $pictureId,
+                                            elementId: elementId,
+                                            id: $id
+
+                                        },
+                                        success: function (html) {
+                                            jQuery('#imageModal .modal-body').html(html);
+                                            $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+                                            $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+                                        }
+                                    })
+                                }
+                            })
+                    };
+
+                    $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+
+                    var createFilteredImageFunction = function () {
+
+                        var $id = $(this).parent().attr('pb-id');
+                        var $pbElementId = $(this).parent().attr('pb-element-id');
+                        var $pictureId = $(this).parent().attr('pb-picture-id');
+                        var $filter = $(this).parent().attr('image-filter');
+
+                        $.ajax(
+                            {
+                                data: {
+                                    id: $id,
+                                    elementId: $pbElementId,
+                                    pictureId: $pictureId,
+                                    filterName: $filter
+                                },
+                                url: '/pictureBox/default/ajaxMakeFilteredImage',
+                                success: function () {
+                                    $.ajax({
+                                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
+                                        data: {
+                                            theme: 'tileImagesRisize',
+                                            pictureId: $pictureId,
+                                            elementId: elementId,
+                                            id: $id
+
+                                        },
+                                        success: function (html) {
+                                            jQuery('#imageModal .modal-body').html(html);
+                                            $('#imageModal .modal-body .deleteFilteredImage').click(deleteFilteredImageFunction);
+                                            $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+                                        }
+                                    })
+                                }
+                            })
+                    };
+
+                    $('#imageModal .modal-body .createFilteredImage').click(createFilteredImageFunction);
+
+                    $('#imageModal').modal({'show': true});
 
                     //Удаляем все объекты, иначе после закрытия окна они останутся висеть в воздухе
                     $('#imageModal').on('hidden.bs.modal', function (e) {
@@ -324,6 +447,7 @@ function PictureBox(options) {
 
                     var imageId = PictureBoxObject.activeImageForWindow
                     PictureBoxObject.saveAltAndTitle(imageId);
+                    $('#titleModal').modal('hide');
                 });
 
 
@@ -339,11 +463,11 @@ function PictureBox(options) {
     this.saveAltAndTitle = function (imageId) {
 
         var title = $('#titleInput').val();
-        var alt = $('#alt').val();
+        var alt = $('#altInput').val();
 
 
         $.ajax({
-            url: "/pictureBox/default/ajaxGetAltArray",
+            url: "/pictureBox/default/ajaxSetTitle",
             cache: false,
             async: false,
             data: {
@@ -356,7 +480,7 @@ function PictureBox(options) {
             },
             success: function (html) {
 
-                json = $.parseJSON(html);
+
             }
         });
     }

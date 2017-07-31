@@ -38,7 +38,7 @@ class CatCategoryController extends Controller
         return array(
 
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view','makeCopy','tidyPost'),
+                'actions' => array('admin', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view','makeCopy','tidyPost','directMakeCopyOrMove','massItemsToCategoriesConnect'),
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
 
@@ -67,54 +67,135 @@ class CatCategoryController extends Controller
     {
 
         if (isset($_POST['makeItemsCopy']) && isset($_POST['items'])) {
-            if (count($_POST['items'])) {
-                foreach ($_POST['items'] as $itemId) {
-                    $itemOriginal = CatItem::model()->findByPk($itemId);
 
-                    if ($itemOriginal){
+            $copyParams =[
+                'mode'=>'copy',
+                'catOfOriginal'=>$_POST['mode']=='catOfOriginal'
+            ];
 
-                        $itemCopy = new CatItem();
-                        $table = $itemOriginal->getMetaData()->tableSchema;
+           $this->moveOrMakeCopy($_POST['items'],$copyParams);
+        }
 
-                        $columns = $table->columns;
-                        foreach ($columns as $column){
+        $this->render('copy');
+    }
 
-                            $columnName = $column->name;
+    /**
+     * Создание копии позиций катлога
+     */
+    public function actionDirectMakeCopyOrMove()
+    {
+        print_r($_REQUEST['itemId']);
+        print_r($_REQUEST['catIds']);
+        return;
+        if (isset($_POST['makeItemsCopy']) && isset($_POST['items'])) {
 
-                            if ($columnName==$table->primaryKey) continue;
-                            if ($columnName=='published') {$itemCopy->$columnName = 0;continue;};
-                            $itemCopy->$columnName = $itemOriginal->$columnName;
+            $mode = (isset($_REQUEST['mode'])?$_REQUEST['mode']:'copy');
 
-                        }
+            $copyParams =[
+                'mode'=> $mode,
+//                'catOfOriginal'=>$_POST['mode']=='catOfOriginal'
+            ];
 
-                        $itemCopy->isNewRecord = true;
-                        $itemCopy->insert();
+            $this->moveOrMakeCopy($_POST['items'],$copyParams);
+        }
 
-                        $lastId = Yii::app()->db->getLastInsertId();
+        $this->render('copy');
+    }
 
-                        //Копируем изображения
-                        Yii::import('pictureBox.components.PBox');
-                        $PBox = new PBox('catalogItem',$lastId);
 
-                        $galleryId = 'catalogItem';
+    public function actionMassItemsToCategoriesConnect(){
 
-                        $originalPBox = new PBox($galleryId,$itemId);
-                        $newPBox = new PBox($galleryId,$lastId);
+        $this->connectItemToCats($_REQUEST['itemId'],$_REQUEST['catIds']);
 
-                        $originalDataDir = dirname($originalPBox->dataFile);
-                        $destanationDataDir = dirname($newPBox->dataFile);
-                        mkdir ($destanationDataDir);
+    }
 
-                        $files = glob ($originalDataDir.'/*');
 
-                        foreach ($files as $file){
+    /**
+     * Функция для переноса-копирования позиций каталога.
+     *
+     * @param $items
+     * @param $options
+     */
+    function moveOrMakeCopy($items,$options){
 
-                            $file1 = $file;
-                            $file2 = dirname($file).'/../'.$lastId.'/'.basename($file);
-                            copy($file1,$file2);
-                        }
-                        //меняем все пути в файле-оглавлении
-                        $configFilePath = dirname($file).'/../'.$lastId.'/data.php';
+
+        $defaultOptions = [
+            'categoriesIds'=>null,
+            'mode'=>'copy'/* move | copy | connect */,
+            'catOfOriginal'=>false
+        ];
+
+        $options = CMap::mergeArray($defaultOptions,$options);
+
+        if (count($items)) {
+            foreach ($items as $itemId) {
+                $itemOriginal = CatItem::model()->findByPk($itemId);
+
+                if ($itemOriginal){
+
+                    $itemCopy = new CatItem();
+                    $table = $itemOriginal->getMetaData()->tableSchema;
+
+                    $columns = $table->columns;
+                    foreach ($columns as $column){
+
+                        $columnName = $column->name;
+
+                        if ($columnName==$table->primaryKey) continue;
+                        if ($columnName=='published') {$itemCopy->$columnName = 0;continue;};
+                        $itemCopy->$columnName = $itemOriginal->$columnName;
+
+                    }
+
+                    $itemCopy->isNewRecord = true;
+                    $itemCopy->insert();
+
+                    $lastId = Yii::app()->db->getLastInsertId();
+
+                    //Копируем изображения
+                    Yii::import('pictureBox.components.PBox');
+                    $PBox = new PBox('catalogItem',$lastId);
+
+                    $galleryId = 'catalogItem';
+
+                    $originalPBox = new PBox($galleryId,$itemId);
+                    $newPBox = new PBox($galleryId,$lastId);
+
+                    $originalDataDir = dirname($originalPBox->dataFile);
+                    $destanationDataDir = dirname($newPBox->dataFile);
+
+                    if (file_exists($destanationDataDir)){
+                        CFileHelper::removeDirectory($destanationDataDir);
+                    }
+
+                    mkdir ($destanationDataDir);
+
+                    $files = glob ($originalDataDir.'/*');
+
+                    foreach ($files as $file){
+
+                        $file1 = $file;
+                        $file2 = dirname($file).'/../'.$lastId.'/'.basename($file);
+                        copy($file1,$file2);
+                    }
+                    //меняем все пути в файле-оглавлении
+                    $configFilePath = dirname($file).'/../'.$lastId.'/data.php';
+                    $configFileContentArray = file($configFilePath);
+
+
+                    $resultFile = '';
+
+                    foreach ($configFileContentArray as $configFileLine){
+                        $resultFile .= str_replace('files/pictureBox/catalogItem/'.$itemId,'files/pictureBox/catalogItem/'.$lastId,$configFileLine);
+
+                    }
+
+                    file_put_contents($configFilePath,$resultFile);
+
+                    //меняем все пути в файле избранных изображений
+                    $configFilePath = dirname($file).'/../'.$lastId.'/favData.php';
+                    if (file_exists($configFilePath)){
+
                         $configFileContentArray = file($configFilePath);
 
 
@@ -126,45 +207,47 @@ class CatCategoryController extends Controller
                         }
 
                         file_put_contents($configFilePath,$resultFile);
-
-                        //меняем все пути в файле избранных изображений
-                        $configFilePath = dirname($file).'/../'.$lastId.'/favData.php';
-                        if (file_exists($configFilePath)){
-
-                            $configFileContentArray = file($configFilePath);
-
-
-                            $resultFile = '';
-
-                            foreach ($configFileContentArray as $configFileLine){
-                                $resultFile .= str_replace('files/pictureBox/catalogItem/'.$itemId,'files/pictureBox/catalogItem/'.$lastId,$configFileLine);
-
-                            }
-
-                            file_put_contents($configFilePath,$resultFile);
-                        }
-
-
-
-                        //Копируем привязки к разделам, если нужно
-                        if (isset($_POST['mode']) && $_POST['mode']=='catOfOriginal'){
-                            $CatItemsRelations = CatItemsToCat::model()->findAll('itemId = '.$itemId);
-
-                            foreach ($CatItemsRelations as $CatItemsToCat){
-                                $newCatItemToCat = new CatItemsToCat();
-                                $newCatItemToCat->catId = $CatItemsToCat->catId;
-                                $newCatItemToCat->itemId = $lastId;
-                                $newCatItemToCat->save();
-                            }
-                        }
-
-
                     }
+
+
+
+                    //Копируем привязки к разделам, если нужно
+                    if (isset($options['catOfOriginal']) && $options['catOfOriginal']){
+                        $CatItemsRelations = CatItemsToCat::model()->findAll('itemId = '.$itemId);
+
+                        foreach ($CatItemsRelations as $CatItemsToCat){
+                            $newCatItemToCat = new CatItemsToCat();
+                            $newCatItemToCat->catId = $CatItemsToCat->catId;
+                            $newCatItemToCat->itemId = $lastId;
+                            $newCatItemToCat->save();
+                        }
+                    }
+
+                    //Если есть массив ID разделов, то копируем карточку в каждый раздел
+                    if (isset($options['categoriesIds']) ){
+
+                        $this->connectItemToCats($lastId,$options['categoriesIds']);
+                    }
+
+
                 }
             }
         }
+    }
 
-        $this->render('copy');
+    private function connectItemToCats ($itemId,$catsIds){
+
+        if ( is_array($catsIds) && count($catsIds)>0 ){
+
+            foreach ($catsIds as $catId){
+                $newCatItemToCat = new CatItemsToCat();
+                $newCatItemToCat->catId = $catId;
+                $newCatItemToCat->itemId = $itemId;
+                $newCatItemToCat->save();
+            }
+
+        }
+
     }
 
     /**

@@ -24,11 +24,11 @@ if (file_exists($imagesData)) {
 
     $tagsOutput = '';
     $tags = PostsTags::model()->findAll();
-    foreach ($tags as $tag){        
-  
+    foreach ($tags as $tag){
+
         $tagsOutput.='
                 <li>
-                    '.CHtml::link($tag->tag_name,array('/post/site/tagIndex','id'=>$tag->id,'title'=>$tag->tag_name_t)).'                 
+                    '.CHtml::link($tag->tag_name,array('/post/site/tagIndex','id'=>$tag->id,'title'=>$tag->tag_name_t)).'
                 </li>';
     }
 
@@ -37,16 +37,16 @@ if (file_exists($imagesData)) {
 
 <div id="content">
 		<div class="container_12">
-			<div class="grid_3 left">
-				<ul class="menu">
-                                        <?php echo '<li>'.CHtml::link('Все',array('/posts')).'</li>'; ?>
-					<?php echo $tagsOutput; ?>
-				</ul>
-			</div>
+<!--			<div class="grid_3 left">-->
+<!--				<ul class="menu">-->
+<!--                                        --><?php //echo '<li>'.CHtml::link('Все',array('/posts')).'</li>'; ?>
+<!--					--><?php //echo $tagsOutput; ?>
+<!--				</ul>-->
+<!--			</div>-->
 			
 			<div class="grid_8 right">
 				<div class="top_content">
-					<h3><?php echo $model->title;?></h3>
+					<h1><?php echo $model->title;?></h1>
                                         <?php if ($firstImage!='') {?>
 					<div class="img gallery">
 						<a href="<?php echo $firstImage['original']; ?>" rel="prettyPhoto[gallery1]">
@@ -55,7 +55,7 @@ if (file_exists($imagesData)) {
 						<div class="small_img">
                                                     <?php echo $imagesOutput;?>
                                                 </div>
-						<p>Увеличить фото</p>
+						<pУвеличить фото</p>
 					</div>
                                         <?php }?>
 					<div class="text">

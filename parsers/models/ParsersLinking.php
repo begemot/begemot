@@ -60,10 +60,12 @@ class ParsersLinking extends CActiveRecord
     {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
-        return array(
+        $rules =  array(
             array('fromId, toId, filename', 'required'),
-            array('fromId, toId', 'unique')
+            array('fromId, toId', 'unique'),
+            array('id, fromId, toId, filename',  'safe', 'on' => 'search'),
         );
+        return array_merge(parent::rules(), $rules);
     }
 
     /**

@@ -50,7 +50,7 @@ class PBox
 
         $this->dataFile = $dataFile;
 
-        $this->favDataFile = $favDatafile = $pictureBoxDir . $galleryId . '/' . $id . '/favData.php';
+        $this->favDataFile = $favDatafile = $pictureBoxDir .'/'. $galleryId . '/' . $id . '/favData.php';
 
         if (file_exists($dataFile)) {
             $array = require($dataFile);
@@ -132,12 +132,18 @@ class PBox
     {
 
         if (is_null($this->favPictures)) {
-            $array = $this->pictures;
+            $array = $this->getSortedImageList();
+
+
         } else {
             $array = $this->favPictures;
         }
-        if (is_array($array)) {
-            $id = key($array);
+  
+        if (is_array($array) && count($array)>0) {
+
+            $keys = array_keys($array);
+            $id = $keys[0];
+
 
             return $this->getImage($id, $tag);
         } else {
@@ -213,10 +219,22 @@ class PBox
         ksort($sortArray);
 
         $images = $this->pictures;
+
+
         $imagesWithSort = [];
-        if (is_array($images))
+        if (is_array($images)) {
+
+
             $imagesWithSort = array_replace(array_fill_keys($sortArray, ''), $images);
 
+            foreach ($imagesWithSort as $key=>$value){
+                if (!is_array($value)){
+                    unset($imagesWithSort[$key]);
+                }
+
+                if (isset($value['params']['show']) && !$value['params']['show']) unset($imagesWithSort[$key]);
+            }
+        }
         return $imagesWithSort;
     }
 
@@ -288,12 +306,32 @@ class PBox
         $this->saveSortArray();
     }
 
-    public function deleteAll(){
+    public function changeImageShown($pictureid)
+    {
+
+
+        if (isset($this->pictures[$pictureid]['params']['show'])){
+            if ($this->pictures[$pictureid]['params']['show']== true){
+                $this->pictures[$pictureid]['params']['show'] = false;
+            } else {
+                $this->pictures[$pictureid]['params']['show'] = true;
+            }
+
+        } else {
+            $this->pictures[$pictureid]['params']['show'] = false;
+        }
+        $this->saveToFile();
+
+        return $this->pictures[$pictureid]['params']['show'];
+    }
+
+    public function deleteAll()
+    {
 
         $dir = dirname($this->dataFile);
 
-        foreach (glob($dir.'/*.*') as $filename) {
-            unlink ($filename);
+        foreach (glob($dir . '/*.*') as $filename) {
+            unlink($filename);
         }
     }
 }

@@ -42,6 +42,9 @@
                                 array('label'=>'HTML', 'url'=>array('/pages'),'visible'=>Yii::app()->hasModule('pages')),
                                 array('label'=>'Vars', 'url'=>array('/vars'),'visible'=>Yii::app()->hasModule('vars')),
                                 array('label'=>'Слайдер', 'url'=>array('/slider/admin'),'visible'=>Yii::app()->hasModule('slider')),
+                                array('label'=>'Структура компании', 'url'=>array('/company/companyDepart/admin'),'visible'=>Yii::app()->hasModule('slider')),
+                                array('label'=>'Цены', 'url'=>array('/priceList/prices/admin'),'visible'=>Yii::app()->hasModule('priceList')),
+
                             ),
                         ),
 

@@ -3,20 +3,11 @@
 
 /* @var $this CatItemController */
 /* @var $model CatItem */
-$assets = Yii::app()->clientScript;
-Yii::app()->clientScript->registerCssFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/css/multi-select.css')
-);
-Yii::app()->clientScript->registerScriptFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/jquery.multi-select.js'), CClientScript::POS_HEAD
-);
-Yii::app()->clientScript->registerScriptFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/jquery.quicksearch.js'), CClientScript::POS_HEAD
-);
+
 Yii::app()->clientScript->registerScriptFile(
     Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/editItem.js'), CClientScript::POS_HEAD
 );
-
+Yii::app()->clientScript->registerCssFile('/protected/modules/catalog/assets/css/admin-catalog.css');
 
 $this->breadcrumbs = array(
     'Cat Items' => array('index'),
@@ -35,7 +26,15 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
     'items' => array(
         array('label' => 'Данные', 'url' => '/catalog/catItem/update/id/' . $model->id, 'active' => $tab == 'data'),
         array('label' => 'Разделы', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/cat', 'active' => $tab == 'cat'),
-        array('label' => 'Опции', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options'),
+        array(
+            'label' => 'Опции',
+
+            'active' => $tab == 'options' or $tab == 'configuration',
+            'items'=>[
+                array('label' => 'Парсер',  'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options', 'visible' => isset(Yii::app()->modules['parsers'])),
+                array('label' => 'Конфигуратор', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/configuration', 'active' => $tab == 'configuration', 'visible' => isset(Yii::app()->modules['parsers'])),
+            ]
+        ),
         array('label' => 'Парсер', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/parser', 'active' => $tab == 'parser', 'visible' => isset(Yii::app()->modules['parsers'])),
         array('label' => 'Перемещение позиции', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/position', 'active' => $tab == 'position'),
         array('label' => 'Изображения', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/photo', 'active' => $tab == 'photo'),

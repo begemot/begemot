@@ -2,6 +2,9 @@
 /* @var $this CatItemController */
 /* @var $model CatItem */
 
+$massSelectJsScript = '/protected/modules/catalog/assets/js/massSelect.js';
+Yii::app()->clientScript->registerScriptFile($massSelectJsScript);
+
 $this->breadcrumbs = array(
     'Cat Items' => array('index'),
     'Manage',
@@ -16,10 +19,21 @@ $this->menu = require dirname(__FILE__) . '/../catItem/commonMenu.php';
 <?php
 Yii::import('begemot.extensions.grid.EImageColumn');
 
+$js = '
+    function setCheckboxCall(){
+
+      $(".gridCheckbox").click();
+
+
+    }
+ ';
+Yii::app()->clientScript->registerScript('checkBoxScript',$js,1);
+
 $this->widget('bootstrap.widgets.TbGridView', array(
     'id' => 'test-grid',
     'dataProvider' => $model->search($id),//$model->search($id),
     'filter' => $model,
+
     //'filter'=>CatItemsToCat::model(),
     'type' => 'striped bordered condensed',
     'columns' => array(
@@ -39,6 +53,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
                 'height' => 120,
             ),
         ),
+        [
+            'header' => '<input  onClick="setCheckboxCall();"  class="gridCheckboxCheckAll" type="checkbox" />',
+            'type' => 'raw',
+            'value' => '"<input data-id=".$data->item->id." class=\"gridCheckbox\" type=\"checkbox\" />"',
+        ],
         array(
             'header' => 'Парсится',
             'type' => 'raw',
@@ -69,6 +88,16 @@ $this->widget('bootstrap.widgets.TbGridView', array(
     ),
 ));
 
+$this->widget(
+    'bootstrap.widgets.TbButton',
+    array(
+        'type'=>'danger',
+        'label' => 'Удалить выбранное',
+        'htmlOptions'=>[
+            'class'=>'deleteAllBtn'
+        ]
+    )
+);
 
 
 ?>
