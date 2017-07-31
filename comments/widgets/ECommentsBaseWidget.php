@@ -20,7 +20,6 @@ class ECommentsBaseWidget extends CWidget
          * @var model for displaying comments
          */
         public $model;
-        public $theme;
         
         
         /**
@@ -56,6 +55,7 @@ class ECommentsBaseWidget extends CWidget
             $commentsModule = Yii::app()->getModule('comments');
             //get model config for comments module
             $this->_config = $commentsModule->getModelConfig($this->model);
+
             if(count($this->_config) > 0)
             {
                 $this->registeredOnly = isset($this->_config['registeredOnly']) ? $this->_config['registeredOnly'] : $this->registeredOnly;
@@ -63,8 +63,6 @@ class ECommentsBaseWidget extends CWidget
                 $this->postCommentAction = isset($this->_config['postCommentAction']) ? $this->_config['postCommentAction'] : $this->postCommentAction;
             }
             $this->registerScripts();
-
-            $this->theme = Yii::app()->theme->name;
 
         }
 
