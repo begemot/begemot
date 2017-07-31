@@ -1,6 +1,6 @@
 <div id="comments" class="start-wrap cf">
     <div class="start">
-        <?php $this->render('webroot.themes.' . $theme . '.ECommentsWidgetComments', array('comments' => $comments));?>
+        <?php $this->render('ECommentsWidgetComments', array('comments' => $comments));?>
         <div class="moving-block" id="move">
       <?php
 
