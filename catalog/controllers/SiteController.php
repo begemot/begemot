@@ -12,12 +12,26 @@ class SiteController extends Controller {
 //        );
 //    }
     public $layout = 'clearNoAnimate';
+
     public function actions(){
         return array(
-            'captcha'=>array(
-                'class'=>'CCaptchaAction',
+            // captcha action renders the CAPTCHA image displayed on the contact page
+            'captcha' => array(
+                'class' => 'begemot.extensions.capcha.CaptchaExtendedAction',
+                'mode' => CaptchaExtendedAction::MODE_MATH,
             ),
         );
+    }
+
+    public function init()
+    {
+
+        // import class paths for captcha extended
+        Yii::$classMap = array_merge(Yii::$classMap, array(
+            'CaptchaExtendedAction' => Yii::getPathOfAlias('begemot.extensions.capcha') . DIRECTORY_SEPARATOR . 'CaptchaExtendedAction.php',
+            'CaptchaExtendedValidator' => Yii::getPathOfAlias('begemot.extensions.capcha') . DIRECTORY_SEPARATOR . 'CaptchaExtendedValidator.php'
+        ));
+
     }
 
     public function actionIndex() {
