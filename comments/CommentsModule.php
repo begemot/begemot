@@ -101,12 +101,15 @@ class CommentsModule extends CWebModule
         {
             $modelName = is_object($model) ? get_class($model) : $model; 
             $modelConfig = array();
+
+
             if(in_array($modelName, $this->commentableModels) || isset($this->commentableModels[$modelName]))
             {
                 $modelConfig = isset($this->commentableModels[$modelName]) ? 
                     array_merge($this->_defaultModelConfig, $this->commentableModels[$modelName]) :
                     $this->_defaultModelConfig;
             }
+
             return $modelConfig;
         }
         

@@ -1,7 +1,24 @@
 #mainContainer{
     height:300px;
+    /*width:*/
+    /*posistion:absolute;*/
 }
 
 .option, img.baseImage{
     position: absolute;
+    /*width:100%;*/
+}
+
+
+
+#mainPicture{
+    width:100px;
+    height:2100px;
+    border:1px solid red;
+    margin-bottom: 1200px;
+}
+
+#optionPicture {
+    border:1px solid blue;
+    /*height:1100px;*/
 }

@@ -135,7 +135,8 @@ class UserModule extends CWebModule
 
             ));
             Yii::app()->setComponent('bootstrap',$component);
-            Yii::app()->theme = 'bootstrap';
+            // Нету смысла в этой строчке
+            //Yii::app()->theme = 'bootstrap';
         }
     }
 	

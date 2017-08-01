@@ -14,44 +14,47 @@
  */
 Yii::import('comments.widgets.ECommentsBaseWidget');
 class ECommentsListWidget extends ECommentsBaseWidget
+
 {       
-        /**
-         * @var boolean showPopupForm
-         */
-        public $showPopupForm = true;
-        
-        /**
-         * @var boolean allowSubcommenting
-         */
-        public $allowSubcommenting = true;
-        
-        /**
-         * @var boolean adminMode
-         */
-        public $adminMode = false;
-        
-        /**
-         * Initializes the widget.
-         */
-        public function init() 
+    /**
+     * @var boolean showPopupForm
+     */
+    public $showPopupForm = true;
+    
+    /**
+     * @var boolean allowSubcommenting
+     */
+    public $allowSubcommenting = true;
+    
+    /**
+     * @var boolean adminMode
+     */
+    public $adminMode = false;
+    
+    /**
+     * Initializes the widget.
+     */
+    public function init() 
+    {
+        parent::init();
+        if(count($this->_config) > 0)
         {
-            parent::init();
-            if(count($this->_config) > 0)
-            {
-                $this->allowSubcommenting = isset($this->_config['allowSubcommenting']) ? $this->_config['allowSubcommenting'] : $this->allowSubcommenting;
-                if($this->_config['isSuperuser'] !== '')
-                    $this->adminMode = $this->evaluateExpression($this->_config['isSuperuser']);
-            }
+            $this->allowSubcommenting = isset($this->_config['allowSubcommenting']) ? $this->_config['allowSubcommenting'] : $this->allowSubcommenting;
+            if($this->_config['isSuperuser'] !== '')
+                $this->adminMode = $this->evaluateExpression($this->_config['isSuperuser']);
         }
+
+
+    }
         
 	public function run()
 	{
         $newComment = $this->createNewComment();
+
         $comments = $newComment->getCommentsTree();
-        $this->render('webroot.themes.' . $this->theme . '.ECommentsListWidget', array(
+        $this->render('ECommentsListWidget', array(
             'comments' => $comments,
             'newComment' => $newComment,
-            'theme' => $this->theme
         ));
         $options = CJavaScript::encode(array(
                 'dialogTitle' => Yii::t('CommentsModule.msg', 'Add comment'),
