@@ -29,7 +29,7 @@ class CommentController extends Controller
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
-            'ajaxOnly + postComment, delete, approve, likeOrDislike',
+            'ajaxOnly + postComment, approve, likeOrDislike',
 		);
 	}
 
@@ -91,16 +91,18 @@ class CommentController extends Controller
         if($comment->setDeleted()){
             $result['code'] = 'success';
 
-            $model=Comment::model()->findByPk($comment->owner_id);
+            /*$model=Comment::model()->findByPk($comment->owner_id);
             $model->comments--;
             if($model->comments < 0) $model->comments = 0;
-            $model->save();
+            $model->save();*/
         }
         else 
             $result['code'] = 'fail';
 
         echo CJSON::encode($result);
 	}
+
+
         
     /**
 	 * Approves a particular model.
@@ -227,29 +229,29 @@ class CommentController extends Controller
             else{
 
                 if($comment->save()){
-                    $model=Comment::model();
-                    $transaction=$model->dbConnection->beginTransaction();
-                    try
-                    {
+                    // $model=Comment::model();
+                    // $transaction=$model->dbConnection->beginTransaction();
+                    // try
+                    // {
 
-                        $model=$model->findByPk($comment->owner_id);
+                    //     $model=$model->findByPk($comment->owner_id);
 
-                        if(isset($model->comments)){
-                            $model->comments++;
+                    //     if(isset($model->comments)){
+                    //         $model->comments++;
 
-                            if($model->save())
-                                $transaction->commit();
-                            else
-                                $transaction->rollback();
-                        }
+                    //         if($model->save())
+                    //             $transaction->commit();
+                    //         else
+                    //             $transaction->rollback();
+                    //     }
                         
-                    }
-                    catch(Exception $e)
-                    {
-                        $transaction->rollback();
-                        throw $e;
-                        Yii::log($e, 3, 'transaction_error');
-                    }
+                    // }
+                    // catch(Exception $e)
+                    // {
+                    //     $transaction->rollback();
+                    //     throw $e;
+                    //     Yii::log($e, 3, 'transaction_error');
+                    // }
 
                     $comments[] = $comment;
                     $theme = isset(Yii::app()->theme->name) ? Yii::app()->theme->name : "classic";
