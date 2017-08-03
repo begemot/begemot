@@ -13,16 +13,27 @@ class BuyForm extends CFormModel{
     {
         $returnArray = array(
            // array('name','required'),
+            array('msg', 'httpStop'),
             array('phone','phoneOrMail'),
             array('phone,email, count, msg, model', 'safe'),
         );
 
         if (Yii::app()->controller->module->capcha) {
-           array_push($returnArray, array('verifyCode','captcha'));
+            array_push($returnArray, array('verifyCode', 'required'));
+           array_push($returnArray, array('verifyCode', 'CaptchaExtendedValidator', 'allowEmpty'=>false));
         }
 
         return $returnArray;
         
+    }
+
+    public function httpStop($attribute){
+
+        $pattern = '/.*http.*/';
+
+
+        if(preg_match($pattern, $this->$attribute))
+            $this->addError($attribute, 'Ссылки в сообщении запрещены!');
     }
 
     public function phoneOrMail($attribute,$params){
