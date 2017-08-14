@@ -63,17 +63,17 @@ class CommentController extends Controller
 	public function accessRules()
 	{
 		return array(
-//			array('allow',
-//				'actions'=>array('postComment', 'captcha'),
-//                'users'=>array('*')
-//			),
+			array('allow',
+                'actions'=>array('delete', 'update', 'ajaxSubmit'),
+                'users'=>array('*')
+			),
 			array('allow',
 				'actions'=>array('admin', 'delete', 'approve', 'likeOrDislike'),
                 'expression'=>'Yii::app()->user->canDo("")'
 			),
             
             array('deny',
-                'actions'=>array('admin', 'delete', 'approve'),
+                'actions'=>array('admin', 'approve'),
                 'users'=>array('*')
             ),
 		);
@@ -135,42 +135,21 @@ class CommentController extends Controller
 		));
 	}
 
-    public function actionForm($id)
-    {
+    public function actionUpdate($id){
         $this->layout = '//layouts/modal';
-        $model = $this->loadModel($id);
-
-        $sub_comments = Comment::model()->findByAttributes(array('parent_comment_id' => $id));
-
-        if(isset(Yii::app()->theme) && Yii::app()->theme->name != ""){
-            $path = 'webroot.themes.' . Yii::app()->theme->name . '.views.ECommentsListWidget.ECommentsFormWidget';
-        }
-        else $path = 'application.modules.comments.widgets.views.ECommentsFormWidget';
-
-
-
-        if(Yii::app()->user->canDo("") OR ($model->owner_id == Yii::app()->user->id && count($sub_comments) > 0)){
-            if(Yii::app()->request->isAjaxRequest){
-                $this->renderPartial($path,array('newComment'=>$model, 'edit' => true), false, true);
-
-            } else{
-                $this->render($path, array(
-                    'newComment' => $model,
-                    'edit' => true,
-                ));
-            }
-        } else throw new CHttpException(400, Yii::t('app', 'Нету доступа'));
-    }
-
-    public function actionUpdate(){
-        $this->layout = '//layouts/modal';
-        $model = $this->loadModel($id, 'Tasks');
+        $model = $this->loadModel($id, 'Comment');
 
 
         if (Yii::app()->user->isGuest) {
             throw new Exception("Ошибка запроса", 1);
         }
-        if(!Yii::app()->user->isAdmin() && $model->user_id != Yii::app()->user->id){
+        if(!Yii::app()->user->canDo("") && $model->creator_id != Yii::app()->user->id){
+            throw new Exception("Ошибка запроса", 1);
+        }
+
+        $sub_comments = Comment::model()->findByAttributes(array('parent_comment_id' => $id));
+
+        if(count($sub_comments) > 0){
             throw new Exception("Ошибка запроса", 1);
         }
 
@@ -179,22 +158,32 @@ class CommentController extends Controller
             Yii::app()->end();
         }
 
-        if (isset($_POST['Tasks'])) {
-            $model->setAttributes($_POST['Tasks']);
-            if($model->validate()){
-            
+        if (isset($_POST['Comment'])) {
+            $model->setAttributes($_POST['Comment']);
 
+            if($model->validate()){
+                
                 if ($model->save()) {
 
                     if (Yii::app()->getRequest()->isAjaxRequest){
-                        $json['redirect'] = Yii::app()->createUrl("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new'));
-                        $json['success'] = true;
-                        echo json_encode($json);
-                        Yii::app()->end();
+                        if(isset(Yii::app()->theme) && Yii::app()->theme->name != ""){
+                            $path = 'webroot.themes.' . Yii::app()->theme->name . '.views.ECommentsListWidget.ECommentsWidgetCommentsAjax';
+                        }
+                        else $path = 'application.modules.comments.widgets.views.ECommentsWidgetCommentsAjax';
+
+                        $adminMode = (Yii::app()->user->canDo("")) ? true : false;
+
+                        $comments = array();
+                        $comments[] = $model;
+                        $this->renderPartial($path,array('comments'=>$comments, $adminMode => $adminMode), false, true);
                     }
-                    else
-                        $this->redirect(array("/tasks/site/view", array('itemName' => $model->title_t, 'id' => $model->id, 'catId' => 'new')));
+                    else{
+                        $task = Tasks::model()->findByPk($model->owner_id);
+                        $this->redirect(array("/tasks/site/view", 'itemName' => $task->title_t, 'id' => $task->id, '#' => 'comment-' . $model->comment_id));
+                    }
                 }
+
+                
             }
             else{
                 if(isset($_POST['ajax'])){
@@ -205,21 +194,32 @@ class CommentController extends Controller
         }
         else{
 
-            if(Yii::app()->request->isAjaxRequest){
-                $this->renderPartial('update',array('model'=>$model, 'image_width' => $d['width']), false, true);
-
-            } else{
-                $this->render('update', array( 'model' => $model, 'image_width' => $d['width']));
+            if(isset(Yii::app()->theme) && Yii::app()->theme->name != ""){
+                $path = 'webroot.themes.' . Yii::app()->theme->name . '.views.ECommentsListWidget.update';
             }
+            else $path = 'application.modules.comments.widgets.views.update';
+
+            if(Yii::app()->user->canDo("") || ($model->creator_id == Yii::app()->user->id && count($sub_comments) == 0)){
+                if(Yii::app()->request->isAjaxRequest){
+                    $this->renderPartial($path,array('newComment'=>$model, 'edit' => true), false, true);
+
+                } else{
+                    $this->render($path, array(
+                        'newComment' => $model,
+                        'edit' => true,
+                    ));
+                }
+            } else throw new CHttpException(400, Yii::t('app', 'Нету доступа'));
         }
     }
 
     public function actionAjaxSubmit()
     {
-        if(isset($_POST['Comment']) && Yii::app()->request->isAjaxRequest)
+        if(isset($_POST['Comment']))
         {
             $comment = new Comment();
             $comment->attributes = $_POST['Comment'];
+
 
             if (!$comment->validate()){
                 echo CActiveForm::validate( array( $comment));
@@ -253,21 +253,25 @@ class CommentController extends Controller
                     //     Yii::log($e, 3, 'transaction_error');
                     // }
 
+                    if(!Yii::app()->request->isAjaxRequest){
+                        $task = Tasks::model()->findByPk($comment->owner_id);
+                        $this->redirect(array("/tasks/site/view",'itemName' => $task->title_t, 'id' => $task->id));
+                    }
+
                     $comments[] = $comment;
-                    $theme = isset(Yii::app()->theme->name) ? Yii::app()->theme->name : "classic";
                     $newComment = new Comment();
                     $newComment->owner_name = Yii::app()->user->name . " " . Yii::app()->user->lastName;
                     $newComment->owner_id = Yii::app()->user->id;
 
 
-                    Yii::app()->clientScript->scriptMap['*.js'] = false;
-                    Yii::app()->clientScript->scriptMap['*.css'] = false;
                     if(isset(Yii::app()->theme) && Yii::app()->theme->name != ""){
                         $path = 'webroot.themes.' . Yii::app()->theme->name . '.views.ECommentsListWidget.ECommentsWidgetCommentsAjax';
                     }
                     else $path = 'application.modules.comments.widgets.views.ECommentsWidgetCommentsAjax';
 
-                    $this->renderPartial($path, array('comments' => $comments, 'theme' => $theme, 'newComment' => $newComment));
+                    if(Yii::app()->request->isAjaxRequest){
+                        $this->renderPartial($path, array('comments' => $comments, 'newComment' => $newComment), false, true);
+                    }
                     Yii::app()->end();
                 }
 

@@ -21,6 +21,8 @@ class CommentsModule extends CWebModule
          * delete comment action route
          */
         const DELETE_ACTION_ROUTE = 'comments/comment/delete';
+
+        const UPDATE_ACTION_ROUTE = 'comments/comment/update';
         
         /*
          * approve comment action route
