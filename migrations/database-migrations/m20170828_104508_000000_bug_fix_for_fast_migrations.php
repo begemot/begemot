@@ -29,11 +29,11 @@ class m20170828_104508_000000_bug_fix_for_fast_migrations extends Migrations
 
     public function isConfirmed($returnBoolean = false){
         $sql = "SELECT id FROM users WHERE lastvisit_at = '0000-00-00 00:00:00';";
-        $return = Yii::app()->db->createCommand($sql)->execute();
+        $result = Yii::app()->db->createCommand($sql)->execute();
 
-        if($return == 0){
+        if($result == 0){
             $sql = "SELECT id FROM webParser WHERE date = '0000-00-00 00:00:00';";
-            $return = Yii::app()->db->createCommand($sql)->execute();
+            $result = Yii::app()->db->createCommand($sql)->execute();
         }
 
         if($returnBoolean){
