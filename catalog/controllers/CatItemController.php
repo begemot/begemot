@@ -138,6 +138,15 @@ class CatItemController extends Controller
 
         CatalogModule::checkEditAccess($model->authorId);
 
+        if(Yii::app()->request->isAjaxRequest){
+
+            if (isset($_GET['changePrice'])){
+                $model->price = $_GET['changePrice'];
+                $model->save();
+            }
+            return;
+        }
+
         $message = '';
 
         if (isset($_GET['setMainCat'])) {

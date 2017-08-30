@@ -70,6 +70,7 @@ $options = CatItem::model()->findByPk($_REQUEST['id'])->options();
         <th>Изображение</th>
         <th>Название</th>
         <th>Базовая</th>
+        <th>Цена</th>
         <th>Не ставится без</th>
         <th>Конфликт</th>
         <th></th>
@@ -84,8 +85,9 @@ $options = CatItem::model()->findByPk($_REQUEST['id'])->options();
                 'name' => $item->name,
                 'itemId' => $item->id,
                 'isBase' => $arrayOfIsBase[$item->id],
-                'options' => $item->cantWorkWithOutOptions,
-                'conflict' => $item->conflict,
+                'options' => $item->options,
+                'price'=>$item->price,
+//                'conflict' => $item->conflict,
             ];
 
             $this->renderPartial('tableLine', $tableLineViewData);

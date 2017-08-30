@@ -4,6 +4,15 @@
 $(document).ready(function () {
     var $itemId = $('.optionsTable').attr('data-item-id');
 
+    $('.ajaxOptionPrice').focusout(function(){
+        $.ajax({
+            url: '/catalog/catItem/update',
+            data: "id="+$(this).attr('data-item-id')+"&changePrice="+$(this).val(),
+            success: function(){
+                alert('Load was performed.');
+            }
+        });
+    });
 
     $('.optionsTable tbody').sortable(
         {

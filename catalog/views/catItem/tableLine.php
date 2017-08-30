@@ -3,6 +3,7 @@
     </td>
     <td><?= $name; ?></td>
     <td><input type="checkbox" <?= ($isBase ? "checked" : "") ?>/></td>
+    <td><input data-item-id="<?=$itemId?>"  class="ajaxOptionPrice" type="text" value="<?=$price?>"/></td>
     <td width="150">
         <?php
         $optionsMessage = 'нет опций';
@@ -15,8 +16,8 @@
     <td width="150">
         <?php
         $optionsMessage = 'нет опций';
-        $optionsCount = count($conflict);
-        if ($optionsCount > 0) $optionsMessage = 'есть ' . $optionsCount;
+//        $optionsCount = count($conflict);
+//        if ($optionsCount > 0) $optionsMessage = 'есть ' . $optionsCount;
         ?>
 
         <a class="btn btn-success .btn-mini btn-add-option-conflict"><?= $optionsMessage ?> </a>
