@@ -2,16 +2,8 @@
 
 class SiteController extends Controller
 {
+public $layout = '//layouts/postLayout';
 
-	public function actions()
-	{
-		return array(
-			'page'=>array(
-				'class'=>'application.modules.pages.components.HTMLAction',
-				'layout' => 'postLayout'
-			),
-		);
-	}
 
 	public function actionIndex()
 	{
@@ -22,7 +14,7 @@ class SiteController extends Controller
 			$model->attributes=$_POST['Faq'];
 			if($model->validate() && $model->save())
 			{
-				Yii::app()->user->setFlash('contact','Спасибо за ваше письмо.');
+				Yii::app()->user->setFlash('faqSuccess',"Ваш вопрос отправлен!");
 				$this->refresh();
 			}
 		}
