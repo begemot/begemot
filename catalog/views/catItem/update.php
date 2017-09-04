@@ -31,7 +31,8 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
 
             'active' => $tab == 'options' or $tab == 'configuration',
             'items'=>[
-                array('label' => 'Парсер',  'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options', 'visible' => isset(Yii::app()->modules['parsers'])),
+
+                array('label' => 'Список опций',  'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options', 'visible' => isset(Yii::app()->modules['parsers'])),
                 array('label' => 'Конфигуратор', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/configuration', 'active' => $tab == 'configuration', 'visible' => isset(Yii::app()->modules['parsers'])),
             ]
         ),
