@@ -240,6 +240,20 @@ class UserModule extends CWebModule
 	    $message = str_replace("\n.", "\n..", $message);
 	    return mail($email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
 	}
+
+	public function sendMailSmtp($to,$subject,$message){
+        $mail=Yii::app()->Smtpmail;
+        $mail->SetFrom(Yii::app()->Smtpmail->Username, 'От ' . Yii::app()->name);
+        $mail->Subject = $subject;
+        $mail->MsgHTML($message);
+        $mail->AddAddress($to, "");
+        if(!$mail->Send()) {
+            echo "Mailer Error: " . $mail->ErrorInfo;
+        }else {
+            echo "Message sent!";
+        }
+        $mail->ClearAddresses(); //clear addresses for next email sending
+    }
 	
 	/**
 	 * Return safe user data.
