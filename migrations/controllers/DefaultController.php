@@ -2,7 +2,7 @@
 
 class DefaultController extends Controller
 {
-    	public $layout='begemot.views.layouts.column2';
+    public $layout='begemot.views.layouts.column2';
 	/**
 	 * @return array action filters
 	 */
@@ -36,10 +36,14 @@ class DefaultController extends Controller
 		$return = '';
 
 		$filenames = array_reverse(CFileHelper::findFiles(Yii::app()->getModule('migrations')->getBasePath() .DIRECTORY_SEPARATOR. "database-migrations"));
+		$filenamesLocal = array_reverse(CFileHelper::findFiles(Yii::app()->getBasePath() .DIRECTORY_SEPARATOR. "migrations"));
+
+		$filenames = array_merge($filenamesLocal, $filenames);
 
 		$models = array();
 		foreach ($filenames as $filename)
 		{
+
 		  //remove off the path
 		  $explode = explode( DIRECTORY_SEPARATOR, $filename );
 		  $file = end( $explode );
@@ -66,7 +70,10 @@ class DefaultController extends Controller
 					$return =  "Выполнено";
 				}
 			}
-			else if(file_exists(Yii::app()->getModule('migrations')->getBasePath() . DIRECTORY_SEPARATOR. "database-migrations" .DIRECTORY_SEPARATOR. $_GET['file'] . ".php")){
+			else if(
+				file_exists(Yii::app()->getModule('migrations')->getBasePath() . DIRECTORY_SEPARATOR. "database-migrations" .DIRECTORY_SEPARATOR. $_GET['file'] . ".php") 
+				OR file_exists(Yii::app()->getBasePath() . DIRECTORY_SEPARATOR. "migrations" .DIRECTORY_SEPARATOR. $_GET['file'] . ".php")
+			){
 				$model = new $_GET['file'];
 
 				$results = $model->$_GET['go']();
