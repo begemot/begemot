@@ -121,6 +121,9 @@ class BaseParser extends BaseJob{
     public function getLastParsedData()
     {   
         $file = dirname(Yii::app()->request->scriptFile) . "/files/parsersData/" . $this->name . '.data';
+        if (!file_exists($file)){
+            crPhpArr([],$file);
+        }
         return require($file);
     }
 
