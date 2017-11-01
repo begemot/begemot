@@ -15,14 +15,14 @@ class ModelsWidget extends CWidget {
         $criteria = array();
 
         if ($this->onlyTop){
-            $criteria =  array('condition'=>'`published`=1 AND `top`=1', 'with'=>array('item','cat'));
+            $criteria =  array('condition'=>'`item`.`published`=1 AND `top`=1', 'with'=>array('item','cat'));
             //$criteria->distinct = true;
         } elseif(!is_null($this->categoryId)){
-            $criteria =  array('condition'=>'`published`=1 AND `t`.`catId`='.$this->categoryId, 'with'=>array('item','cat'));
+            $criteria =  array('condition'=>'`item`.`published`=1 AND `t`.`catId`='.$this->categoryId, 'with'=>array('item','cat'));
 
         }
         else {
-            $criteria =  array('condition'=>'`published`=1', 'with'=>array('category'));
+            $criteria =  array('condition'=>'`item`.`published`=1', 'with'=>array('category'));
         }
 
         if ($this->order){
