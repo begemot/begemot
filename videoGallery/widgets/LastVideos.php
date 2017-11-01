@@ -2,7 +2,7 @@
 
 class LastVideos extends CWidget {
     
-    public $limit = 3;
+    public $limit = 2;
     
     public function run(){
         Yii::import('videoGallery.models.VideoGalleryVideo');
@@ -11,7 +11,7 @@ class LastVideos extends CWidget {
             array(
                 'criteria' => array(
                     'order' => 'id desc',
-                    'limit'=>'2',
+                    'limit'=>$this->limit,
                     'condition'=>'top=1'
                 )
             )
