@@ -257,9 +257,9 @@ return array(
 //        'request' => array(
 //                        'baseUrl' => 'http://www.buggy-motor.ru',
 //                    ),
-        /*'cache' => array(
-            'class' => 'system.caching.CDbCache',
-        ),*/
+        'cache' => array(
+            'class' => 'system.caching.CFileCache',
+        ),
 
     ),
     // application-level parameters that can be accessed
