@@ -192,6 +192,14 @@ class SiteController extends Controller {
         $this->render($viewFile, array('categoryItems' => $dataProvider->getData(),'category'=>$category,'parentCat'=>$parentCategory, 'maximalPriceValue' => $maximalPriceValue));
     }
 
+    public function actionPromoView ($promoId){
+        $this->layout = $this->module->baseLayout;
+
+        $model = Promo::model()->findByPk($promoId);
+
+        $this->render('promo',['model'=>$model]);
+    }
+
     public function actionBuy ($itemId){
 
         Yii::import('catalog.models.forms.BuyForm');

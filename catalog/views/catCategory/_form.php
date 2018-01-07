@@ -54,7 +54,7 @@
         ?>
         <?php echo $form->error($model, 'text'); ?>
         <?php
-        $this->widget('begemot.components.htmlClearPanel.htmlClearPanel', array('id' => 'CatCategory_text'));
+//        $this->widget('begemot.components.htmlClearPanel.htmlClearPanel', array('id' => 'CatCategory_text'));
         ?>
     </div>
     <div class="row">
