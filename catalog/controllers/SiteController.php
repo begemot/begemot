@@ -234,8 +234,17 @@ class SiteController extends Controller {
         $this->render('buy',array('id'=>$itemId,'item'=>$item,'buyFormModel'=>$buyFormModel));
     }
 
-    public function actionTest(){
+    /**
+     * Отображение страницы корзины
+     */
+    public function actionBasket(){
+        $this->render('basket');
+    }
 
+    public function actionTest(){
+        Yii::import('catalog.components.CBasketState');
+        $basketState = new CBasketState();
+        $basketState->printBasket();
     }
 
 }
