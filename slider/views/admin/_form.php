@@ -6,7 +6,7 @@
 
 <div class="form">
 
-<?php $form=$this->beginWidget('CActiveForm', array(
+<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'=>'slider-form',
 	// Please note: When you enable ajax validation, make sure the corresponding
 	// controller action is handling ajax validation correctly.
@@ -26,29 +26,20 @@
    <?php if(!$model->isNewRecord): ?>
       <?php echo CHtml::image($model->image); ?>
    <?php endif; ?>
-	<div class="row">
-		<?php echo $form->labelEx($model,'header'); ?>
-		<?php echo $form->textArea($model,'header',array('rows'=>6, 'cols'=>50)); ?>
-		<?php echo $form->error($model,'header'); ?>
-	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'text1'); ?>
-		<?php echo $form->textArea($model,'text1',array('rows'=>6, 'cols'=>50)); ?>
-		<?php echo $form->error($model,'text1'); ?>
-	</div>
+    <?php echo $form->textAreaRow($model,'header',array('rows'=>6, 'cols'=>50)); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'text2'); ?>
-		<?php echo $form->textArea($model,'text2',array('rows'=>6, 'cols'=>50)); ?>
-		<?php echo $form->error($model,'text2'); ?>
-	</div>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'text3'); ?>
-		<?php echo $form->textArea($model,'text3',array('rows'=>6, 'cols'=>50)); ?>
-		<?php echo $form->error($model,'text3'); ?>
-	</div>
+    <?php echo $form->textAreaRow($model,'text1',array('rows'=>6, 'cols'=>50)); ?>
+
+
+
+    <?php echo $form->textAreaRow($model,'text2',array('rows'=>6, 'cols'=>50)); ?>
+
+
+
+    <?php echo $form->textAreaRow($model,'text3',array('rows'=>6, 'cols'=>50)); ?>
+
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('SliderModule.msg','Create') : Yii::t('SliderModule.msg','Save')); ?>

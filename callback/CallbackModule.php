@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 class CallbackModule extends CWebModule
 {
@@ -36,7 +36,7 @@ class CallbackModule extends CWebModule
 
             if (count($mails)>0){
 
-                $headers='From: sales@'.$_SERVER['SERVER_NAME'].' <sales@'.$_SERVER['SERVER_NAME']. ">\r\n" .
+                $headers='From: '.$group.' '.$_SERVER['SERVER_NAME'].' <'.$_SERVER['SERVER_NAME']. ">\r\n" .
                     "MIME-Version: 1.0\r\n".
                     "Content-type: text/html; charset=UTF-8";
 

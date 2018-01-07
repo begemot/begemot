@@ -39,7 +39,8 @@ class CWebParser
     public $urlArray = array();
     public $filteredUrlArray = array();
     public $urlFilterArray = array();
-
+    //регулярные выражения для предобработки урл, например удаление не нужных параметров трекеров
+    public $urlReplaceArray = array();
     /**
      * @var int Сколько задач обрабатывается за один запуск процесса
      */
@@ -72,11 +73,16 @@ class CWebParser
     private $parseScenario = null;
 
     private $checkMime = false;
-    private $mimeArray = array();
+    private $mimeArray = [];
+
+    /**
+     * @var array массив параметров ссылки, который будет удален из текста ссылки
+     */
+    private $urlParamFiltersArray = [];
 
     public $isInterface = false;
 
-    public $doneTasks = array();
+    public $doneTasks = [];
 
     public function getProcessId()
     {
@@ -110,30 +116,31 @@ class CWebParser
     /**
      * Удаляем старые данные, перед тем как начнем новый процесс.
      */
-    private function deleteAllData(){
+    private function deleteAllData()
+    {
         //удаляем файлы
 
         WebParserProcess::model()->findAll();
-        $filesDir = Yii::getPathOfAlias('webroot').'/files/webParser/*';
+        $filesDir = Yii::getPathOfAlias('webroot') . '/files/webParser/*';
 
         $dirsArray = glob($filesDir);
 
 
         $dirsForDelete = [];
 
-        foreach ($dirsArray as $dir){
-            $dirsForDelete[filemtime($dir)] = $dir ;
+        foreach ($dirsArray as $dir) {
+            $dirsForDelete[filemtime($dir)] = $dir;
         }
 
         ksort($dirsForDelete);
         reset($dirsForDelete);
 
 
-        $countOfDirs = count ($dirsArray);
+        $countOfDirs = count($dirsArray);
         $dirsI = 0;
 
-        foreach ($dirsForDelete as $dir){
-            if ($countOfDirs-$dirsI>$this->processForStore){
+        foreach ($dirsForDelete as $dir) {
+            if ($countOfDirs - $dirsI > $this->processForStore) {
 
                 CFileHelper::removeDirectory($dir);
             }
@@ -142,48 +149,48 @@ class CWebParser
 
 
         //удаляем данные из бд
-        $dbDataForClear =[
+        $dbDataForClear = [
             [
-                'dbName'=> 'webParser',
-                'dbCol'=>'id'
+                'dbName' => 'webParser',
+                'dbCol' => 'id'
             ],
             [
-                'dbName'=> 'webParserData',
-                'dbCol'=>'processId'
+                'dbName' => 'webParserData',
+                'dbCol' => 'processId'
             ],
             [
-                'dbName'=> 'webParserDownload',
-                'dbCol'=>'processId'
+                'dbName' => 'webParserDownload',
+                'dbCol' => 'processId'
             ],
             [
-                'dbName'=> 'webParserPage',
-                'dbCol'=>'procId'
+                'dbName' => 'webParserPage',
+                'dbCol' => 'procId'
             ],
             [
-                'dbName'=> 'webParserScenarioTask',
-                'dbCol'=>'processId'
+                'dbName' => 'webParserScenarioTask',
+                'dbCol' => 'processId'
             ],
             [
-                'dbName'=> 'webParserUrl',
-                'dbCol'=>'procId'
+                'dbName' => 'webParserUrl',
+                'dbCol' => 'procId'
             ],
         ];
 
-        foreach ($dbDataForClear as $dbData){
+        foreach ($dbDataForClear as $dbData) {
             //Удаляем из таблица webParser
-            $sql = "SELECT distinct(".($dbData['dbCol']).") FROM ".($dbData['dbName'])." order by ".($dbData['dbCol']).";";
-            $connection=Yii::app()->db;
-            $command=$connection->createCommand($sql);
-            $rows=$command->queryAll();
+            $sql = "SELECT distinct(" . ($dbData['dbCol']) . ") FROM " . ($dbData['dbName']) . " order by " . ($dbData['dbCol']) . ";";
+            $connection = Yii::app()->db;
+            $command = $connection->createCommand($sql);
+            $rows = $command->queryAll();
 
-            $countOfRows = count ($rows);
+            $countOfRows = count($rows);
             $rowsI = 0;
 
-            foreach ($rows as $row){
-                if ($countOfRows-$rowsI>$this->processForStore){
+            foreach ($rows as $row) {
+                if ($countOfRows - $rowsI > $this->processForStore) {
 
-                    $sql = "DELETE FROM ".($dbData['dbName'])." where ".($dbData['dbCol'])."=".($row[$dbData['dbCol']]).";";
-                    $command=$connection->createCommand($sql);
+                    $sql = "DELETE FROM " . ($dbData['dbName']) . " where " . ($dbData['dbCol']) . "=" . ($row[$dbData['dbCol']]) . ";";
+                    $command = $connection->createCommand($sql);
                     $command->execute();
                 }
                 $rowsI++;
@@ -521,7 +528,7 @@ class CWebParser
                     $this->log('Обрабатываем поле ' . $fieldName . ' с фильтром ' . $fieldFilter);
                     //Вытащили данные. Значений можем получить много, либо одно
 
-                    if (strlen ($fieldFilter)>0 && $fieldFilter{0} == '@') {
+                    if (strlen($fieldFilter) > 0 && $fieldFilter{0} == '@') {
                         $filterArray = explode(' ', $fieldFilter);
 
                         if ($filterArray[0] == '@download') {
@@ -563,7 +570,7 @@ class CWebParser
                         // Проверяем что мы доставли. Если это с флагом @download
                         // то создаем задачу на скачивание, иначе просто создаем
                         // элемент данных в БД
-                        if (isset($downloadImageFlag) && $downloadImageFlag==true) {
+                        if (isset($downloadImageFlag) && $downloadImageFlag == true) {
                             /*
                              * Создаем задачу на скачку изображение
                              * и создаем terget на скачку с id данных
@@ -645,9 +652,12 @@ class CWebParser
                                             $dataFieldModel->fieldParentId = $filterResult;
                                         break;
                                     case WebParserDataEnums::DATA_GROUP_ID_ARRAY_KEY :
+                                        $this->log('Инструкция DATA_GROUP_ID_ARRAY_KEY! ' . $massFilter);
                                         $filterResult = $this->executeFilter($massFilter, $task);
-                                        if (is_array($filterResult))
+                                        if (is_array($filterResult)) {
+                                            $this->log('Нашли результатов: ' . count($filterResult));
                                             $dataFieldModel->fieldGroupId = array_shift($filterResult);
+                                        }
                                         else
                                             $dataFieldModel->fieldGroupId = $filterResult;
                                         break;
@@ -759,7 +769,7 @@ class CWebParser
                 $targetDownloadObject->save();
 
             } else {
-                $this->logError(__LINE__.' $targetDownloadObject - NULL');
+                $this->logError(__LINE__ . ' $targetDownloadObject - NULL');
             }
         }
 
@@ -816,7 +826,7 @@ class CWebParser
             // закрываем файл
             fclose($dest_file);
         }
-        if (file_exists($file)){
+        if (file_exists($file)) {
             $this->log('Файл скачался успешно!');
         } else {
             $this->logError('После скачивания файл не сохранился и на диске его нет.');
@@ -907,7 +917,7 @@ class CWebParser
 
         $this->log('Зашли в executeFilter и выполняем фильтр:' . $filter);
 
-        if(strstr($filter, '+')){
+        if (strstr($filter, '+')) {
             $this->log('В фильтре найден знак конкатенации "+". ' . $filter);
 
             /*
@@ -917,35 +927,35 @@ class CWebParser
              * каждого фильтра объединяются в одну строку.
              */
 
-            $concatFilters = explode('+',$filter);
+            $concatFilters = explode('+', $filter);
 
             $dataForConcat = [];
 
-            foreach ($concatFilters as $concatFilter){
-                $concatFilter = trim ($concatFilter);
+            foreach ($concatFilters as $concatFilter) {
+                $concatFilter = trim($concatFilter);
 
-                $filterResults = $this->executeFilter($concatFilter,$task);
-                if (is_array($filterResults)){
-                    $this->log('Фильтр процедурный ' . print_r($filterResults,true));
-                    if (count($filterResults)==0) {
+                $filterResults = $this->executeFilter($concatFilter, $task);
+                if (is_array($filterResults)) {
+                    $this->log('Фильтр процедурный ' . print_r($filterResults, true));
+                    if (count($filterResults) == 0) {
                         $this->log('Нет совпадений! Выходим. ');
                         return '';
                     }
                     $dataForConcat[] = $filterResults[0];
-                }else{
+                } else {
                     $dataForConcat[] = $filterResults;
                 }
 
             }
 
-            return implode('',$dataForConcat);
+            return implode('', $dataForConcat);
         }
 
-        if (strlen ($filter)>0 && $filter{0} == "!") {
+        if (strlen($filter) > 0 && $filter{0} == "!") {
             return str_replace('!', '', $filter);
         }
 
-        if (strlen ($filter)>0 && $filter{0} == "@") {
+        if (strlen($filter) > 0 && $filter{0} == "@") {
             //Процедурный фильтр
             $this->log('Фильтр процедурный.');
             if ($filter == WebParserDataEnums::DATA_FILTER_URL) {
@@ -972,12 +982,13 @@ class CWebParser
         }
 
 
-        foreach ($doc->find($filter) as $resultElement) {
 
+
+        foreach ($doc->find($filter) as $resultElement) {
             $resultElement = pq($resultElement);
 
             if (strstr($filterCommand, 'val')) {
-                $returnArray[] = $resultElement->val();
+                    $returnArray[] = $resultElement->val();
             } elseif (strstr($filterCommand, 'price')) {
                 $returnArray[] = preg_replace('/[^0-9,]/', '', $resultElement->text());
             } elseif (strstr($filterCommand, 'text')) {
@@ -988,13 +999,29 @@ class CWebParser
 
                 $returnArray[] = $resultElement->html();
             }
-        }
 
+
+        }
+        /*
+           * Комманда указания номера элемента с конца, который нужно взять.
+           * Указывается в конце комманды фильтру в виде #1
+           */
+        if (strstr($filterCommand, '#')){
+            $this->log('Нашли указание на предпоследний элемент. ');
+            $lastElemNumber = explode('#',$filterCommand);
+            $lastElemNumber = $lastElemNumber[1];
+            $this->log('Оставляем элемент с конца под номером: '.$lastElemNumber);
+            $ewsultCount = count($returnArray);
+            foreach($returnArray as $id=>$data){
+                if ($ewsultCount-$id!=$lastElemNumber){
+                    unset($returnArray[$id]);
+                }
+            }
+        }
 
         return $returnArray;
 
     }
-
 
 
     private function startNewParseProccess()
@@ -1124,10 +1151,73 @@ class CWebParser
         $this->urlFilterArray[] = $regExpFilter;
     }
 
+    /**
+     * @param $paramName Добавляем параметр, который нужно удалить из урл
+     */
+    public function addUrlParamFilter($paramName)
+    {
+        $this->urlParamFiltersArray[] = $paramName;
+    }
+
+    public function addUrlReplacer($regExpFilter, $resultStr, $filterName)
+    {
+        $this->urlReplaceArray[$filterName] = [$regExpFilter, $resultStr];
+    }
+
     public function filterUrlArray($urlArray)
     {
+        $filteredArray = array_filter($urlArray, array(get_class($this), 'regExpChecker'));
 
-        return array_filter($urlArray, array(get_class($this), 'regExpChecker'));
+//        $resultArray = [];
+//        foreach ($filteredArray as $ulr) {
+//            foreach ($this->urlReplaceArray as $filter) {
+//                $string = $ulr;
+//                $pattern = $filter[0];
+//                $replacement = $filter[1];
+//                $resultArray[] = preg_replace($pattern, $replacement, $string);
+//
+//            }
+//        }
+
+        foreach ($filteredArray as $urlKey => $url) {
+
+
+            $url = htmlspecialchars_decode($url);
+
+
+            $urlParams = parse_url($url);
+
+
+            $paramsNames = $this->urlParamFiltersArray;
+            $resultUrl = '';
+            if (isset($urlParams['scheme'])) $resultUrl .= $urlParams['scheme'];
+            if (isset($urlParams['host'])) $resultUrl .= $urlParams['host'];
+
+            $resultUrl .= $urlParams['path'];
+            if (isset($urlParams['query']))
+                if (strlen($urlParams['query']) > 0 && $urlParams['query'] !== '?') {
+                    $params = explode('&', $urlParams['query']);
+
+                    foreach ($params as $paramId => $param) {
+                        $singleParamDetails = explode('=', $param);
+                        echo $singleParamDetails[0];
+
+                        if (in_array($singleParamDetails[0], $paramsNames)) {
+                            unset($params[$paramId]);
+                        }
+                    }
+                    asort($params);
+                    if (count($params) > 0) {
+                        $resultUrl .= '?';
+                        $resultUrl .= implode('&', $params);
+                    }
+                }
+
+
+            $resultArray[$urlKey] = $resultUrl;
+        }
+
+        return $resultArray;
     }
 
 
@@ -1164,6 +1254,12 @@ class CWebParser
         return $urlArray;
     }
 
+    /**
+     * Функция нормализации урл. Все работы по приведению всех урл к общему виду делаем тут.
+     *
+     * @param $url
+     * @return string
+     */
     public function normalizeUrl($url)
     {
 
@@ -1278,6 +1374,8 @@ class CWebParser
 
     private function getScenarioItem($name)
     {
+
+
         if (!is_null($name))
             $result = $this->parseScenario[$name];
         else
@@ -1366,7 +1464,7 @@ class CWebParser
 
     private function logError($message)
     {
-        Yii::log('!!!! ERROR !!!! '.$message, 'trace', 'webParser');
+        Yii::log('!!!! ERROR !!!! ' . $message, 'trace', 'webParser');
         Yii::getLogger()->flush(true);
     }
 

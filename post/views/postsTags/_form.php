@@ -20,13 +20,13 @@
 		<?php echo $form->error($model,'title_seo'); ?>
 	</div>
     <div class="row">
-        <?php echo $form->labelEx($model,'info'); ?>
+        <?php echo $form->labelEx($model,'tag_text'); ?>
         <?php
         $this->widget('begemot.extensions.ckeditor.CKEditor',
-            array('model' => $model, 'attribute' => 'info', 'language' => 'ru', 'editorTemplate' => 'full',));
+            array('model' => $model, 'attribute' => 'tag_text', 'language' => 'ru', 'editorTemplate' => 'full',));
         ?>
 
-        <?php echo $form->error($model,'info'); ?>
+        <?php echo $form->error($model,'tag_text'); ?>
     </div>
 	<div class="row buttons">
 		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>

@@ -35,7 +35,7 @@ class TbDatePicker extends CInputWidget
 			$this->options['language'] = Yii::app()->language;
 
 		if (!isset($this->options['format']))
-			$this->options['format'] = 'mm/dd/yyyy';
+			$this->options['format'] = 'dd.mm.yyyy';
 
 		if (!isset($this->options['weekStart']))
 			$this->options['weekStart'] = 0; // Sunday
