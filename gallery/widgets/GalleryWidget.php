@@ -10,7 +10,7 @@ class GalleryWidget extends CWidget
     public function run()
     {
         Yii::import('gallery.models.Gallery');
-        echo $this->limit;
+      
         $criteria = [
 
             'order' => 'id desc',
