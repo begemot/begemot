@@ -1,8 +1,5 @@
 <?php
-$this->menu = array(
-    array('label' => 'Все задания', 'url' => array('/jobs/default/index')),
-    array('label' => 'Все работы', 'url' => array('/jobs/default/jobs')),
-);
+require(dirname(__FILE__).'/mainMenu.php');
 ?>
 
 

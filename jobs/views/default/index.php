@@ -1,9 +1,5 @@
 <?php
-$this->menu = array(
-    array('label' => 'Все задания', 'url' => array('/jobs/default/index')),
-    array('label' => 'Все работы', 'url' => array('/jobs/default/jobs')),
-    array('label' => 'Все работы', 'url' => array('/jobs/default/jobs')),
-);
+require(dirname(__FILE__).'/mainMenu.php');
 ?>
 <h1>Установленные работы по рассписанию</h1>
 
@@ -71,7 +67,9 @@ $this->menu = array(
                                    data-name='<?php echo $key?>'
                                    data-turn='1'
                                    value='Принудительный запуск'>
+
                         <?php endif;?>
+
                         <input type="hidden" name='min' value='<?php echo (isset($item['min'])) ? $item['min'] : ""?>'>
                         <input type="hidden" name='hour' value='<?php echo (isset($item['hour'])) ? $item['hour'] : ""?>'>
                         <input type="hidden" name='day' value='<?php echo (isset($item['day'])) ? $item['day'] : ""?>'>
@@ -145,8 +143,14 @@ $this->menu = array(
 
 <script>
 
+    $(document).ready(function(){
+        $('.manualStart').click();
+    });
 
     $(document).on("click", ".turnOnOff", function(){
+
+
+
         var button = $(this);
         var params = {'name': $(this).attr("data-name"), 'turn': $(this).attr("data-turn")};
 

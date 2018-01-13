@@ -22,7 +22,7 @@ class DefaultController extends Controller
 		return array(
 
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('index', 'turnOnOff', 'changeTime', 'setTask', 'jobs', 'removeTask', 'runJob','manualRunJob'),
+				'actions'=>array('index','logView', 'turnOnOff', 'changeTime', 'setTask', 'jobs', 'removeTask', 'runJob','manualRunJob'),
                 'expression'=>'Yii::app()->user->canDo("")'
 			),
 			array('deny',  // deny all users
@@ -172,6 +172,9 @@ class DefaultController extends Controller
 			
 		}
 	}
-
+    public function actionLogView()
+    {
+        $this->render('logView');
+    }
 
 }
