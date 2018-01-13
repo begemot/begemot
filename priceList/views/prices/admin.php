@@ -42,7 +42,7 @@ $this->widget('bootstrap.widgets.TbExtendedGridView', array(
 
         array(
             'class' => 'bootstrap.widgets.TbButtonColumn',
-            'template' => '{delete}'
+
         ),
     ),
 )); ?>

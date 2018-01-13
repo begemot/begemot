@@ -64,15 +64,15 @@ class RusDate{
     }
     
      public static  function getMonth($month){
-        return self::$month[$month];
+        return self::$month[$month-1];
          
     }   
      public static  function getShortMonth($month){
-        return self::$shortMonthName[$month];
+        return self::$shortMonthName[$month-1];
     }   
     
      public static  function getMonthName($month){
-        return self::$monthName[$month];
+        return self::$monthName[$month-1];
     }   
     
 }	

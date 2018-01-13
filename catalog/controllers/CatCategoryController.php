@@ -279,6 +279,7 @@ class CatCategoryController extends Controller
      */
     public function actionUpdate($id, $tab = 'data')
     {
+
         $model = $this->loadModel($id);
 
         // Uncomment the following line if AJAX validation is needed

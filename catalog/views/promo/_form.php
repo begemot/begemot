@@ -6,37 +6,52 @@
 
 <div class="form">
 
-<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(
-	'id'=>'promo-form',
-	'enableAjaxValidation'=>false,
-)); ?>
+    <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+        'id' => 'promo-form',
+        'enableAjaxValidation' => false,
+    )); ?>
 
-	<p class="note">Поля отмеченные <span class="required">*</span> обязательны для заполнения.</p>
+    <p class="note">Поля отмеченные <span class="required">*</span> обязательны для заполнения.</p>
 
-	<?php echo $form->errorSummary($model); ?>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'title'); ?>
-		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>100)); ?>
-		<?php echo $form->error($model,'title'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'text'); ?>
+    <?php echo $form->errorSummary($model); ?>
 
 
-		<?php
+    <?php echo $form->textFieldRow($model, 'title', array('size' => 60, 'maxlength' => 100)); ?>
 
-            $this->widget('begemot.extensions.ckeditor.CKEditor',
-                //$this->widget('CKEditor',
-                //        $this->widget('//home/atv/www/atvargo.ru/protected/extensions/ckeditor/CKEditor',
-                array('model' => $model, 'attribute' => 'text', 'language' => 'ru', 'editorTemplate' => 'full',));
-            ?>
+    <?php echo $form->textFieldRow($model, 'title2', array('size' => 60, 'maxlength' => 100)); ?>
+    <?php echo $form->textFieldRow($model, 'title3', array('size' => 60, 'maxlength' => 100)); ?>
+    <?php echo $form->textFieldRow($model, 'sale', array('size' => 60, 'maxlength' => 100)); ?>
+    <?php
+    if ($model->dateFrom==''){
+        $date = '';
+    } else {
+        $date= date ('d.m.Y',$model->dateFrom);
+    }
+    echo $form->datepickerRow($model, 'dateFrom', array('size' => 60, 'maxlength' => 100,'value'=>$date)); ?>
+    <?php
+    if ($model->dateTo==''){
+        $date = '';
+    } else {
+        $date= date ('d.m.Y',$model->dateTo);
+    }
 
-        <?php echo $form->error($model,'text'); ?>
+    echo $form->datepickerRow($model, 'dateTo', array('size' => 60, 'maxlength' => 100,'value'=>$date)); ?>
+    <div class="row">
+        <?php echo $form->labelEx($model, 'text'); ?>
 
 
-	</div>
+        <?php
+
+        $this->widget('begemot.extensions.ckeditor.CKEditor',
+            //$this->widget('CKEditor',
+            //        $this->widget('//home/atv/www/atvargo.ru/protected/extensions/ckeditor/CKEditor',
+            array('model' => $model, 'attribute' => 'text', 'language' => 'ru', 'editorTemplate' => 'full',));
+        ?>
+
+        <?php echo $form->error($model, 'text'); ?>
+
+
+    </div>
     <div class="row">
         <?php
         $this->widget('begemot.extensions.contentKit.widgets.KitFormPart',
@@ -47,54 +62,52 @@
         );
         ?>
     </div>
-	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
-	</div>
+    <div class="row buttons">
+        <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+    </div>
 
-<?php $this->endWidget(); ?>
-
-
+    <?php $this->endWidget(); ?>
 
 
-        <?php
 
-        $picturesConfig = array();
 
-        $defaultConfig =  [
-            'divId' => 'pictureBox',
-            'nativeFilters' => array(
+    <?php
 
-                'standart' => true,
+    $picturesConfig = array();
 
-            ),
-            'filtersTitles' => array(
+    $defaultConfig = [
+        'divId' => 'pictureBox',
+        'nativeFilters' => array(
 
-                'standart' => 'основное',
+            'standart' => true,
 
-            ),
-            'imageFilters' => array(
+        ),
+        'filtersTitles' => array(
 
-                'standart' => array(
-                    1 => array(
-                        'filter' => 'CropResizeUpdate',
-                        'param' => array(
-                            'width' => 200,
-                            'height' => 200,
-                        ),
+            'standart' => 'основное',
+
+        ),
+        'imageFilters' => array(
+
+            'standart' => array(
+                1 => array(
+                    'filter' => 'CropResizeUpdate',
+                    'param' => array(
+                        'width' => 200,
+                        'height' => 200,
                     ),
                 ),
             ),
-        ];
+        ),
+    ];
 
-
-
-
+    if (!$model->isNewRecord) {
         $configFile = Yii::getPathOfAlias(CatalogModule::PROMO_CONFIG_FILE_ALIAS);
-        if (file_exists($configFile.'.php')){
+        if (file_exists($configFile . '.php')) {
 
 
-            $picturesConfig = require($configFile.'.php');
-        } else{
+            $picturesConfig = require($configFile . '.php');
+        } else {
             $picturesConfig = $defaultConfig;
         }
 
@@ -105,8 +118,8 @@
                 'config' => $picturesConfig,
             )
         );
-
-        ?>
+    }
+    ?>
 
 
 </div><!-- form -->

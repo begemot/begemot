@@ -11,6 +11,6 @@ $this->breadcrumbs=array(
 require Yii::getPathOfAlias('webroot').'/protected/modules/slider/views/admin/_menu.php';
 ?>
 
-<h1><? echo Yii::t('SliderModule.msg','Update Slider'); ?> <?php echo $model->id; ?></h1>
+<h1>Редактирование слайда <?php echo $model->id; ?></h1>
 
 <?php $this->renderPartial('_form', array('model'=>$model)); ?>

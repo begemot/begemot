@@ -80,7 +80,7 @@ return array(
             // must be an existing alias
         ),
         'videoGallery',
-        
+        'vars',
         'user' => array(
             # encrypting method (php hash function)
             'hash' => 'md5',
@@ -191,6 +191,7 @@ return array(
                 'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w-\"\']+>_<item:\d+>' => 'catalog/site/itemView',
+                'promo_<promoId:\d+>' => 'catalog/site/promoView',
                 //модуль post
                 'allPosts'=>'post/site/allPosts',
 //                'posts' => 'post/site/tagIndex',

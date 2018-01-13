@@ -19,7 +19,7 @@ foreach ($allGallery as $galleryModel) {
     $menuPart2[] = array(
         'label' => $galleryModel->name,
         'url' => array
-            ('/gallery/default/view',
+            ('/gallery/default/manageGallery',
             'id'=>$galleryModel->id));
 
 }

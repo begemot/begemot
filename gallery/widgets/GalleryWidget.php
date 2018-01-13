@@ -1,28 +1,29 @@
 <?php
 
-class LastVideos extends CWidget
+class GalleryWidget extends CWidget
 {
 
-    public $limit = 2;
+    public $limit = 5;
     public $galleryId = null;
+    public $view = 'gallery';
 
     public function run()
     {
-        Yii::import('videoGallery.models.VideoGalleryVideo');
-
+        Yii::import('gallery.models.Gallery');
+      
         $criteria = [
 
             'order' => 'id desc',
             'limit' => $this->limit,
-            'condition' => 'top=1',
+
         ];
 
         if ($this->galleryId !== null) {
-            $criteria['condition']='gallery_id = '.$this->galleryId;
+            $criteria['condition']='id = '.$this->galleryId;
         }
 
         $dataProvider = new CActiveDataProvider(
-            'VideoGalleryVideo',
+            'Gallery',
             array(
                 'criteria' =>
                     $criteria
@@ -30,7 +31,10 @@ class LastVideos extends CWidget
             )
         );
         $dataProvider->pagination = false;
-        $this->render('lastVideo', array('videos' => $dataProvider->getData()));
+
+
+
+        $this->render($this->view, array('gallery' => $dataProvider->getData(),'limit'=>$this->limit));
 
     }
 

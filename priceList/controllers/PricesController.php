@@ -90,32 +90,30 @@ class PricesController extends Controller
 	 * If update is successful, the browser will be redirected to the 'view' page.
 	 * @param integer $id the ID of the model to be updated
 	 */
-	public function actionUpdate()
+	public function actionUpdate($id=null)
 	{
         if (Yii::app()->request->isAjaxRequest) {
 
 
-            Yii::import('ext.editable.EditableSaver');
+            Yii::import('begemot.extensions.bootstrap-editable.EditableSaver');
             $es = new EditableSaver('Prices');  // 'User' is classname of model to be updated
             $es->update();
+            return;
         }
 
 
-//		$model=$this->loadModel($id);
-//
-//		// Uncomment the following line if AJAX validation is needed
-//		// $this->performAjaxValidation($model);
-//
-//		if(isset($_POST['Prices']))
-//		{
-//			$model->attributes=$_POST['Prices'];
-//			if($model->save())
-//				$this->redirect(array('view','id'=>$model->id));
-//		}
-//
-//		$this->render('update',array(
-//			'model'=>$model,
-//		));
+		$model=$this->loadModel($id);
+
+		if(isset($_POST['Prices']))
+		{
+			$model->attributes=$_POST['Prices'];
+			if($model->save())
+				$this->redirect(array('update','id'=>$model->id));
+		}
+
+		$this->render('update',array(
+			'model'=>$model,
+		));
 	}
 
 	/**

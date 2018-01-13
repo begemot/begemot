@@ -48,8 +48,8 @@ class Promo extends ContentKitModel
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
         $rules = array(
-			array('title', 'length', 'max'=>100),
-			array('text', 'length', 'max'=>1000),
+
+            array('title,text,title2,title3,dateTo,dateFrom,sale', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, title, text', 'safe', 'on'=>'search'),
@@ -76,8 +76,14 @@ class Promo extends ContentKitModel
 	{
 		return array_merge( array(
 			'id' => 'ID',
-			'title' => 'Title',
-			'text' => 'Text'),
+			'title' => 'Заголовок',
+			'text' => 'Текст акции',
+            'dateFrom' => 'Дата начала акции',
+            'dateTo' => 'Дата конца акции',
+            'title2' => 'Второй заголовок',
+            'title3' => 'Третий заголовок',
+            'sale'=>'Скидка'
+        ),
 		parent::attributeLabels());
 	}
 	/**
@@ -101,8 +107,25 @@ class Promo extends ContentKitModel
 		));
 	}
 
-	
 
+    public function beforeSave() {
+        if ($this->dateTo!='') {
+            $format = 'd.m.Y'; // отличается от используемого в функции date
+
+            $dateArray = date_parse_from_format($format,$this->dateTo);
+            $this->dateTo = $timestamp = mktime(0,0,0,$dateArray['month'],$dateArray['day'],$dateArray['year']);
+
+        }
+
+        if ($this->dateFrom!='') {
+            $format = 'd.m.Y'; // отличается от используемого в функции date
+
+            $dateArray = date_parse_from_format($format,$this->dateFrom);
+            $this->dateFrom = $timestamp = mktime(0,0,0,$dateArray['month'],$dateArray['day'],$dateArray['year']);
+
+        }
+        return parent::beforeSave();
+    }
 
 
 

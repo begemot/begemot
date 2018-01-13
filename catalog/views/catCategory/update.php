@@ -1,4 +1,5 @@
 <?php
+
 $this->breadcrumbs=array(
 	'Cat Categories'=>array('index'),
 	$model->name=>array('view','id'=>$model->id),
@@ -22,7 +23,7 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
 
 <?php
     if ($tab=='data'){
-        echo $this->renderPartial('_form', array('model'=>$model)); 
+        echo $this->renderPartial('_form', array('model'=>$model));
     	$this->renderPartial('messageWidget');
     }
 ?>
