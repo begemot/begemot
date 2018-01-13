@@ -230,6 +230,7 @@ class SiteController extends Controller {
      * Отображение страницы корзины
      */
     public function actionBasket(){
+        $this->layout = CatalogModule::$catalogCategoryViewLayout;
         $this->render('basket');
     }
 
@@ -239,6 +240,11 @@ class SiteController extends Controller {
         $basketState->printBasket();
     }
 
+    public function actionModelsAndPrices()
+    {
+        $this->layout = CatalogModule::$catalogCategoryViewLayout;
+        $this->render('ModelsAndPrices');
+    }
 }
 //
 //if(this.count > 0){

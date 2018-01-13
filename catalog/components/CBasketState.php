@@ -19,6 +19,11 @@ class CBasketState
         $this->init();
     }
 
+    public function getItems()
+    {
+        return $this->basketData['items'];
+    }
+
     private function init()
     {
         $session = new CHttpSession;
@@ -53,7 +58,7 @@ class CBasketState
 
     public function newCatIdCount($catId, $newCount)
     {
-        if (isset($this->basketData['items'][$catId])){
+        if (isset($this->basketData['items'][$catId])) {
 
             $this->basketData['items'][$catId]['count'] = $newCount;
             $this->saveData();
