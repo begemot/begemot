@@ -24,7 +24,7 @@ class DefaultController extends Controller
         return array(
 
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('linking','logView', 'ignoreImage', 'updateOtherFields', 'updateCategories', 'updateOptions', 'updateModifs', 'create', 'update', 'index', 'view', 'do', 'syncCard', 'updateCard', 'doChecked', 'deleteLinking', 'parseChecked', 'parseNew', 'getParsedForCatItem', 'cron'),
+                'actions' => array('linking', 'logView', 'createLink', 'ignoreImage', 'updateOtherFields', 'updateCategories', 'updateOptions', 'updateModifs', 'create', 'update', 'index', 'view', 'do', 'syncCard', 'updateCard', 'doChecked', 'deleteLinking', 'parseChecked', 'parseNew', 'getParsedForCatItem', 'cron'),
                 'expression' => 'Yii::app()->user->canDo("")'
             ),
             array('deny',  // deny all users
@@ -123,6 +123,10 @@ class DefaultController extends Controller
 
     }
 
+    public function actionCreateLink()
+    {
+
+    }
 
     public function actionUpdateModifs()
     {
@@ -175,16 +179,23 @@ class DefaultController extends Controller
             'parsers_stock_id' => $id
         ];
 
+        echo 'parsers_stock_id "' . $id . '"
+';
         $otherFieldsModels = ParsersOtherFields::model()->findAllByAttributes($attrArray);
-
+        echo 'Найдено ' . count($otherFieldsModels) . ' дополнительных полей!
+';
         if (is_array($otherFieldsModels) && count($otherFieldsModels) > 0) {
-
+            echo 'Результат выборки массив с количеством элементов больше 0
+';
 
             if ($parserLinking = ParsersLinking::model()->find(array(
                     'condition' => 'fromId=:fromId',
+//                    'linked'=>1,
                     'params' => array(':fromId' => $id))
             )
             ) {
+
+
                 $catItemId = $parserLinking->toId;
                 Yii::import('application.modules.catalog.models.CatItems');
                 $model = CatItem::model()->findByPk($catItemId);
@@ -248,8 +259,7 @@ class DefaultController extends Controller
 
     }
 
-    public
-    function actionUpdateCategories()
+    public function actionUpdateCategories()
     {
 
         $itemId = $_POST['id'];
@@ -300,8 +310,7 @@ class DefaultController extends Controller
 
     }
 
-    public
-    function actionGetParsedForCatItem($itemId, $file)
+    public function actionGetParsedForCatItem($itemId, $file)
     {
         $catItems = CatItem::model()->findByPk($itemId);
 
@@ -312,8 +321,7 @@ class DefaultController extends Controller
         ));
     }
 
-    public
-    function actionUpdateCard()
+    public function actionUpdateCard()
     {
 
         if (isset($_POST['id'])) {
@@ -331,8 +339,7 @@ class DefaultController extends Controller
         }
     }
 
-    public
-    function actionDoChecked()
+    public function actionDoChecked()
     {
 
         if (isset($_POST['item'])) {
@@ -351,8 +358,7 @@ class DefaultController extends Controller
         $this->redirect($_POST['url']);
     }
 
-    public
-    function actionParseNew($className)
+    public function actionParseNew($className)
     {
 
         $class = new $className;
@@ -394,8 +400,23 @@ class DefaultController extends Controller
 
 
         $catItems = array();
-        $itemList = array();
 
+        //Проверяем связи. Если не позиции для связи не существует - удаляем связь.
+        $linkingModels = ParsersLinking::model()->findAll();
+
+        foreach ($linkingModels as $linkingModel) {
+
+            $catItemId = $linkingModel->toId;
+            $catItemModel = CatItem::model()->findByPk($catItemId);
+            if (is_null($catItemModel)) {
+
+                $linkingModel->linking->linked=0;
+                $linkingModel->linking->save();
+
+                $linkingModel->delete();
+            }
+
+        }
 
         if ($tab == 'allSynched') {
             $itemList = ParsersLinking::model()->findAllByAttributes(array('filename' => $file), array('order' => 'id ASC'));

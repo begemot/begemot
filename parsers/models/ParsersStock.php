@@ -110,7 +110,7 @@ class ParsersStock extends CActiveRecord
 			array('id, filename', 'required'),
 			array('price, quantity, linked', 'numerical', 'integerOnly'=>true),
 			array('id, filename', 'length', 'max'=>300),
-			array('text, images, parents, groups,modifs, name', 'length', 'max'=>10000),
+			array('text, images, parents, groups,modifs, name', 'length', 'max'=>100000),
 			array('id', 'unique')
 		);
 	}

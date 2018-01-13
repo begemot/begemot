@@ -15,8 +15,10 @@ class BaseParser extends BaseJob{
      */
     public function archiveWebParseData()
     {
+        $mem_start = memory_get_usage();
         $processId = $this->processId;
         $dataManager = new CParserDataManager($processId);
+
 
         $logMessage = 'Зашли в archiveWebParseData';
         Yii::log($logMessage, 'trace', 'cron');
@@ -25,10 +27,12 @@ class BaseParser extends BaseJob{
 
         $logMessage = 'Количества данных на обработку:' . var_export(count($dataTreeArray), true);
         Yii::log($logMessage, 'trace', 'cron');
-
+        $i=0;
         foreach ($dataTreeArray as $id => $dataArray) {
-            $logMessage = 'Данные:' . var_export($dataArray, true);
-            Yii::log($logMessage, 'trace', 'cron');
+             echo (memory_get_usage() - $mem_start).'
+             ';
+//            $logMessage = 'Данные:' . var_export($dataArray, true);echo '+';
+//            Yii::log($logMessage, 'trace', 'cron');
 
 
             if (!isset($dataArray['price']))
@@ -195,4 +199,5 @@ class BaseParser extends BaseJob{
     {
         $this->name = $name;
     }
+
 }
