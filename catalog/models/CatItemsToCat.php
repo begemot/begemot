@@ -84,7 +84,10 @@ class CatItemsToCat extends CActiveRecord
             if ($result!=0)
                 return false;
             else{
-                $this->order = $this->getLastOrderValue();
+
+                $orderMax = Yii::app()->db->createCommand()->select('max(`order`)')->where('`catId`="'.$this->catId.'"')->from('catItemsToCat')->queryScalar();
+
+                $this->order = $orderMax+1;
                 return true;
             }
         } return true;
