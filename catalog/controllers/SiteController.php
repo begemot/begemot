@@ -44,7 +44,7 @@ class SiteController extends Controller {
         $categories = CatCategory::model()->findAll(array('condition' => 'level = 0', 'order' => '`order`'));
 
 
-        $this->render('index');
+        $this->render('index',['categories'=>$categories]);
     }
 
 
