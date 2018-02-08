@@ -2,15 +2,14 @@
 Yii::app()->clientScript->registerScriptFile('/js/menu.js', 0);
 Yii::app()->clientScript->registerScriptFile('/js/basket.js', 0);
 ?>
-<div class="catalog container" id="basket" >
+<div class="catalog container" id="basket">
 
 
+    <?php
+    $leftMenu = Yii::getPathOfAlias('webroot') . '/themes/classic_g2/views/catalog/site/leftMenu.php';
+    require($leftMenu);
 
-        <?php
-        $leftMenu = Yii::getPathOfAlias('webroot') . '/themes/classic_g2/views/catalog/site/leftMenu.php';
-        require($leftMenu);
-
-        ?>
+    ?>
 
 
     <div class="rightContainer" style="min-height: 1000px;margin-left:20px;">
@@ -21,34 +20,38 @@ Yii::app()->clientScript->registerScriptFile('/js/basket.js', 0);
         <?php
         Yii::import('catalog.components.CBasketState');
         $basketState = new CBasketState();
-        $basketState->addCatId(256, 2);
-        $basketState->addCatId(257, 3);
+
         ?>
-        <?php foreach ($basketState->getItems() as $id => $item): ?>
-            <?php $catItem = CatItem::model()->findByPK($id); ?>
-            <?php
+        <?php if (count($basketState->getItems())>0): ?>
+            <?php foreach ($basketState->getItems() as $id => $item): ?>
 
-            Yii::import('pictureBox.components.PBox');
-            $pbox = new PBox('catalogItem', $id);
+                <?php $catItem = CatItem::model()->findByPK($id); ?>
+                <?php if (is_null($catItem)){continue;} ?>
+                <?php
 
-            $image = $pbox->getFirstImage('main');
+                Yii::import('pictureBox.components.PBox');
+                $pbox = new PBox('catalogItem', $id);
 
-            ?>
+                $image = $pbox->getFirstImage('main');
 
-            <div class="basketRow" style="display: flex">
-                <div class="basketRowImage"><img src="<?= $image ?>" alt=""></div>
-                <div class="basketRowTitle"><?= $catItem->name; ?></div>
-                <div class="basketRowCount"><a href="" class="button blue basketRow__btn">+</a>
+                ?>
 
-                    <input class="ok basketRow__input" type="text" value="<?= $item['count'] ?>">
-                    <a href="" class="button blue basketRow__btn">-</a>
+                <div class="basketRow" style="display: flex">
+                    <div class="basketRowImage"><img src="<?= $image ?>" alt=""></div>
+                    <div class="basketRowTitle"><?= $catItem->name; ?></div>
+                    <div class="basketRowCount"><a href="" class="button blue basketRow__btn">+</a>
+
+                        <input class="ok basketRow__input" type="text" value="<?= $item['count'] ?>">
+                        <a href="" class="button blue basketRow__btn">-</a>
+                    </div>
+                    <div><?= $catItem->price; ?></div>
+                    <div><a href="javaScript:;"><img class="basketRow__deleteBtn"
+                                                     src="/images/shop/basketDeleteCross.png"
+                                                     alt=""></a></div>
                 </div>
-                <div><?= $catItem->price; ?></div>
-                <div><a href="javaScript:;"><img class="basketRow__deleteBtn" src="/images/shop/basketDeleteCross.png"
-                                                 alt=""></a></div>
-            </div>
 
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php endif; ?>
         <br>
         <hr>
         <div class="basketResultRow">

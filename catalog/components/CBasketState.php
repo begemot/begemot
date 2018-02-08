@@ -10,6 +10,7 @@ class CBasketState
 {
 
     const __BASKET_OFFSET_NAME__ = 'basketOffset2';
+    const  __MAIN_JS_FILE__ = '/protected/modules/catalog/assets/js/basketState/Basket.js';
 
     private $basketData = [];
     private $session;
@@ -26,6 +27,8 @@ class CBasketState
 
     private function init()
     {
+        Yii::app()->clientScript->registerScriptFile($this::__MAIN_JS_FILE__,2);
+
         $session = new CHttpSession;
         $session->open();
 
@@ -56,6 +59,24 @@ class CBasketState
         $this->saveData();
     }
 
+    public function addCount($catId)
+    {
+        $this->basketData['items'][$catId]['count']++;
+        $this->saveData();
+    }
+
+    public function dinCount($catId)
+    {
+        $this->basketData['items'][$catId]['count']--;
+        if ($this->basketData['items'][$catId]['count']<0)$this->basketData['items'][$catId]['count']=0;
+        $this->saveData();
+    }
+
+    public function setCount($catId,$count)
+    {
+        $this->basketData['items'][$catId]['count']=$count;
+        $this->saveData();
+    }
     public function newCatIdCount($catId, $newCount)
     {
         if (isset($this->basketData['items'][$catId])) {
@@ -63,6 +84,36 @@ class CBasketState
             $this->basketData['items'][$catId]['count'] = $newCount;
             $this->saveData();
         }
+    }
+
+    public function count(){
+        $count = 0;
+        if (isset($this->basketData['items'])) {
+            $count = count($this->basketData['items']);
+        }
+        return $count;
+    }
+
+    public function isExistInBasket($itemId){
+
+        return isset($this->basketData['items'][$itemId]);
+    }
+
+    public function priceSum(){
+        $priceSum = 0;
+        if (isset($this->basketData['items'])) {
+            $priceSum = 0;
+            foreach ($this->basketData['items'] as $itemId=>$data){
+                $price = CatItem::model()->findByPk($itemId)->price;
+                $priceSum +=$price*$data['count'];
+            }
+//            $count = count($this->basketData['items']);
+        }
+        return  number_format (  $priceSum ,0, '', ' ');
+    }
+
+    public function getItemCount($itemId){
+        return $this->basketData['items'][$itemId]['count'];
     }
 
     public function printBasket()
@@ -76,4 +127,6 @@ class CBasketState
         print_r($_SESSION);
         echo '</pre>';
     }
+
+
 }
