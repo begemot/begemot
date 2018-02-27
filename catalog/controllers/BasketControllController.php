@@ -26,6 +26,15 @@ class BasketControllController extends Controller
         }
     }
 
+    public function actionBasketAjaxSetShipment($shipmentPrice,$shipmentId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+            $basketState = new CBasketState();
+            $basketState->setShipment($shipmentPrice,$shipmentId);
+            echo true;
+        }
+    }
+
     public function actionAjaxGetBasketCount(){
         if (Yii::app()->request->isAjaxRequest) {
             $basketState = new CBasketState();

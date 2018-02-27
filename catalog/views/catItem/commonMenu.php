@@ -25,6 +25,32 @@ $menuPart1 = array(
         ),
     ),
     array(
+
+
+            'url' => '/catalog/catOrder/admin',
+            'label' => 'Заказы',
+
+
+
+    ),
+    array(
+
+        'label' => 'Доставка',
+        'items' => array(
+            array(
+                'url' => '/catalog/catShipment/admin',
+                'label' => 'Управление',
+            ),
+            array(
+                'url' => '/catalog/catShipment/create',
+                'label' => 'Создать',
+            ),
+        ),
+
+
+
+    ),
+    array(
         'label' => 'Дополнительные поля',
         'items' => array(
             array(
