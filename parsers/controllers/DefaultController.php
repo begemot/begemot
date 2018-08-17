@@ -500,6 +500,7 @@ class DefaultController extends Controller
         }
 
         if ($tab == 'changed') {
+            $itemList = [];
             $combined = ParsersLinking::model()->findAllByAttributes(array('filename' => $file), array('order' => 'id ASC'));
 
             if ($combined) {

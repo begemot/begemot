@@ -36,15 +36,33 @@ class CBasketState
             $this->basketData = $session[$this::__BASKET_OFFSET_NAME__];
         } else {
             $session[$this::__BASKET_OFFSET_NAME__] = [
-                'items' => []
+                'items' => [],
+                'shipment'=>0,
+                'shipmentId'=>0
             ];
         }
         $this->session = $session;
     }
 
+    public function clearBasket(){
+        $this->basketData = [
+            'items' => [],
+            'shipment'=>0,
+            'shipmentId'=>0
+        ];
+        $this->saveData();
+    }
+
     private function saveData()
     {
         $this->session[$this::__BASKET_OFFSET_NAME__] = $this->basketData;
+    }
+
+    public function setShipment($shipmentPrice,$shipmentId)
+    {
+        $this->basketData['shipment'] = $shipmentPrice;
+        $this->basketData['shipmentId'] = $shipmentId;
+        $this->saveData();
     }
 
     public function addCatId($catId, $count = 1)
@@ -107,6 +125,7 @@ class CBasketState
                 $price = CatItem::model()->findByPk($itemId)->price;
                 $priceSum +=$price*$data['count'];
             }
+            $priceSum+=$this->basketData['shipment'];
 //            $count = count($this->basketData['items']);
         }
         return  number_format (  $priceSum ,0, '', ' ');
@@ -114,6 +133,10 @@ class CBasketState
 
     public function getItemCount($itemId){
         return $this->basketData['items'][$itemId]['count'];
+    }
+
+    public function getShipmentId (){
+        return $this->basketData['shipmentId'];
     }
 
     public function printBasket()

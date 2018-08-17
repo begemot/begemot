@@ -34,6 +34,8 @@ function addToBasket(id,elem){
     });
 }
 
+
+
 function dinBasketItemCount(id,elem){
     console.log(elem);
     $.ajax({
@@ -61,6 +63,22 @@ function addBasketItemCount(id,elem){
         },
         success: function (data, textStatus) {
             $(elem).parent().find('input').val(data);
+            updateCountersOnPage();
+            updatePriceSumOnPage();
+        }
+    });
+}
+
+function setShipmentPrice(price,shipmentId){
+    $.ajax({
+        url: '/catalog/basketControll/basketAjaxSetShipment',
+        dataType : "json",
+        data:{
+            shipmentPrice:price,
+            shipmentId:shipmentId
+        },
+        success: function (data, textStatus) {
+
             updateCountersOnPage();
             updatePriceSumOnPage();
         }
