@@ -115,7 +115,10 @@ class AdminController extends Controller
          $model->image=CUploadedFile::getInstance($model,'image');
 			if($model->save()){
             if(!empty($model->image)){
-               unlink(ltrim($prevImage, "/"));
+            	if(file_exists($prevImage)){
+            		unlink(ltrim($prevImage, "/"));
+            	}
+               
                $model->image->saveAs($this->imageDir.$model->image);
                $model->image = "/{$this->imageDir}/{$model->image}";
             } else {

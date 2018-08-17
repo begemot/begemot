@@ -74,6 +74,10 @@ class SiteController extends Controller {
 //        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
 
+        if($category->layout){
+            $this->layout = $category->layout;
+        }
+
         $hrefParams = array(
             'title'=>$category->name_t,
             'catId'=>$category->id,
@@ -96,8 +100,14 @@ class SiteController extends Controller {
 
     public function actionCategoryView($catId = 0) {
 
-        $this->layout = CatalogModule::$catalogCategoryViewLayout;
         $category = CatCategory::model()->findByPk($catId);
+
+        $this->layout = CatalogModule::$catalogCategoryViewLayout;
+
+        if($category->layout){
+            $this->layout = $category->layout;
+        }
+
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $criteria = new CDbCriteria;
         

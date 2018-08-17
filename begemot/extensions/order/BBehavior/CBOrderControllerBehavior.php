@@ -46,9 +46,7 @@ class CBOrderControllerBehavior extends CBehavior {
            
               $firstLine->order = $topOrder;
               $firstLine->save();
-          }
-
-      
+          }      
 
   }
   
