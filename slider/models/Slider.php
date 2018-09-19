@@ -49,7 +49,7 @@ class Slider extends CActiveRecord
          array('header, text1, text2, text3', 'type', 'type'=>'string'),
 			array('id, image, header, text1, text2, text3, order', 'safe', 'on'=>'search'),
          array('image', 'file', 'on'=>'create', 'allowEmpty' => false, 'types'=>'jpg, gif, png'),
-         array('image', 'file', 'on'=>'update', 'allowEmpty' => true, 'types'=>'jpg, gif, png'),
+         // array('image', 'file', 'on'=>'update', 'allowEmpty' => true, 'types'=>'jpg, gif, png'),
 		);
 	}
 
