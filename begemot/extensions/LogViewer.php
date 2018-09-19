@@ -9,6 +9,7 @@
 class LogViewer
 {
     public $logTextArray = ['Нет строк'];
+    public $reverse = true;
     private $fileDoesNotExistFlag = false;
     private $lastReadedFile = null;
     private $colorLineRules = [];
@@ -17,7 +18,11 @@ class LogViewer
     {
         $this->lastReadedFile = $logFile;
         if (file_exists($logFile))
-            $this->logTextArray = array_reverse(file($logFile));
+            if ($this->reverse) {
+                $this->logTextArray = array_reverse(file($logFile));
+            }else{
+                $this->logTextArray = file($logFile);
+            }
         else
             $this->fileDoesNotExistFlag = true;
     }

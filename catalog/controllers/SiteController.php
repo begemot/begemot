@@ -36,8 +36,7 @@ class SiteController extends Controller {
 
     public function actionIndex() {
 
-
-        $this->layout = CatalogModule::$catalogLayout;
+        $this->layout = $this->module->baseLayout;
 
 
 

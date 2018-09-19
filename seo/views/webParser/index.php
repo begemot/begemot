@@ -17,72 +17,40 @@ $this->menu = require dirname(__FILE__) . '/../commonMenu.php';
 Yii::import('begemot.extensions.parser.*');
 Yii::import('begemot.extensions.parser.models.*');
 
-$site_name = 'pelec.ru';
+echo $site_name = $_SERVER['HTTP_HOST'];
 
 Yii::log('    ЗАШЛИ В ОТОБРАЖЕНИЕ!', 'trace', 'webParser');
 
 $parseScenario = [
     'allPages' => [
 
-        'startUrl' => '/catalog/models',
+        'startUrl' => '/',
 
-        'type' => WebParserDataEnums::TASK_TYPE_PROCESS_URL,
-        'parser_rules' => [
-            'seoData' => 'h2.product-title',
-        ],
-    ],
-    'seoData' => [
-        'type' => WebParserDataEnums::TASK_TYPE_DATA,
-        'dataFields' => [
-            WebParserDataEnums::DATA_ID_ARRAY_KEY => WebParserDataEnums::DATA_FILTER_URL,
-            'title' => 'title',
-            '-pageContent' => 'body',
-        ],
-        'parse_data_rules' => [
-            '-pageContent' => ['vehicle_parse', 'options_parse'],
-        ]
-    ],
-    'options_parse' => [
-        'type' => WebParserDataEnums::TASK_TYPE_DATA,
-
-        'dataFields' => [
-            WebParserDataEnums::DATA_ID_ARRAY_KEY => WebParserDataEnums::DATA_FILTER_URL,
-            '-option' => 'div.view-product-options  tr'
-        ],
-        'parse_data_rules' => [
-            '-option' => 'optionData'
-        ]
-    ],
-    'optionData' => [
-        'type' => WebParserDataEnums::TASK_TYPE_DATA,
-
-        'dataFields' => [
-            WebParserDataEnums::DATA_ID_ARRAY_KEY => 'input|val',
-            'title' => 'td.views-field-title-field',
-            'price' => 'td.views-field-field-option-cost|price',
-            'image' => '@download a|href ',
-
-        ],
-    ],
-    'vehicle_parse' => [
-        'type' => WebParserDataEnums::TASK_TYPE_DATA,
-
-        'dataFields' => [
-            WebParserDataEnums::DATA_ID_ARRAY_KEY => WebParserDataEnums::DATA_FILTER_URL,
-            'title' => 'h1',
-            'price' => 'div.field-name-field-cost|price',
-            '-vehMOdifTable' => 'table#product-modifications',
-        ],
+        'type' => WebParserDataEnums::TASK_TYPE_CRAWLER,
 
     ],
+
+
 ];
 
 $webParser = new CWebParser('seoParser', $site_name, $parseScenario, $processId);
+echo '
+<p>
+ID процесса:' . $webParser->getProcessId() . ',  
+всего задач:' . $webParser->getAllTaksCount() . ',  
+не обработано:' . $webParser->getAllNewTaksCount() . '
 
+</p>
+';
 
 $webParser->addUrlFilter('#mailto#i');
+$webParser->addUrlFilter('#catalog/site/buy/itemId#i');
 $webParser->addUrlFilter('#\##i');
-$webParser->tasksPerExecute = 1;
+
+$webParser->addMime('image/jpeg');
+$webParser->addMime('image/png');
+$webParser->addMime('image/gif');
+$webParser->tasksPerExecute = 10;
 $webParser->isInterface = true;
 $webParser->parse();
 
@@ -104,15 +72,39 @@ echo '<br>';
 Yii::log('    проверяем закончен ли процесс!', 'trace', 'webParser');
 //echo $webParser->getProcessStatus();
 if ($webParser->getProcessStatus() != 'done') {
+    Yii::app()->db->createCommand()->truncateTable('seo_pages');
     echo '<script>location.reload();</script>';
 } else {
-    $dataManager = new CParserDataManager($processId);
+
+    $pages = WebParserPage::model()->findAll(
+        [
+            'condition' => 'procId=:procId and export=0',
+            'limit'=>50,
+            'params' => array(
+                    ':procId' => $processId)
+        ]
+    );
 
 
-    $dataTreeArray = $dataManager->getDataTreeArray();
-    echo '<pre>';
-    print_r($dataTreeArray);
-    echo '</pre>';
+    if ($pages){
+        echo "Парсер закончил работать. Идет обработка данных!";
+        foreach ($pages as $page) {
+            $seoPages = new SeoPages();
+            $seoPages->url = $page->url;
+            $seoPages->content = $page->content;
+            $seoPages->contentHash = $page->content_hash;
+            $seoPages->mime = $page->mime;
+            if ($seoPages->save()){
+                $page->export = 1;
+                $page->save();
+            }
+
+        }
+        echo '<script>location.reload();</script>';
+    } else {
+        echo "Закончили!";
+    }
+
 
 }
 

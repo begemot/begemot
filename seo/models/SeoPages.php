@@ -30,10 +30,10 @@ class SeoPages extends CActiveRecord
 		return array(
 			array('status', 'numerical', 'integerOnly'=>true),
 			array('url, title', 'length', 'max'=>500),
-			array('content', 'safe'),
+			array('content,contentHash,mime', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, url, title, content, status', 'safe', 'on'=>'search'),
+			array('id, url, title', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,8 +83,8 @@ class SeoPages extends CActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('url',$this->url,true);
 		$criteria->compare('title',$this->title,true);
-		$criteria->compare('content',$this->content,true);
-		$criteria->compare('status',$this->status);
+
+
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
