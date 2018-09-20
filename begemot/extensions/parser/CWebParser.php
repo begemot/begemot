@@ -1165,6 +1165,8 @@ class CWebParser
         curl_exec($ch);
 
         $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $mime = explode(';',$mime);
+        $mime = $mime[0];
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);

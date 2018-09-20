@@ -94,6 +94,7 @@ if ($webParser->getProcessStatus() != 'done') {
                 $seoPages = new SeoPages();
                 $seoPages->url = $page->url;
                 $seoPages->content = $page->content;
+                $seoPages->status = $page->http_code;
                 $seoPages->contentHash = $page->content_hash;
                 $seoPages->mime = $page->mime;
                 if ($seoPages->save()){
