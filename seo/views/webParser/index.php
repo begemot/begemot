@@ -89,13 +89,19 @@ if ($webParser->getProcessStatus() != 'done') {
     if ($pages){
         echo "Парсер закончил работать. Идет обработка данных!";
         foreach ($pages as $page) {
-            $seoPages = new SeoPages();
-            $seoPages->url = $page->url;
-            $seoPages->content = $page->content;
-            $seoPages->contentHash = $page->content_hash;
-            $seoPages->mime = $page->mime;
-            if ($seoPages->save()){
-                $page->export = 1;
+            if ($page->mime=='text/html'){
+
+                $seoPages = new SeoPages();
+                $seoPages->url = $page->url;
+                $seoPages->content = $page->content;
+                $seoPages->contentHash = $page->content_hash;
+                $seoPages->mime = $page->mime;
+                if ($seoPages->save()){
+                    $page->export = 1;
+                    $page->save();
+                }
+            } else {
+                $page->export=1;
                 $page->save();
             }
 

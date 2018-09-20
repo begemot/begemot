@@ -469,6 +469,9 @@ class CWebParser
 
         }
 
+        /*
+         * Тип задач, которы
+         */
         if ($task->taskType == WebParserDataEnums::TASK_TYPE_PROCESS_URL) {
 
             $this->log('Определили тип задачи  ' . WebParserDataEnums::TASK_TYPE_PROCESS_URL);
@@ -943,7 +946,13 @@ class CWebParser
     private function getDocument($url)
     {
 
-        $webParserPage = WebParserPage::model()->find('url = "' . $url . '" and `procId` = ' . $this->processId);
+
+        $urlForSearch = $this->getRedirectedUrl($url);
+
+
+        $webParserPage = WebParserPage::model()->find('url = "' . $urlForSearch . '" and `procId` = ' . $this->processId);
+
+
 
         if (!$webParserPage) {
             $this->log('В базе url ' . $url . ' нет, парсим страницу.');
@@ -1111,6 +1120,27 @@ class CWebParser
     }
 
     /**
+     *
+     * Возвращаем конечный урл, если был редирект. Или тот же самый, если редиректа не было.
+     *
+     * @param $url проверяемый урл
+     */
+    private function getRedirectedUrl($url){
+
+        $fullPageUrl = 'http://' . $this->host . $url;
+
+        $ch = curl_init($fullPageUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_exec($ch);
+        $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
+        return $lastUrl;
+    }
+
+    /**
      * Проверка страницы на код ответа и mime.
      *
      *
@@ -1121,7 +1151,7 @@ class CWebParser
     {
         $url = trim($url);
         $webParserPage = new WebParserPage();
-        $webParserPage->url = $url;
+
         $webParserPage->procId = $this->processId;
 
         $fullPageUrl = 'http://' . $this->host . $url;
@@ -1136,6 +1166,9 @@ class CWebParser
 
         $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $webParserPage->url = $lastUrl;
 
         //if ($mime != 'text/html') {
 
@@ -1213,6 +1246,8 @@ class CWebParser
             $mime = $mime[0];
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+            $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+            $webParserPage->url = $lastUrl;
 
             if (!$data) {
                 $this->logError('Ошибка CURL:');
@@ -1398,34 +1433,34 @@ class CWebParser
      * @param null $webPage в эту переменную возвращает код из базы
      * @return bool true - значит url в базе нет, false - уже парсили и код есть в базе и скопирован в переменную &$webPage
      */
-    protected function isUrlUniq($url, &$webPage = null)
-    {
-        $WebParserPages = WebParserPage::model()->findAll(
-            array(
-                'condition' => 'url_hash=:url_hash and procId=:processId',
-                'params' => array(
-                    ':url_hash' => md5($url),
-                    ':processId' => $this->processId
-                )
-            )
-        );
-
-        if (count($WebParserPages) !== 0) {
-            foreach ($WebParserPages as $WebParserPage) {
-                if ($WebParserPage->url === $url) {
-
-                    if (!is_null($webPage)) {
-                        $webPage = $WebParserPage;
-                    }
-
-                    return false;
-                }
-            }
-        }
-
-        return true;
-
-    }
+//    protected function isUrlUniq($url, &$webPage = null)
+//    {
+//        $WebParserPages = WebParserPage::model()->findAll(
+//            array(
+//                'condition' => 'url_hash=:url_hash and procId=:processId',
+//                'params' => array(
+//                    ':url_hash' => md5($url),
+//                    ':processId' => $this->processId
+//                )
+//            )
+//        );
+//
+//        if (count($WebParserPages) !== 0) {
+//            foreach ($WebParserPages as $WebParserPage) {
+//                if ($WebParserPage->url === $url) {
+//
+//                    if (!is_null($webPage)) {
+//                        $webPage = $WebParserPage;
+//                    }
+//
+//                    return false;
+//                }
+//            }
+//        }
+//
+//        return true;
+//
+//    }
 
     private function isTaskExist($target_id, $target_type, $scenarioItemName = null)
     {
