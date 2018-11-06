@@ -139,7 +139,7 @@ class SiteController extends Controller {
 
     }
 
-    public function actionRCategoryView($catId = 0) {
+    public function actionRCategoryView($catId = 0,$page=0) {
 
 //        $this->layout = CatalogModule::$catalogCategoryViewLayout;
 
@@ -149,6 +149,7 @@ class SiteController extends Controller {
         $this->pageTitle = $category->seo_title;
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $parentCategory = null;
+
         if ($category && $category->pid != "-1"){
             $parentCategory = CatCategory::model()->findByPk($category->pid);
         }
@@ -196,11 +197,21 @@ class SiteController extends Controller {
            $criteria->addBetweenCondition('price', $priceMin,$priceMax);
         }
 
-        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => $criteria, 'pagination' => array('pageSize'=>1000)));
+
+
+        if ($this->module->pagination){
+
+
+            $pagination = array('pageSize'=>$this->module->perPage,'currentPage'=>$page);
+        } else {
+            $pagination = array('pageSize'=>1000,);
+        }
+
+        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => $criteria, 'pagination' => $pagination));
 
         $viewFile = $category->viewFile ? $category->viewFile : CatalogModule::$catalogCategoryViewFile;
 
-        $this->render($viewFile, array('categoryItems' => $dataProvider->getData(),'category'=>$category,'parentCat'=>$parentCategory, 'maximalPriceValue' => $maximalPriceValue));
+        $this->render($viewFile, array('categoryItems' => $dataProvider->getData(),'category'=>$category,'parentCat'=>$parentCategory, 'maximalPriceValue' => $maximalPriceValue,'pagination'=>$dataProvider->pagination));
     }
 
     public function actionPromoView ($promoId){
