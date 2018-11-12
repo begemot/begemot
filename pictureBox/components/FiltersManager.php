@@ -1,18 +1,20 @@
 <?php
 
 /**
- * Класс служит для пакетной работы с изображениями. 
- * 
- * Может пименять к изображению один фильтр или очередь фильтров. 
- *  
+ * Класс служит для пакетной работы с изображениями.
+ *
+ * Может пименять к изображению один фильтр или очередь фильтров.
+ *
  */
-class FiltersManager {
+class FiltersManager
+{
 
     private $config;
     private $fileName;
     public $resultFiles = array();
 
-    public function FiltersManager($_fileName, $_config) {
+    public function FiltersManager($_fileName, $_config)
+    {
 
         $this->config = $_config;
         $this->fileName = $_fileName;
@@ -21,11 +23,13 @@ class FiltersManager {
         $this->checkFilters();
     }
 
-    public function getFilteredImages() {
+    public function getFilteredImages()
+    {
         return $this->resultFiles;
     }
 
-    public function checkFilters() {
+    public function checkFilters()
+    {
 
         $filePathInfo = pathinfo($this->fileName);
 
@@ -40,16 +44,16 @@ class FiltersManager {
             foreach ($filters as $filter) {
 
                 $filterCount++;
-                
+
                 $resultFileName = $filePath . '/' . $fileNameClear . '_' . $filterName . '.' . $fileExt;
                 $resultFileNameForOutput = $fileNameClear . '_' . $filterName . '.' . $fileExt;
 
                 $filterClassName = $filter['filter'] . 'Filter';
-                
+
                 // Если мы рендерим фотки из оригинала повторно, то нужно удалить
                 // старые варианты, иначе менеджер будет считать старые изображения
                 // результатом текущей уже запущенной очереди.  
-                
+
                 if ($filterCount == 1 && file_exists($resultFileName)) {
                     unlink($resultFileName);
                 }
@@ -58,7 +62,7 @@ class FiltersManager {
 
                     /**
                      * Если существует, то фильтруем существующий
-                     * т.к. очередь фильтров уже началась 
+                     * т.к. очередь фильтров уже началась
                      */
                     $filterInstance = new $filterClassName($resultFileName, $resultFileName, $filter['param']);
                 } else {
@@ -83,19 +87,11 @@ class FiltersManager {
     }
 
     //возвращаем 
-    public function delFileExt($filename) {
+    public function delFileExt($filename)
+    {
 
-        $filename = strrev($filename);
 
-        for ($i = 0; $i < strlen($filename); ++$i) {
-            if ($filename{$i} != '.') {
-                $filename{$i} = '';
-            } else {
-                $filename{$i} = '';
-                break;
-            }
-        }
-        return strrev(trim($filename));
+        return pathinfo($filename, PATHINFO_FILENAME);
     }
 
 }
