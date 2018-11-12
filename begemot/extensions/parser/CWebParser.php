@@ -376,8 +376,14 @@ class CWebParser
                 )
             )
         );
-
+        $i=0;
         foreach ($tasks as $task) {
+            $i++;
+            $this->log('Выполняем '.$i.' в очереди! Лимит:'.$this->tasksPerExecute);
+            if ($i>$this->tasksPerExecute) {
+                $this->log('ВЫПОЛНИЛИ ДОСТАТОЧНО! ПРЕВЫШЕН ЛИМИТ ВЫПОЛНЕНИЯ ЗАДАНИЙ ЗА ОДИН ЗАПУСК!');
+                break;
+            }
             $this->doTask($task);
         }
     }
@@ -946,12 +952,12 @@ class CWebParser
     private function getDocument($url)
     {
 
-
+        $this->log('Проверяем на редиректы удаленную страницу.');
         $urlForSearch = $this->getRedirectedUrl($url);
 
-
+        $this->log('Начали поиск в базе url ' . $url . '');
         $webParserPage = WebParserPage::model()->find('url = "' . $urlForSearch . '" and `procId` = ' . $this->processId);
-
+        $this->log('Закончили поиск в базе url ' . $url . '');
 
 
         if (!$webParserPage) {
@@ -1541,8 +1547,11 @@ class CWebParser
     private function removeHostFromUrl($url)
     {
         $url_data = parse_url($url);
+        print_r($url_data);
 
-        $url = $url_data['path'] .
+        $url =
+
+            (isset($url_data['path']) ? $url_data['path'] : '') .
             (isset($url_data['query']) ? '?' . $url_data['query'] : '') .
             (isset($url_data['fragment']) ? '#' . $url_data['fragment'] : '');
 
