@@ -376,8 +376,14 @@ class CWebParser
                 )
             )
         );
-
+        $i=0;
         foreach ($tasks as $task) {
+            $i++;
+            $this->log('Выполняем '.$i.' в очереди! Лимит:'.$this->tasksPerExecute);
+            if ($i>$this->tasksPerExecute) {
+                $this->log('ВЫПОЛНИЛИ ДОСТАТОЧНО! ПРЕВЫШЕН ЛИМИТ ВЫПОЛНЕНИЯ ЗАДАНИЙ ЗА ОДИН ЗАПУСК!');
+                break;
+            }
             $this->doTask($task);
         }
     }
@@ -385,6 +391,7 @@ class CWebParser
     public function addMime($mime)
     {
         $this->mimeArray[$mime] = 1;
+        $this->checkMimeOn();
     }
 
     /**
@@ -397,9 +404,9 @@ class CWebParser
 
         $this->log('Выполняем задачу  ' . ($task->id) . ' сценарий: ' . ($task->scenarioName));
         $this->log(' тип:' . ($task->taskType));
-
         $scenarioItem = $this->getScenarioItem($task->scenarioName);
         $taskManager = $this->taskManager;
+
 
 //        if ($task->taskType == WebParserDataEnums::TASK_TYPE_START_NAVIGATION) {
 //            Yii::log('Определили тип задачи  ' .WebParserDataEnums::TASK_TYPE_START_NAVIGATION , 'trace', 'webParser');
@@ -428,6 +435,49 @@ class CWebParser
 //
 //        }
 
+        //Тип задачи "паук". Собираем все со всех ссылок.
+        if ($task->taskType == WebParserDataEnums::TASK_TYPE_CRAWLER){
+
+            $this->log('Определили тип задачи  ' . WebParserDataEnums::TASK_TYPE_CRAWLER);
+            $this->log('Определили тип обрабатываемых данных:' . $task->target_type);
+
+            $pageContent = $this->getContentByTask($task);
+            if (!$pageContent) {
+                $this->logError('ОШИБКА! Контент страницы пуст!');
+            }
+            $doc = phpQuery::newDocument($pageContent);
+            phpQuery::selectDocument($doc);
+
+            //достаем все ссылки из контента
+            $urlArray = $this->getAllUrlFromContent($doc);
+
+            foreach ($urlArray as $url) {
+
+                $target_type = WebParserDataEnums::TASK_TARGET_DATA_TYPE_URL;
+
+                $WebParserUrl = $this->getUrlObject($url);
+
+                $targetId = $WebParserUrl->id;
+
+                $scenarioTaskName = $task->scenarioName;
+
+                if (!$this->isTaskExist($targetId, $target_type, $scenarioTaskName)) {
+
+                    $targetScenarioItem = $this->getScenarioItem($scenarioTaskName);
+
+                    $taskManager->createTask($targetScenarioItem['type'], $targetId, $target_type, $scenarioTaskName);
+
+                }
+
+                //Тип цели нам известен, выставляем его сразу
+                $target_type = WebParserDataEnums::TASK_TARGET_DATA_TYPE_URL;
+            }
+
+        }
+
+        /*
+         * Тип задач, которы
+         */
         if ($task->taskType == WebParserDataEnums::TASK_TYPE_PROCESS_URL) {
 
             $this->log('Определили тип задачи  ' . WebParserDataEnums::TASK_TYPE_PROCESS_URL);
@@ -902,7 +952,13 @@ class CWebParser
     private function getDocument($url)
     {
 
-        $webParserPage = WebParserPage::model()->find('url = "' . $url . '" and `procId` = ' . $this->processId);
+        $this->log('Проверяем на редиректы удаленную страницу.');
+        $urlForSearch = $this->getRedirectedUrl($url);
+
+        $this->log('Начали поиск в базе url ' . $url . '');
+        $webParserPage = WebParserPage::model()->find('url = "' . $urlForSearch . '" and `procId` = ' . $this->processId);
+        $this->log('Закончили поиск в базе url ' . $url . '');
+
 
         if (!$webParserPage) {
             $this->log('В базе url ' . $url . ' нет, парсим страницу.');
@@ -962,6 +1018,12 @@ class CWebParser
                 $this->log('Фильтр процедурный ' . WebParserDataEnums::DATA_FILTER_URL);
                 return $task->getUrl();
             }
+
+            if ($filter == WebParserDataEnums::DATA_FILTER_HOLE_CONTENT) {
+                $this->log('Фильтр процедурный ' . WebParserDataEnums::DATA_FILTER_HOLE_CONTENT);
+                return $this->getContentByTask($task);
+            }
+
         }
         $this->log('Фильтр НЕ процедурный.');
         $content = $this->getContentByTask($task);
@@ -1063,6 +1125,98 @@ class CWebParser
 
     }
 
+    /**
+     *
+     * Возвращаем конечный урл, если был редирект. Или тот же самый, если редиректа не было.
+     *
+     * @param $url проверяемый урл
+     */
+    private function getRedirectedUrl($url){
+
+        $fullPageUrl = 'http://' . $this->host . $url;
+
+        $ch = curl_init($fullPageUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_exec($ch);
+        $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
+        return $lastUrl;
+    }
+
+    /**
+     * Проверка страницы на код ответа и mime.
+     *
+     *
+     * @param $webParserPage WebParserPage
+     * @return bool
+     */
+    private function checkRemotePage($url)
+    {
+        $url = trim($url);
+        $webParserPage = new WebParserPage();
+
+        $webParserPage->procId = $this->processId;
+
+        $fullPageUrl = 'http://' . $this->host . $url;
+        $this->log('Начали базовые проверки удаленной страницы: ' . $fullPageUrl);
+
+        $ch = curl_init($fullPageUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_exec($ch);
+
+        $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $mime = explode(';',$mime);
+        $mime = $mime[0];
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        $webParserPage->url = $lastUrl;
+
+        //if ($mime != 'text/html') {
+
+        $codeFlag = true;
+        $mimeFlag = true;
+
+        if ($this->checkMime) {
+            $this->logVar($mime);
+            $this->logVar($this->mimeArray);
+            if (isset($this->mimeArray[trim($mime)])) {
+                $this->logError('mime не равно text/html, а равен:' . $mime.' Фильтруем страниц! Не сохраняем согласно фильтрам МИМЕ');
+                $mimeFlag = false;
+            }
+        }
+
+        if ($httpCode != 200) {
+            $this->log('http код не равен 200, а равен:' . $httpCode);
+            $codeFlag =  false;
+        }
+
+        if (!$codeFlag or !$mimeFlag){
+
+            $webParserPage->mime = $mime;
+            $webParserPage->http_code = $httpCode;
+            $this->log('Эту страницу не парсим! mime: '.$mime.' HTTP Code: '.$httpCode);
+
+            if (!$webParserPage->save()) {
+                die('Ошибка сохранения модели в protected/modules/begemot/extensions/parser/CWebParser.php');
+            }
+            return false;
+        }
+
+        $returnData = [];
+        $returnData['mime'] = $mime;
+        $returnData['httpCode'] = $httpCode;
+
+
+        return $returnData;
+    }
+
 
     /**
      * Парсим страницу. Сохраняем в базу в соответствии с моделью. Сохраняем контент, код http
@@ -1073,7 +1227,7 @@ class CWebParser
      */
     public function parsePage($url)
     {
-
+        $url = trim($url);
         $webParserPage = new WebParserPage();
 
         $fullPageUrl = 'http://' . $this->host . $url;
@@ -1093,10 +1247,16 @@ class CWebParser
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 
+            $data = curl_exec($ch);
+
             $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            $mime = explode(';',$mime);
+            $mime = $mime[0];
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-            $data = curl_exec($ch);
+            $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+            $webParserPage->url = $lastUrl;
+
             if (!$data) {
                 $this->logError('Ошибка CURL:');
                 $this->logVar(curl_error($ch));
@@ -1108,7 +1268,7 @@ class CWebParser
             $webParserPage->content = $data;
             $webParserPage->mime = $mime;
             $webParserPage->http_code = $httpCode;
-
+            $this->log('Mime: '.$mime.' HTTP Code: '.$httpCode);
 
             if (!$webParserPage->save()) {
                 die('Ошибка сохранения модели в protected/modules/begemot/extensions/parser/CWebParser.php');
@@ -1166,6 +1326,7 @@ class CWebParser
 
     public function filterUrlArray($urlArray)
     {
+        $resultArray=[];
         $filteredArray = array_filter($urlArray, array(get_class($this), 'regExpChecker'));
 
 //        $resultArray = [];
@@ -1264,7 +1425,7 @@ class CWebParser
     {
 
         //$url = strtolower($url);
-
+        $url = trim($url);
         if (!preg_match('#^/#', $url)) {
             $url = '/' . $url;
         }
@@ -1280,34 +1441,34 @@ class CWebParser
      * @param null $webPage в эту переменную возвращает код из базы
      * @return bool true - значит url в базе нет, false - уже парсили и код есть в базе и скопирован в переменную &$webPage
      */
-    protected function isUrlUniq($url, &$webPage = null)
-    {
-        $WebParserPages = WebParserPage::model()->findAll(
-            array(
-                'condition' => 'url_hash=:url_hash and procId=:processId',
-                'params' => array(
-                    ':url_hash' => md5($url),
-                    ':processId' => $this->processId
-                )
-            )
-        );
-
-        if (count($WebParserPages) !== 0) {
-            foreach ($WebParserPages as $WebParserPage) {
-                if ($WebParserPage->url === $url) {
-
-                    if (!is_null($webPage)) {
-                        $webPage = $WebParserPage;
-                    }
-
-                    return false;
-                }
-            }
-        }
-
-        return true;
-
-    }
+//    protected function isUrlUniq($url, &$webPage = null)
+//    {
+//        $WebParserPages = WebParserPage::model()->findAll(
+//            array(
+//                'condition' => 'url_hash=:url_hash and procId=:processId',
+//                'params' => array(
+//                    ':url_hash' => md5($url),
+//                    ':processId' => $this->processId
+//                )
+//            )
+//        );
+//
+//        if (count($WebParserPages) !== 0) {
+//            foreach ($WebParserPages as $WebParserPage) {
+//                if ($WebParserPage->url === $url) {
+//
+//                    if (!is_null($webPage)) {
+//                        $webPage = $WebParserPage;
+//                    }
+//
+//                    return false;
+//                }
+//            }
+//        }
+//
+//        return true;
+//
+//    }
 
     private function isTaskExist($target_id, $target_type, $scenarioItemName = null)
     {
@@ -1386,53 +1547,16 @@ class CWebParser
     private function removeHostFromUrl($url)
     {
         $url_data = parse_url($url);
+        print_r($url_data);
 
-        $url = $url_data['path'] .
+        $url =
+
+            (isset($url_data['path']) ? $url_data['path'] : '') .
             (isset($url_data['query']) ? '?' . $url_data['query'] : '') .
             (isset($url_data['fragment']) ? '#' . $url_data['fragment'] : '');
 
         return $url;
 
-    }
-
-    /**
-     * @param $webParserPage WebParserPage
-     * @return bool
-     */
-    private function checkRemotePage($url)
-    {
-        $fullPageUrl = 'http://' . $this->host . $url;
-        $this->log('Начали базовые проверки удаленной страницы: ' . $fullPageUrl);
-
-        $ch = curl_init($fullPageUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_NOBODY, 1);
-        curl_exec($ch);
-
-        $mime = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        //if ($mime != 'text/html') {
-        if ($this->checkMime) {
-            if (isset($this->mimeArray[trim($mime)])) {
-                $this->logError('mime не равно text/html, а равен:' . $mime);
-                return false;
-            }
-        }
-
-        if ($httpCode != 200) {
-            $this->log('http код не равен 200, а равен:' . $httpCode);
-            return false;
-        }
-
-        $returnData = [];
-        $returnData['mime'] = $mime;
-        $returnData['httpCode'] = $httpCode;
-
-
-        return $returnData;
     }
 
     /**
@@ -1473,5 +1597,24 @@ class CWebParser
         Yii::log('
 ' . var_export($var, true), 'trace', 'webParser');
         Yii::getLogger()->flush(true);
+    }
+
+
+    public function getAllTaksCount(){
+            $processId = $this->getProcessId();
+            return  Yii::app()->db->createCommand()
+                ->select('count(id)')
+                ->from('webParserScenarioTask')
+                ->where('processId=:processId', array(':processId'=>$processId))
+                ->queryScalar();
+    }
+
+    public function getAllNewTaksCount(){
+        $processId = $this->getProcessId();
+        return  Yii::app()->db->createCommand()
+            ->select('count(id)')
+            ->from('webParserScenarioTask')
+            ->where('processId=:processId and taskStatus=:taskStatus', array(':processId'=>$processId,':taskStatus'=>'new'))
+            ->queryScalar();
     }
 }

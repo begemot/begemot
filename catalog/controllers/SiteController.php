@@ -36,8 +36,7 @@ class SiteController extends Controller {
 
     public function actionIndex() {
 
-
-        $this->layout = CatalogModule::$catalogLayout;
+        $this->layout = $this->module->baseLayout;
 
 
 
@@ -71,8 +70,13 @@ class SiteController extends Controller {
         $uri = $_SERVER['REQUEST_URI'];
 
         $item = CatItem::model()->with('options')->findByPk($item);
+        $this->pageTitle = $item->seo_title;
 //        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
+
+        if($category->layout){
+            $this->layout = $category->layout;
+        }
 
         $hrefParams = array(
             'title'=>$category->name_t,
@@ -96,8 +100,14 @@ class SiteController extends Controller {
 
     public function actionCategoryView($catId = 0) {
 
-        $this->layout = CatalogModule::$catalogCategoryViewLayout;
         $category = CatCategory::model()->findByPk($catId);
+
+        $this->layout = CatalogModule::$catalogCategoryViewLayout;
+
+        if($category->layout){
+            $this->layout = $category->layout;
+        }
+
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $criteria = new CDbCriteria;
         
@@ -136,6 +146,7 @@ class SiteController extends Controller {
         $this->layout = $this->module->baseLayout;
 
         $category = CatCategory::model()->findByPk($catId);
+        $this->pageTitle = $category->seo_title;
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $parentCategory = null;
         if ($category && $category->pid != "-1"){

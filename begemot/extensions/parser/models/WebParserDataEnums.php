@@ -55,6 +55,10 @@ class WebParserDataEnums {
      */
      const DATA_FILTER_URL = '@url';
 
+    /**
+     * Возвращаем url текущего документа
+     */
+    const DATA_FILTER_HOLE_CONTENT = '@holeContent';
 
     /**
      * Типы задач
@@ -70,6 +74,7 @@ class WebParserDataEnums {
     const TASK_TYPE_PROCESS_URL = 'process_url';
     const TASK_TYPE_DATA = 'process_data';
     const TASK_TYPE_DOWNLOAD = '@download';
+    const TASK_TYPE_CRAWLER = 'crawler';
     /**
      * Типы входных данных для задач
      */
