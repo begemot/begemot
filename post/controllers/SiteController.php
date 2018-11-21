@@ -68,7 +68,7 @@ class SiteController extends Controller
     public function actionTagIndex($id = null)
     {
 
-        $this->layout =$this->module->postLayout;
+        $this->layout ='//layouts/postLayout';
 //            PostModule::$postLayout;
         if ($id != null) {
 
