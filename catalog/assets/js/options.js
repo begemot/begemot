@@ -23,13 +23,15 @@ $(document).ready(function () {
 
                 });
                 var itemId = $('.optionsTable').attr('data-item-id');
-                $.ajax({
-                    url: '/catalog/catItemOptions/ajaxNewOptionOrder',
-                    data: {
+                $.post(
+                    "/catalog/catItemOptions/ajaxNewOptionOrder/itemId/"+itemId,
+                    {
                         sortCollection: sortCollection,
                         itemId:itemId
-                    }
-                })
+                    },
+                    function(){}
+                );
+
             }
         }
     );

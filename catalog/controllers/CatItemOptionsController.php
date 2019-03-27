@@ -79,11 +79,16 @@ class CatItemOptionsController extends Controller
 
     public function actionAjaxNewOptionOrder($itemId)
     {
+
         $sortCollection = $_REQUEST['sortCollection'];
+
             foreach ($sortCollection as $order => $optionId){
                $itemToItem = CatItemsToItems::model()->findByAttributes(['itemId'=>$itemId,'toItemId'=>$optionId]);
                 $itemToItem->order = $order;
-                $itemToItem->save();
+
+                if (!$itemToItem->save()){
+                    throw new Exception("Ошибка сохранения модели");
+                }
             }
 
     }
