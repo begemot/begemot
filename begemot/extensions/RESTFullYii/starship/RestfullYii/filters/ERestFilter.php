@@ -80,7 +80,7 @@ class ERestFilter extends CFilter
 		if(!$authorized) {
 			throw new CHttpException(401, "Unauthorized");
 		}
-	
+
 		if(!$controller->emitRest(ERestEvent::REQ_AUTH_URI, $controller->getURIAndHTTPVerb())) {
 			throw new CHttpException(401, "Unauthorized");
 		}

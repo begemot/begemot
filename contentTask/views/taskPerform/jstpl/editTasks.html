@@ -1,0 +1,41 @@
+<div class="pagination">
+    <div paging
+         page="activePage.edit"
+         page-size="20"
+         total="recordsCount.edit"
+         paging-action="setPage(page,'edit')">
+    </div>
+
+</div>
+<table class="table table-bordered">
+    <tbody>
+    <tr>
+        <td>id</td>
+        <td>Название</td>
+        <td></td>
+    </tr>
+    <!--                <tr>-->
+    <!--                    <td><input type="text" class="span2 search-query ng-pristine ng-untouched ng-valid ng-empty" style="width: 200px;" ng-model="searchId"></td>-->
+    <!--                    <td> <input type="text" class="span2 search-query ng-pristine ng-untouched ng-valid ng-empty" style="width: 200px;" ng-model="searchTitle"></td>-->
+    <!--                    <td><button type="submit" class="btn" ng-click="makeSearch()">Search</button></td>-->
+    <!--                </tr>-->
+    <!-- ngRepeat: (index,item) in resultItems -->
+    <tr ng-repeat="(index,item) in resultItems.edit">
+        <td>{{item.id}}</td>
+        <td>{{item.title}}</td>
+        <td><a target="_blank" href="/contentTask/taskPerform/edit/accessCode/{{accessCode}}/id/{{item.subTaskId}}">Продолжить</a></td>
+    </tr>
+
+
+    </tbody>
+
+</table>
+<div class="pagination">
+    <div paging
+         page="activePage.edit"
+         page-size="20"
+         total="recordsCount.edit"
+         paging-action="setPage(page,'edit')">
+    </div>
+
+</div>

@@ -8,7 +8,7 @@
         
     
         
-
+	<base href=""/>
 </head>
 
 <body>
