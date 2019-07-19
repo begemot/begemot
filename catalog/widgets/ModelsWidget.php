@@ -32,7 +32,7 @@ class ModelsWidget extends CWidget {
         $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => $criteria,'pagination'=>array('pageSize'=>$this->limit)));
 
         $this->render('index',array('items'=>$dataProvider->getData()));
-        
+
     }
     
 }

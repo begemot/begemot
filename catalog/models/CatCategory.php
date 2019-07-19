@@ -25,6 +25,7 @@ class CatCategory extends CActiveRecord
 
     public $categories;
     public $pubCategories;
+
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
@@ -136,7 +137,7 @@ class CatCategory extends CActiveRecord
     {
 
 
-            $models = $this->findAll(array('order' => 'level desc'));
+        $models = $this->findAll(array('order' => 'level desc'));
 
 
         $catsArray = [];
@@ -152,7 +153,7 @@ class CatCategory extends CActiveRecord
             $categoryArray['model'] = $category;
 
             $catsArray[$category->id] = $categoryArray;
-            if ($category->published){
+            if ($category->published) {
                 $pubCatsArray[$category->id] = $categoryArray;
             }
         }
@@ -189,9 +190,11 @@ class CatCategory extends CActiveRecord
 
     public function getCatArray()
     {
+
         if ($this->categories === null) {
             $this->loadCategories();
         }
+
         return $this->categories;
     }
 
@@ -203,6 +206,7 @@ class CatCategory extends CActiveRecord
 
         return $this->pubCategories;
     }
+
     //Возвращает имя категории по id
     public function getCatName($id)
     {
@@ -290,8 +294,9 @@ class CatCategory extends CActiveRecord
 
     public function categoriesMenu()
     {
-        $categories = $this->getCatArray();
 
+        $categories = $this->getCatArray();
+      
         $menu = $categories;
 
         $menuEnd = array();

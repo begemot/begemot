@@ -53,7 +53,7 @@ class CatItemsToItems extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('toItemId, itemId', 'required'),
-			array('toItemId, itemId', 'numerical', 'integerOnly'=>true),
+			array('toItemId, itemId, order', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('toItemId, itemId', 'safe', 'on'=>'search'),
