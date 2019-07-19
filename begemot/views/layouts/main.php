@@ -6,7 +6,7 @@
 
 
 
-
+    <base href="<?=$_SERVER['HTTP_HOST']?>"/>
         
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
