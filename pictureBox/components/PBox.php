@@ -10,6 +10,9 @@
  *
  * @author Антон
  */
+
+Yii::import('pictureBox.components.PictureBox');
+
 class PBox
 {
 
@@ -50,7 +53,7 @@ class PBox
 
         $this->dataFile = $dataFile;
 
-        $this->favDataFile = $favDatafile = $pictureBoxDir .'/'. $galleryId . '/' . $id . '/favData.php';
+        $this->favDataFile = $favDatafile = $pictureBoxDir . '/' . $galleryId . '/' . $id . '/favData.php';
 
         if (file_exists($dataFile)) {
             $array = require($dataFile);
@@ -138,8 +141,8 @@ class PBox
         } else {
             $array = $this->favPictures;
         }
-  
-        if (is_array($array) && count($array)>0) {
+
+        if (is_array($array) && count($array) > 0) {
 
             $keys = array_keys($array);
             $id = $keys[0];
@@ -227,8 +230,8 @@ class PBox
 
             $imagesWithSort = array_replace(array_fill_keys($sortArray, ''), $images);
 
-            foreach ($imagesWithSort as $key=>$value){
-                if (!is_array($value)){
+            foreach ($imagesWithSort as $key => $value) {
+                if (!is_array($value)) {
                     unset($imagesWithSort[$key]);
                 }
 
@@ -310,8 +313,8 @@ class PBox
     {
 
 
-        if (isset($this->pictures[$pictureid]['params']['show'])){
-            if ($this->pictures[$pictureid]['params']['show']== true){
+        if (isset($this->pictures[$pictureid]['params']['show'])) {
+            if ($this->pictures[$pictureid]['params']['show'] == true) {
                 $this->pictures[$pictureid]['params']['show'] = false;
             } else {
                 $this->pictures[$pictureid]['params']['show'] = true;
@@ -334,6 +337,27 @@ class PBox
             unlink($filename);
         }
     }
+
+    /**
+     * Если имена файлов в data содержат неверные директории, эта функция должна обновить все пути
+     */
+    public function filesBasePathChange()
+    {
+        foreach ($this->pictures as $imageId => $picture) {
+            foreach ($picture as $filterId => $file) {
+                if ($filterId != 'title' and $filterId != 'title' and $filterId != 'params') {
+
+                    $newFile = '/files/pictureBox/' . $this->galleryId . '/' . $this->id . '/' . basename($file);
+                    $this->pictures[$imageId][$filterId] = $newFile;
+
+                    $this->saveToFile();
+
+                }
+            }
+        }
+
+    }
+
 }
 
 ?>

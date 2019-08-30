@@ -26,11 +26,8 @@ function setTitleAlt(state, divId) {
 
             alert("Сохранено. ");
             refreshPictureBox(divId, state);
-
         }
     });
-
-
 }
 
 function refreshPictureBox(divId, state) {
