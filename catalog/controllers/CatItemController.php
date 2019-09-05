@@ -132,6 +132,7 @@ class CatItemController extends Controller
      */
     public function actionUpdate($id, $tab = 'data')
     {
+
         $model = $this->loadModel($id);
 
         CatalogModule::checkEditAccess($model->authorId);

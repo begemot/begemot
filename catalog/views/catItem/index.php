@@ -10,9 +10,7 @@ $this->breadcrumbs = array(
     'Manage',
 );
 
-$menu = require dirname(__FILE__) . '/commonMenu.php';
 
-$this->menu = $menu;
 
 $this->menu = require dirname(__FILE__).'/commonMenu.php';
 

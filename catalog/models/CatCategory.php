@@ -137,7 +137,7 @@ class CatCategory extends CActiveRecord
     {
 
 
-        $models = $this->findAll(array('order' => 'level desc'));
+        $models = $this->findAll(array('order' => '`level` desc, `order`'));
 
 
         $catsArray = [];
@@ -150,7 +150,7 @@ class CatCategory extends CActiveRecord
             $categoryArray['order'] = $category->order;
             $categoryArray['level'] = $category->level;
             $categoryArray['name_t'] = $category->name_t;
-            $categoryArray['model'] = $category;
+//            $categoryArray['model'] = $category;
 
             $catsArray[$category->id] = $categoryArray;
             if ($category->published) {
@@ -160,6 +160,25 @@ class CatCategory extends CActiveRecord
 
         $this->categories = $catsArray;
         $this->pubCategories = $pubCatsArray;
+
+    }
+
+    public function getcategoriesTree(){
+        $getcategoriesTree = [];
+
+        if (!is_array($this->categories)){
+            $this->loadCategories();
+        }else {
+            $getcategoriesTree = $this->categories;
+            foreach ($getcategoriesTree as $key=>$cat){
+                if (isset($getcategoriesTree[$cat['pid']])){
+                    $getcategoriesTree[$cat['pid']]['childs'][] = $getcategoriesTree[$key];
+                    unset ($getcategoriesTree[$key]);
+                }
+            }
+            return $getcategoriesTree;
+        }
+
 
     }
 

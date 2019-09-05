@@ -16,7 +16,7 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/catalog/assets/
 Yii::app()->clientScript->registerScriptFile('https://code.jquery.com/ui/1.12.0/jquery-ui.js');
 
 $options = CatItem::model()->findByPk($_REQUEST['id'])->options();
-
+ini_set('memory_limit', '300M');
 ?>
 
 <h4>Опции</h4>
@@ -25,6 +25,7 @@ $options = CatItem::model()->findByPk($_REQUEST['id'])->options();
 <form method='post'>
     <select id='custom-headers' multiple='multiple' name='options[]' class='searchable'>
         <?php
+
         if (!$model->isNewRecord):
             $alreadyGot = CatItemsToItems::model()->findAll(array('select' => 'toItemId,isBase', 'condition' => 'itemId=' . $model->id));
 
@@ -36,6 +37,7 @@ $options = CatItem::model()->findByPk($_REQUEST['id'])->options();
                 $arrayOfIsBase[$item->toItemId] = $item->isBase;
             }
             $arrayOfItems = array_filter($arrayOfItems);
+
             $items = CatItem::model()->with('options')->findAll(array('order' => ' `options`.`order` ASC'));
 
             $alreadyGotCatItems = [];
