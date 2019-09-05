@@ -27,10 +27,22 @@ class DefaultController extends Controller
     //Функция пересборки изображений
     public function renderImageAgain($id, $elemId, $pictureId, $config)
     {
+        $PBox = new PBox($id, $elemId);
 
-        $filterManager = new FiltersManager(Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/100/2.jpg', $config);
+        $originalImage = $PBox->getImage($pictureId, 'original');
+        $path_info = pathinfo($originalImage);
+        $ext = $path_info['extension'];
+
+        $filterManager = new FiltersManager(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elemId . '/' . $pictureId . '.' . $ext, $config);
         $filters = $filterManager->getFilteredImages();
 
+    }
+
+    //экшн пересборки изображения
+    public function actionRenderImageAgain($id, $elemId, $pictureId, $config)
+    {
+
+        $this->renderImageAgain($id, $elemId, $pictureId, unserialize($config));
     }
 
     public function actionAjaxFlipImages($id, $elementId, $pictureid1, $pictureid2)
@@ -57,8 +69,8 @@ class DefaultController extends Controller
         $id = $_POST['id'];
         $elementId = $_POST['elementId'];
 
-        if (isset ($_POST['mode']) && $_POST['mode']=='killEmAll'){
-            $this->actionAjaxDeleteAllImages($id,$elementId);
+        if (isset ($_POST['mode']) && $_POST['mode'] == 'killEmAll') {
+            $this->actionAjaxDeleteAllImages($id, $elementId);
         }
 
         $config = unserialize($_POST['config']);
@@ -317,11 +329,11 @@ class DefaultController extends Controller
         if (Yii::app()->request->isAjaxRequest) {
 
             $favFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
-            if (file_exists($favFile)){
+            if (file_exists($favFile)) {
 
                 $favArray = require($favFile);
 
-                if ($favArray == null) $favArray=[];
+                if ($favArray == null) $favArray = [];
 
             } else {
                 $favArray = [];
@@ -337,7 +349,6 @@ class DefaultController extends Controller
 
             $dataFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php';
             $dataArray = require($dataFile);
-
 
 
             $resultArray = [];
@@ -398,9 +409,10 @@ class DefaultController extends Controller
         }
     }
 
-    public function actionAjaxDeleteAllImages($id, $elementId ){
+    public function actionAjaxDeleteAllImages($id, $elementId)
+    {
         if (Yii::app()->request->isAjaxRequest) {
-            $PBox = new PBox($id,$elementId);
+            $PBox = new PBox($id, $elementId);
             $PBox->deleteAll();
             return true;
         }
@@ -432,7 +444,7 @@ class DefaultController extends Controller
 
         $this->layout = 'pictureBox.views.layouts.ajax';
         if (Yii::app()->request->isAjaxRequest) {
-           $pbox =  new PBox($id,$elementId);
+            $pbox = new PBox($id, $elementId);
             echo $pbox->changeImageShown($pictureId);
         }
     }
@@ -458,6 +470,25 @@ class DefaultController extends Controller
             $this->updateSortData($id, $elementId);
         }
     }
+
+    public function actionAjaxFilterOriginalImage($id, $elementId, $pictureId, $filterName)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+
+            $data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
+            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
+            $config = $this->getConfigFromSession($id, $elementId);
+
+            $temp = explode('.', $data['images'][$pictureId]['original']);
+            $imageExt = end($temp);
+
+            echo $originalImagePath = $dir . "/" . $pictureId . '.' . $imageExt;
+
+            $filter = new ExpandFilter($originalImagePath, $originalImagePath, []);
+            $filter->make();
+        }
+    }
+
 
     /**
      *
@@ -628,11 +659,13 @@ class DefaultController extends Controller
     {
 
         $deleteFilesList = Yii::getPathOfAlias('webroot') . '/' . $data['images'][$pictureId]['original'];
+        if (file_exists($deleteFilesList))
+            unlink($deleteFilesList);
 
         $images = $data['images'][$pictureId];
 
-        foreach ($images as $image) {
-
+        foreach ($images as $key => $image) {
+            if ($key == 'params') continue;
             $fileFullName = Yii::getPathOfAlias('webroot') . '/' . $image;
 
             if (file_exists($fileFullName) && !is_dir($fileFullName)) {

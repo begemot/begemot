@@ -6,7 +6,7 @@
 
 
 
-
+    <base href="<?=$_SERVER['HTTP_HOST']?>"/>
         
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
@@ -35,7 +35,7 @@ $begemotMaenuArray = array(
             array('label'=>'Слайдер', 'url'=>array('/slider/admin'),'visible'=>Yii::app()->hasModule('slider')),
             array('label'=>'Структура компании', 'url'=>array('/company/companyDepart/admin'),'visible'=>Yii::app()->hasModule('slider')),
             array('label'=>'Цены', 'url'=>array('/priceList/prices/admin'),'visible'=>Yii::app()->hasModule('priceList')),
-
+            array('label'=>'ContentManager', 'url'=>array('/contentTask/contentTask/admin'),'visible'=>Yii::app()->hasModule('contentTask')),
         ),
     ),
 

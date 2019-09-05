@@ -261,26 +261,79 @@ function PictureBox(options) {
 
                 });
 
+                //обработчик закрытия окна с изображениями
+                //снимаем с него все обработчики, которые дублируются при повторном открытии
+                $('#imageModal').on('hide',function(){
+                    console.log('событие закрытия окна');
+                    $('#imageModal #expandBtn').unbind();
+                    $('#imageModal .modal-body .deleteFilteredImage').unbind();
+                    $('#imageModal .modal-body .createFilteredImage').unbind();
+                });
+
                 $("img.all-images-btn").click(function (index, domElement) {
 
                     var $pictureId = $(this).attr("data-id");
                     var $elementId = elementId;
                     var $id = id;
 
-                    $.ajax({
-                        url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
-                        data: {
-                            theme: 'tileImagesRisize',
-                            pictureId: $pictureId,
-                            elementId: elementId,
-                            id: $id
+                    var loadModalContent = function(successFunction=null){
+                        $.ajax({
+                            url: "/pictureBox/default/ajaxLayout", cache: false, async: false,
+                            data: {
+                                theme: 'tileImagesRisize',
+                                pictureId: $pictureId,
+                                elementId: elementId,
+                                id: $id
 
-                        },
-                        success: function (html) {
-                            jQuery('#imageModal .modal-body').html(html)
-                        }
-                    })
+                            },
+                            success: function (html) {
+                                jQuery('#imageModal .modal-body').html(html);
+                                ladybugInit();
+                            }
+                        })
+                    }
 
+
+
+                    //Отправка запроса на увеличения фона оригинального изображения
+                    var baseImageBackgroungExpand = function () {
+                        //отправляем запрос
+                        console.log("отправляем запрос на увеличение фона");
+
+                        $.ajax({
+                            url: "/pictureBox/default/ajaxFilterOriginalImage", cache: false, async: false,
+                            data: {
+                                'filterName':'Expand',
+                                pictureId:$pictureId,
+                                elementId: $elementId,
+                                id: $id
+
+                            },
+                            success: function (html) {
+
+                                $.ajax({
+                                    url: "/pictureBox/default/renderImageAgain", cache: false, async: false,
+                                    data: {
+                                        config:$config,
+                                        pictureId:$pictureId,
+                                        elemId: $elementId,
+                                        id: $id
+
+                                    },
+                                    success: function (html) {
+                                        loadModalContent();
+                                    }
+                                })
+
+
+
+                            }
+                        })
+
+                    }
+
+                    //вешаем обработчик
+                    $('#imageModal #expandBtn').click(baseImageBackgroungExpand);
 
                     var deleteFilteredImageFunction = function () {
 
@@ -367,79 +420,84 @@ function PictureBox(options) {
                         }
                     })
 
-                    $(".ladybug_ant").each(function () {
+                    var ladybugInit = function(){
+                        $(".ladybug_ant").each(function () {
 
-                        filterWidth = $(this).attr('filter-width');
-                        filterHeight = $(this).attr('filter-height');
-                        var imgAreaObject = $(this).imgAreaSelect({
-                            aspectRatio: filterWidth + ":" + filterHeight,
-                            handles: true,
-                            instance: true,
-                            onSelectChange: PictureBoxObject.resizeAreaPreview,
-                            onSelectEnd: PictureBoxObject.selectParamSave
-                        });
+                            filterWidth = $(this).attr('filter-width');
+                            filterHeight = $(this).attr('filter-height');
+                            var imgAreaObject = $(this).imgAreaSelect({
+                                aspectRatio: filterWidth + ":" + filterHeight,
+                                handles: true,
+                                instance: true,
+                                onSelectChange: PictureBoxObject.resizeAreaPreview,
+                                onSelectEnd: PictureBoxObject.selectParamSave
+                            });
 
-                        var imageFilter = $(this).attr('image-filter');
+                            var imageFilter = $(this).attr('image-filter');
 
-                        areaSelectCollection["" + imageFilter] = {};
+                            areaSelectCollection["" + imageFilter] = {};
 
-                        areaSelectCollection["" + imageFilter]["imageAraeSelectInstance"] = imgAreaObject;
+                            areaSelectCollection["" + imageFilter]["imageAraeSelectInstance"] = imgAreaObject;
 
-                        pb_id = $(this).attr('pb-id');
-                        pb_element_id = $(this).attr('pb-element-id');
-                        pb_picture_id = $(this).attr('pb-picture-id');
-                        pb_filter_name = $(this).attr('image-filter');
+                            pb_id = $(this).attr('pb-id');
+                            pb_element_id = $(this).attr('pb-element-id');
+                            pb_picture_id = $(this).attr('pb-picture-id');
+                            pb_filter_name = $(this).attr('image-filter');
 
-                        var resizeData = {
-                            sourceImg: null,
-                            width: 1,
-                            height: 2,
-                            originalWidth: 0,
-                            originalHeight: 0,
-                            originalSize: false,
-                            selection: null,
-                            pb_id: pb_id,
-                            pb_element_id: pb_element_id,
-                            pb_picture_id: pb_picture_id,
-                            pb_filter_name: pb_filter_name
-                        };
+                            var resizeData = {
+                                sourceImg: null,
+                                width: 1,
+                                height: 2,
+                                originalWidth: 0,
+                                originalHeight: 0,
+                                originalSize: false,
+                                selection: null,
+                                pb_id: pb_id,
+                                pb_element_id: pb_element_id,
+                                pb_picture_id: pb_picture_id,
+                                pb_filter_name: pb_filter_name
+                            };
 
-                        resizeData.sourceImg = $(this).attr("src");
+                            resizeData.sourceImg = $(this).attr("src");
 
-                        href = resizeData.sourceImg;
+                            href = resizeData.sourceImg;
 
-                        img = new Image();
+                            img = new Image();
 
 
-                        var $originalImage = this;
-                        img.onload = function () {
+                            var $originalImage = this;
+                            img.onload = function () {
 
-                            resizeData.originalWidth = this.width;
-                            resizeData.originalHeight = this.height;
+                                resizeData.originalWidth = this.width;
+                                resizeData.originalHeight = this.height;
 
-                            if (img.width > 500) {
-                                resizeData.originalSize = false;
-                                $($originalImage).css('width', '500px');
-                            } else {
-                                resizeData.originalSize = true;
-                                $($originalImage).css('width', 'auto');
+                                // if (img.width > 500) {
+                                //     resizeData.originalSize = false;
+                                //     $($originalImage).css('width', '500px');
+                                // } else {
+                                //     resizeData.originalSize = true;
+                                //     $($originalImage).css('width', 'auto');
+                                // }
+
                             }
 
-                        }
+
+                            img.src = href;
 
 
-                        img.src = href;
+                            resizeData.width = filterWidth;
+                            resizeData.height = filterHeight;
 
 
-                        resizeData.width = filterWidth;
-                        resizeData.height = filterHeight;
+                            areaSelectCollection["" + imageFilter]["resizeData"] = resizeData;
+                            //console.log(resizeData);
 
+                        });
+                    }
+                    // ladybugInit();
 
-                        areaSelectCollection["" + imageFilter]["resizeData"] = resizeData;
-                        //console.log(resizeData);
-
-                    });
-
+                    //инициируем загрузку контента в окно и сопутствующие движения
+                    loadModalContent();
 
                 });
 

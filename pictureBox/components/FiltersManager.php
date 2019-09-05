@@ -13,7 +13,7 @@ class FiltersManager
     private $fileName;
     public $resultFiles = array();
 
-    public function FiltersManager($_fileName, $_config)
+    public function __construct($_fileName, $_config)
     {
 
         $this->config = $_config;
