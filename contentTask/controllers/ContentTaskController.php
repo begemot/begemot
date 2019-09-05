@@ -228,6 +228,8 @@ class ContentTaskController extends Controller
 
     public function actions()
     {
+
+        Yii::setPathOfAlias('RestfullYii', Yii::getPathOfAlias('begemot').'/extensions/RESTFullYii/starship/RestfullYii');
         return array(
             'REST.' => 'RestfullYii.actions.ERestActionProvider',
         );

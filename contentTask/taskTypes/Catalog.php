@@ -47,11 +47,12 @@ class Catalog extends BaseDataType
         $addedModel->taskId = $taskId;
         $addedModel->contentId = $id;
 
+        Yii::import('catalog.models.CatItem');
+        $model = CatItem::model()->findByPk($id);
+        $addedModel->tmpName =$model->name;
         if ($addedModel->save()) {
 
-            Yii::import('catalog.models.CatItem');
 
-            $model = CatItem::model()->findByPk($id);
 
             $contentTask = ContentTask::model()->findByPk($taskId);
             $data = unserialize($contentTask->dataElementsList);
@@ -60,6 +61,8 @@ class Catalog extends BaseDataType
 
             foreach ($data as $field) {
                 $fieldName = $field['name'];
+
+
                 $model->$fieldName;
 
                 /*
@@ -131,6 +134,10 @@ class Catalog extends BaseDataType
                 if (!$catItem->save()){
                     echo 'Сохранение модели не удалось!';
                     print_r($catItem->errors);
+                } else{
+                    //выкатили текстовые данные, выкатываем изображения и подобное
+
+                    BaseDataType::publishImages($added->id,'catalogItem',$added->contentId);
                 }
             } else {
                 echo 'Связанное позиции не найдено!';
@@ -159,6 +166,7 @@ class Catalog extends BaseDataType
             $addedModel->taskId = $taskId;
             $addedModel->contentId = $catItem->id;
             $addedModel->new = 1;
+            $addedModel->tmpName = $catItem->name;
 
             if ($addedModel->save()) {
                 $id = $catItem->id;

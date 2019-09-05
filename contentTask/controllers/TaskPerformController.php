@@ -59,9 +59,14 @@ class TaskPerformController extends Controller
             if ($added->taskId == $contentTaskId && ($added->status == 'edit' || $added->status == 'new' || $added->status == 'mistake')) {
                 $postdata = file_get_contents("php://input");
                 $postdata = json_decode($postdata);
-                print_r($postdata);
+
+                $type = BaseDataType::factoryType($contentTask->type);
+
                 foreach ($postdata->data as $fieldData) {
-                    print_r($fieldData);
+
+                    if ($fieldData->name==$type->tableFieldTitle){
+                        $added->tmpName = $fieldData->data;
+                    }
 
                     $attributes = [
                         'dataType' => $added->type,
@@ -85,7 +90,12 @@ class TaskPerformController extends Controller
                     $searchResult->taskId = $added->taskId;
 
                     if ($searchResult->save()) {
-                        $added->status = "edit";
+                        if ($added->status=='mistake'){
+                            $added->status = "mistake";
+                        } else {
+                            $added->status = "edit";
+                        }
+
                         $added->save();
                     }
                     echo count($searchResult);
@@ -251,8 +261,10 @@ class TaskPerformController extends Controller
         if ($contentTask = $this->checkAccessCode($accessCode)) {
 
             $reviewData = ContentTaskReviewData::model()->findByAttributes(['subtaskId' => $id, 'iteration' => $iteration]);
+            if ($reviewData){
 
-            echo $reviewData->jsonData;
+                echo $reviewData->jsonData;
+            }
 
         }
     }
@@ -352,6 +364,36 @@ class TaskPerformController extends Controller
 
 
             }
+        }
+    }
+    public function actionUpload ($accessCode){
+        if ($contentTask = $this->checkAccessCode($accessCode)) {
+
+
+            //Path to autoload.php from current location
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/File.php';
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Basic.php';
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/RequestInterface.php';
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Request.php';
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/ConfigInterface.php';
+            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Config.php';
+
+
+            $config = new \Flow\Config();
+            echo Yii::getPathOfAlias('webroot').'/temp';
+            $config->setTempDir(Yii::getPathOfAlias('webroot').'/temp/');
+            $request = new \Flow\Request();
+            $uploadFolder = Yii::getPathOfAlias('webroot').'/upload/'; // Folder where the file will be stored
+            $uploadFileName = uniqid()."_".$request->getFileName(); // The name the file will have on the server
+            $uploadPath = $uploadFolder.$uploadFileName;
+            if (\Flow\Basic::save($uploadPath, $config, $request)) {
+                echo "Показывает что сохранили";
+            } else {
+                // This is not a final chunk or request is invalid, continue to upload.
+            }
+
+
+
         }
     }
 

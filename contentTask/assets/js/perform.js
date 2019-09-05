@@ -1,5 +1,7 @@
 var app = angular.module('performApp', ['ngResource', 'ngSanitize', 'bw.paging']);
 
+
+
 app.controller('edit', ['$scope', '$http', '$location', '$sce', function ($scope, $http, $location, $sce) {
 
     //Текущая итерация
@@ -57,7 +59,8 @@ app.controller('edit', ['$scope', '$http', '$location', '$sce', function ($scope
     $scope.panels = {
         base: true,
         current: false,
-        review: false
+        review: false,
+        images:false
     };
     //Видимость элементов, список элементов, которые можно скрыть или показать
     $scope.visible = {
@@ -73,8 +76,8 @@ app.controller('edit', ['$scope', '$http', '$location', '$sce', function ($scope
         infoReview: false,
 
         dataDiv: true,
-        reviewDiv: false
-
+        reviewDiv: false,
+        imagesDiv: false
     }
 
 
@@ -228,13 +231,16 @@ app.controller('edit', ['$scope', '$http', '$location', '$sce', function ($scope
             $scope.activateBase()
             $scope.visible.dataDiv = true
             $scope.visible.reviewDiv = false
+
         }
 
         if (panelName == "current") {
             $scope.activateCurrent();
             $scope.visible.dataDiv = true
             $scope.visible.reviewDiv = false
+
         }
+
         if (panelName == "review"){
             if ( $scope.subtaskStatus == 'review'){
 
@@ -242,6 +248,16 @@ app.controller('edit', ['$scope', '$http', '$location', '$sce', function ($scope
             } else if ($scope.subtaskStatus == 'mistake') {
                 $scope.activateReview($scope.currentIteration-1);
             }
+        } else {
+
+        }
+
+        if (panelName == "images"){
+            $scope.visible.dataDiv = false
+            $scope.visible.imagesDiv = true
+            $scope.visible.reviewDiv = false
+        } else {
+            $scope.visible.imagesDiv = false
         }
 
     }
@@ -430,22 +446,25 @@ app.controller('performController', ['$scope', '$http', '$location', function ($
 
     $scope.taskId = null;
 
-    $http.get('/contentTask/taskPerform/taskInfo/accessCode/' + $scope.accessCode).then(function (response) {
 
-        $scope.taskData = response.data;
-        $scope.taskId = $scope.taskData.id
-        $scope.createBtnVisible = false;
-        console.log($scope.taskData.actions);
+    $scope.loadList = function(){
+        $http.get('/contentTask/taskPerform/taskInfo/accessCode/' + $scope.accessCode).then(function (response) {
 
-        for (i=0;i<$scope.taskData.actions.length;i++){
-            console.log($scope.taskData.actions[i])
-            if ($scope.taskData.actions[i].id=='create'){
-                $scope.createBtnVisible = true;
-            }}
+            $scope.taskData = response.data;
+            $scope.taskId = $scope.taskData.id
+            $scope.createBtnVisible = false;
+            console.log($scope.taskData.actions);
+
+            for (i=0;i<$scope.taskData.actions.length;i++){
+                console.log($scope.taskData.actions[i])
+                if ($scope.taskData.actions[i].id=='create'){
+                    $scope.createBtnVisible = true;
+                }}
 
 
-    });
-
+        });
+    }
+    $scope.loadList();
     // $http.get('/contentTask/taskPerform/ajaxAddedList/accessCode/' + $scope.accessCode).then(function (response) {
 
     // $scope.taskData = response.data;
@@ -517,6 +536,10 @@ app.controller('performController', ['$scope', '$http', '$location', function ($
         console.log("создаем позицию")
         $http.get('/contentTask/taskPerform/ajaxCreateNew/accessCode/' + $scope.accessCode).then(function (response) {
             console.log(response.data)
+        }).then(function(){
+            console.log("Создали, обновляем список. ");
+            $scope.loadList();
+            $scope.getStatusCounts();
         });
     }
 
@@ -527,6 +550,15 @@ app.controller('performController', ['$scope', '$http', '$location', function ($
         });
     }
 
+    $scope.approve = function(subtaskId,lineId){
+
+        $http.get('/contentTask/taskPerform/markAsDone/accessCode/' + $scope.accessCode + '/id/' + subtaskId).then(function (response) {
+
+        }).then(function () {
+           $scope.resultItems.review.splice(lineId, 1);
+            $scope.recordsCount.review = $scope.recordsCount.review-1;
+        });
+    }
     // $scope.makeSearch();
     // $scope.makeSearch('edit');
 

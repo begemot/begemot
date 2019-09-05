@@ -6,6 +6,10 @@ Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/l
 Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular-sanitize.js');
 Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/paging.js');
 
+Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/ng-flow-standalone.js');
+Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/ng-flow.js');
+
+
 Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/perform.js');
 
 ?>
@@ -38,6 +42,9 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/ass
                 </li>
                 <li ng-class="{active:panels.review}" ng-click="panel('review')" ng-show="(currentIteration>0) || (isAdmin == true && (subtaskStatus=='review'))">
                     <a href="">Правки</a>
+                </li>
+                <li ng-class="{active:panels.review}" ng-click="panel('images')" ng-show="true">
+                    <a href="">Изображения</a>
                 </li>
                 <li>
                     <div style="margin: 5px 5px" class="btn-group" ng-show="visible.btnSave">
@@ -112,6 +119,29 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/ass
 
             <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/reviewAdmin.html'"></div>
 
+        </div>
+
+        <div ng-show="visible.imagesDiv">
+           <?php
+           $picturesConfig = array();
+           $configFile = Yii::getPathOfAlias('webroot') . '/protected/config/catalog/categoryItemPictureSettings.php';
+           if (file_exists($configFile)) {
+
+               $picturesConfig = require($configFile);
+
+               $this->widget(
+                   'application.modules.pictureBox.components.PictureBox', array(
+                       'id' => 'contentManagerSubTask',
+                       'elementId' => $_REQUEST['id'],
+                       'config' => $picturesConfig,
+                       'theme' => 'tiles'
+                   )
+               );
+           } else {
+               Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
+           }
+
+           ?>
         </div>
     </div>
 </div>
