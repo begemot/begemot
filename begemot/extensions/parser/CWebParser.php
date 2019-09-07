@@ -94,7 +94,7 @@ class CWebParser
      */
     public $taskManager = null;
 
-    public function CWebParser($parserName, $host, $scenario, $processId)
+    public function __construct($parserName, $host, $scenario, $processId)
     {
         $this->log('==================================================================================================');
         $this->log('==================================================================================================');
@@ -341,7 +341,7 @@ class CWebParser
     public function getUrlObject($url)
     {
 
-        if (!($webParserUrl = WebParserUrl::model()->find('`url`="' . $url . '" and `procId`=' . $this->processId))) {
+        if (!($webParserUrl = WebParserUrl::model()->find('`url`=:url and `procId`=' . $this->processId,array(':url'=>$url)))) {
             $webParserUrl = new WebParserUrl();
 
             $webParserUrl->procId = $this->processId;
@@ -956,7 +956,7 @@ class CWebParser
         $urlForSearch = $this->getRedirectedUrl($url);
 
         $this->log('Начали поиск в базе url ' . $url . '');
-        $webParserPage = WebParserPage::model()->find('url = "' . $urlForSearch . '" and `procId` = ' . $this->processId);
+        $webParserPage = WebParserPage::model()->find('url =:urlForSearch and `procId` = ' . $this->processId,[':urlForSearch'=>$urlForSearch]);
         $this->log('Закончили поиск в базе url ' . $url . '');
 
 

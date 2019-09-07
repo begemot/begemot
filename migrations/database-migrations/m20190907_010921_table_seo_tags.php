@@ -1,20 +1,17 @@
 <?php
 
-class m20171229_011557_promoNewRows extends Migrations
+class m20190907_010921_table_seo_tags extends Migrations
 {
     public function up()
     {
 
         if ($this->isConfirmed(true) == true) return false;
 
-        $sql = "
-            ALTER TABLE `promo` 
-            ADD COLUMN `title2` VARCHAR(100) NULL AFTER `top`,
-            ADD COLUMN `title3` VARCHAR(45) NULL AFTER `title2`,
-            ADD COLUMN `dateFrom` INT NULL AFTER `title3`,
-            ADD COLUMN `dateTo` INT NULL AFTER `dateFrom`,
-            ADD COLUMN `sale` INT NULL AFTER `dateTo`;
-            ";
+        $sql = "CREATE TABLE `seo_tags` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pageId` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
         $this->execute($sql);
 
         return true;
@@ -24,12 +21,7 @@ class m20171229_011557_promoNewRows extends Migrations
     {
         if ($this->isConfirmed(true) == false) return false;
 
-        $sql = "ALTER TABLE `promo` 
-                DROP COLUMN `dateTo`,
-                DROP COLUMN `dateFrom`,
-                DROP COLUMN `title3`,
-                DROP COLUMN `sale`,
-                DROP COLUMN `title2`;";
+        $sql = "DROP TABLE `seo_tags`;";
         $this->execute($sql);
 
         return true;
@@ -37,14 +29,19 @@ class m20171229_011557_promoNewRows extends Migrations
 
     public function getDescription()
     {
-        return "Экспорт страниц в вебпарсере";
+        return "таблица тегов для модуля seo";
     }
 
     public function isConfirmed($returnBoolean = false)
     {
         Yii::app()->db->schema->refresh();
-        $table = Yii::app()->db->schema->getTable('promo');
-        $result = isset($table->columns['dateTo']);
+        $table = Yii::app()->db->schema->getTable('seo_tags');
+        if ($table){
+            $result = true;
+        } else {
+            $result = false;
+        }
+
 
         if ($returnBoolean) {
             return $result;
