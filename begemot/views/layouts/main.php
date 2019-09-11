@@ -50,7 +50,7 @@ $begemotMaenuArray = array(
     array('label'=>'Файлы', 'url'=>array('/elfinder'),'visible'=>Yii::app()->hasModule('elfinder')),
     array('label'=>'Сообщения',
         'items'=>array(
-            array('label'=>'CallBack', 'url'=>array('/callback/callback/index'),'visible'=>Yii::app()->hasModule('callback')),
+            array('label'=>'CallBack', 'url'=>array('/callback/callback/admin'),'visible'=>Yii::app()->hasModule('callback')),
             array('label'=>'Коменты', 'url'=>array('/comments'),'visible'=>Yii::app()->hasModule('comments')),
             array('label'=>'FAQ', 'url'=>array('/faq/admin'),'visible'=>Yii::app()->hasModule('faq')),
             array('label'=>'Отзывы', 'url'=>array('/reviews/admin'),'visible'=>Yii::app()->hasModule('reviews')),

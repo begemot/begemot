@@ -24,7 +24,7 @@ $this->menu=array(
 		'title',
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
-            'template'=>'{view}'
+            'template'=>'{view}{delete}'
 		),
 	),
 )); ?>
