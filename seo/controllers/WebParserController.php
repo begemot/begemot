@@ -36,7 +36,7 @@ class WebParserController extends Controller
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete', 'tagProcess','unprocessedTagTaskCount'),
+                'actions' => array('admin', 'delete', 'tagProcess','linkToPage','tagsDataCount','getTagFields','loadTagsData','unprocessedTagTaskCount'),
                 'users' => array('admin'),
             ),
             array('deny',  // deny all users
@@ -53,10 +53,20 @@ class WebParserController extends Controller
     /**
      * Обрабатывает одну случайную страницу и считает количество тегов
      */
-    public function actionTagProcess()
+    public function actionTagProcess($id=null)
     {
         Yii::import('seo.models.*');
-        $pageModel = SeoPages::model()->findByAttributes(['tagsCoputedFlag' => 0]);
+
+        if ($id){
+            $pageModel = SeoPages::model()->findByPk($id);
+            Yii::import('begemot.extensions.parser.CWebParser');
+            $newPageData =  CWebParser::getRemotePageContent($pageModel->url);
+            $pageModel->content = $newPageData['content'];
+            $pageModel->mime = $newPageData['mime'];
+            $pageModel->save();
+        }else{
+            $pageModel = SeoPages::model()->findByAttributes(['tagsCoputedFlag' => 0]);
+        }
         if ($pageModel) {
 
 
@@ -104,7 +114,7 @@ class WebParserController extends Controller
             foreach ($tagsCount as $tagName => $value) {
                 if (!isset($columns[$tagName])) {
 
-                    $sql = $schema->addColumn('seo_tags', $tagName, 'INT');
+                    $sql = $schema->addColumn('seo_tags', $tagName, 'INT DEFAULT 0');
                     Yii::app()->db->createCommand($sql)->execute();
 
                 }
@@ -164,7 +174,47 @@ class WebParserController extends Controller
 
         }
     }
+    public function actionGetTagFields(){
+        $data = SeoTags::model()->attributes;
+        echo json_encode(['url','pageId','h1','strong','title','i','em','quote']);
+//        print_r();
+    }
+    public function actionLoadTagsData($page,$sort='',$asc=true){
 
+
+
+        $start = ($page-1)*10;
+
+        $sql = 'SELECT * FROM seo_tags  ';
+        if ($sort!=''){
+            $sql = $sql.' order by `'.$sort.'` '.($asc==1?'ASC ':'DESC ');
+        }
+        $sql = $sql.'LIMIT '.$start.',10'.';';
+
+        $command =Yii::app()->db->createCommand($sql);
+        $result = $command->queryAll();
+        $resutWithUrl = [];
+
+        foreach ($result as $line){
+            $page = SeoPages::model()->findByPk($line['pageId']);
+            $line['url'] = $page->url;
+            $resutWithUrl[] = $line;
+        }
+
+        echo json_encode($resutWithUrl);
+
+    }
+
+    public function actionLinkToPage($id){
+        $link = SeoPages::model()->findByPk($id);
+        echo $link->url;
+    }
+
+    public function actionTagsDataCount(){
+        $sqlCount = 'SELECT count(id) FROM seo_tags;';
+        $count = Yii::app()->db->createCommand($sqlCount)->queryScalar();
+        echo json_encode($count+0);
+    }
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
