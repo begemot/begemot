@@ -73,23 +73,34 @@ Yii::log('    проверяем закончен ли процесс!', 'trace'
 //echo $webParser->getProcessStatus();
 if ($webParser->getProcessStatus() != 'done') {
     Yii::app()->db->createCommand()->truncateTable('seo_pages');
+    Yii::app()->db->createCommand()->truncateTable('seo_links');
+    Yii::app()->db->createCommand()->truncateTable('seo_tags');
     echo '<script>location.reload();</script>';
 } else {
 
     $pages = WebParserPage::model()->findAll(
         [
             'condition' => 'procId=:procId and export=0',
-            'limit'=>50,
+            'limit' => 50,
             'params' => array(
-                    ':procId' => $processId)
+                ':procId' => $processId)
         ]
     );
 
-
-    if ($pages){
+    $urls = WebParserLink::model()->findAll(
+        [
+            'condition' => 'procId=:procId and export=0',
+            'limit' => 50,
+            'params' => array(
+                ':procId' => $processId)
+        ]
+    );
+    if ($pages) {
+        //экспорт страниц
         echo "Парсер закончил работать. Идет обработка данных!";
+        echo "Импортируем страницы!";
         foreach ($pages as $page) {
-            if ($page->mime=='text/html'){
+            if ($page->mime == 'text/html') {
 
                 $seoPages = new SeoPages();
                 $seoPages->url = $page->url;
@@ -97,15 +108,30 @@ if ($webParser->getProcessStatus() != 'done') {
                 $seoPages->status = $page->http_code;
                 $seoPages->contentHash = $page->content_hash;
                 $seoPages->mime = $page->mime;
-                if ($seoPages->save()){
+                if ($seoPages->save()) {
                     $page->export = 1;
                     $page->save();
                 }
             } else {
-                $page->export=1;
+                $page->export = 1;
                 $page->save();
             }
 
+        }
+        echo '<script>location.reload();</script>';
+    } else if ($urls) {
+        //экспорт ссылок
+        echo "Парсер закончил работать. Идет обработка данных!";
+        echo "Импортируем ссылки!";
+        foreach ($urls as $url) {
+            $seoLink = new SeoLinks();
+            $seoLink->url = $url->sourceUrl;
+            $seoLink->href = $url->url;
+            $seoLink->anchor = $url->anchor;
+            if ($seoLink->save()){
+                $url->export = 1;
+                $url->save();
+            }
         }
         echo '<script>location.reload();</script>';
     } else {

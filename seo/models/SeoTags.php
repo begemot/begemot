@@ -1,23 +1,23 @@
 <?php
 
 /**
- * This is the model class for table "seo_pages".
+ * This is the model class for table "seo_links".
  *
- * The followings are the available columns in table 'seo_pages':
+ * The followings are the available columns in table 'seo_links':
  * @property integer $id
  * @property string $url
- * @property string $title
- * @property string $content
- * @property integer $status
+ * @property string $href
+ * @property string $anchor
+ * @property integer $type
  */
-class SeoPages extends CActiveRecord
+class SeoTags extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return 'seo_pages';
+		return 'seo_tags';
 	}
 
 	/**
@@ -28,12 +28,11 @@ class SeoPages extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('status', 'numerical', 'integerOnly'=>true),
-			array('url, title', 'length', 'max'=>500),
-			array('content,contentHash,mime', 'safe'),
+			array('type', 'numerical', 'integerOnly'=>true),
+			array('url, href, anchor', 'length', 'max'=>500),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, url, title,content,title', 'safe', 'on'=>'search'),
+			array('id, url, href, anchor, type', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -48,19 +47,6 @@ class SeoPages extends CActiveRecord
 		);
 	}
 
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'id' => 'ID',
-			'url' => 'Url',
-			'title' => 'Title',
-			'content' => 'Content',
-			'status' => 'Status',
-		);
-	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
@@ -82,9 +68,9 @@ class SeoPages extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('url',$this->url,true);
-		$criteria->compare('title',$this->title,true);
-        $criteria->compare('content',$this->content,true);
-
+		$criteria->compare('href',$this->href,true);
+		$criteria->compare('anchor',$this->anchor,true);
+		$criteria->compare('type',$this->type);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -95,7 +81,7 @@ class SeoPages extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return SeoPages the static model class
+	 * @return SeoLinks the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
