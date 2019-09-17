@@ -531,7 +531,7 @@ class CWebParser
                         $urlArray = $this->getAllUrlFromContent($navigationPart);
                         $this->log('Ищем url в полученных данных. Нашли:' . count($urlArray));
                         foreach ($urlArray as $url => $data) {
-                          
+
                             /*
                                  * Запоминаем ссылки. Которые нашли.
                                  */
@@ -1288,7 +1288,7 @@ class CWebParser
             $webParserPage->url = $data['lastUrl'];
             $webParserPage->content = $data['content'];
             $webParserPage->mime = $data['mime'];
-            $webParserPage->http_code = $data['mime'];
+            $webParserPage->http_code = $data['httpCode'];
 //            $this->log('Mime: ' . $mime . ' HTTP Code: ' . $httpCode);
 
             if (!$webParserPage->save()) {
