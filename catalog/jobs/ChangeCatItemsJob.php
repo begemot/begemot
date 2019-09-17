@@ -82,15 +82,14 @@ class ChangeCatItemsJob extends BaseJob
 
                     $itemParsed['groups'] = json_encode($json['groups'][$itemParsed['id']]);
                 }
-//                echo 'Массив модификаций';
-//                print_r($json['modifs']);
+
                 if (isset($json['modifs'][$itemParsed['id']])) {
-//                    echo 'Есть совпадение:';
+
                     print_r($json['modifs'][$itemParsed['id']]);
                 }
 
-//                echo 'ИД:';
-                print_r($itemParsed);
+
+
                 if (isset($json['modifs'][$itemParsed['id']])) {
                     $itemParsed['modifs'] = json_encode($json['modifs'][$itemParsed['id']]);
                     Yii::log("Модификации: " . $itemParsed['modifs'], 'trace', 'cron');

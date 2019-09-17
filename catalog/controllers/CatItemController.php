@@ -258,31 +258,31 @@ class CatItemController extends Controller
         $synched = false;
         if (isset(Yii::app()->modules['parsers'])) {
 
-//
-//            Yii::import('application.modules.parsers.models.ParsersLinking');
-//            Yii::import('application.modules.parsers.models.ParsersStock');
-//
-//            $synched = ParsersLinking::model()->with('item')->find(array('condition' => "t.toId='" . $model->id . "'"));
-//
-//
-//            $fileListOfDirectory = array();
-//            if (!$synched) {
-//
-//                $fileListOfDirectory = array();
-//
-//
-//                if (is_dir(Yii::app()->basePath . '/jobs')) {
-//                    foreach (glob(Yii::app()->basePath . '/jobs/*ParserJob.php') as $path) {
-//
-//                        $className = basename($path);
-//                        $className = str_replace('argoBtns.php', '', $className);
-//                        $class = new $className;
-//
-//                        array_push($fileListOfDirectory, array('name' => $class->getName(), 'className' => $className));
-//                    }
-//                }
-//
-//            }
+
+            Yii::import('application.modules.parsers.models.ParsersLinking');
+            Yii::import('application.modules.parsers.models.ParsersStock');
+
+            $synched = ParsersLinking::model()->with('item')->find(array('condition' => "t.toId='" . $model->id . "'"));
+
+
+            $fileListOfDirectory = array();
+            if (!$synched) {
+
+                $fileListOfDirectory = array();
+
+
+                if (is_dir(Yii::app()->basePath . '/jobs')) {
+                    foreach (glob(Yii::app()->basePath . '/jobs/*ParserJob.php') as $path) {
+
+                        $className = basename($path);
+                        $className = str_replace('.php', '', $className);
+                        $class = new $className;
+
+                        array_push($fileListOfDirectory, array('name' => $class->getName(), 'className' => $className));
+                    }
+                }
+
+            }
 
 
         }
@@ -315,6 +315,7 @@ class CatItemController extends Controller
             'fileListOfDirectory' => $fileListOfDirectory,
             'synched' => $synched
         ));
+
     }
 
     private function delete_files($target)
