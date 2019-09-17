@@ -37,7 +37,7 @@ Yii::import('TaskManager');
 class CWebParser
 {
     public $urlArray = array();
-    public $filteredUrlArray = array();
+    public $filteredUrlArray = [];
     public $urlFilterArray = array();
     //регулярные выражения для предобработки урл, например удаление не нужных параметров трекеров
     public $urlReplaceArray = array();
@@ -1288,7 +1288,7 @@ class CWebParser
             $webParserPage->url = $data['lastUrl'];
             $webParserPage->content = $data['content'];
             $webParserPage->mime = $data['mime'];
-            $webParserPage->http_code = $data['mime'];
+            $webParserPage->http_code = $data['httpCode'];
 //            $this->log('Mime: ' . $mime . ' HTTP Code: ' . $httpCode);
 
             if (!$webParserPage->save()) {
@@ -1384,8 +1384,10 @@ class CWebParser
 
     public function filterUrlArray($urlArray)
     {
+
+
         $resultArray = [];
-        $filteredArray = array_filter($urlArray, array(get_class($this), 'regExpChecker'));
+        $filteredArray = array_filter($urlArray, array(get_class($this), 'regExpChecker'),ARRAY_FILTER_USE_KEY);
 
 //        $resultArray = [];
 //        foreach ($filteredArray as $ulr) {
@@ -1546,6 +1548,7 @@ class CWebParser
 
     private function regExpChecker($var)
     {
+
         foreach ($this->urlFilterArray as $urlFilter) {
             if (preg_match($urlFilter, $var)) {
                 return false;

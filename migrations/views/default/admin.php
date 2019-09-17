@@ -26,12 +26,12 @@
 			<td><?php echo $model->isConfirmed()?></td>
 			<td>
 				<?php if ($model->isConfirmed(true) == false): ?>
-					<a href='/migrations.htm?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
 				<?php elseif($model->isConfirmed(true) == true): ?>
-					<a href='/migrations.htm?file=<?php echo get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
 				<?php else: ?>
-					<a href='/migrations.htm?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
-					<a href='/migrations.htm?file=<?php echo get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
 				<?php endif ?>
 			</td>
 		</tr>

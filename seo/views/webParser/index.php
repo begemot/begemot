@@ -52,7 +52,9 @@ $webParser->addMime('image/png');
 $webParser->addMime('image/gif');
 $webParser->tasksPerExecute = 10;
 $webParser->isInterface = true;
+
 $webParser->parse();
+
 
 
 //$pageContent = $webParser->getPageContent('http://www.buggy-motor.ru/catalog/buggy_79.html');
