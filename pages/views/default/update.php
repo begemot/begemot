@@ -116,6 +116,7 @@ if (file_exists($configFile)){
 			'id' => 'htmlPage',
 			'elementId' =>$fileId,
 			'config' => $picturesConfig,
+            'theme'=>'tiles'
 		)
 	);
 } else{
