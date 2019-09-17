@@ -48,7 +48,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
 
 
 <?php
-$viewFileName = dirname(__FILE__) . '/' . $tab . '.php';
+$viewFileName = dirname(__FILE__) . '/' . $tab . 'argoBtns.php';
 if (file_exists($viewFileName)) {
     require $viewFileName;}
 ?>
