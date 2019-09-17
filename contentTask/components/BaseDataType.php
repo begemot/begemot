@@ -65,7 +65,7 @@ class BaseDataType
         }
 
         $sql = "select A.`".$this->tableFieldId.'`,A.`'.$this->tableFieldTitle."`,
-        B.`taskId` as added, B.`id` as subTaskId from `".$this->tableName."` A
+        B.`taskId` as added, B.`id` as subTaskId, B.`tmpName` as `tmpName` from `".$this->tableName."` A
         
          left join  `ContentTaskAdded` B ON A.`".$this->tableFieldId."` = B.`contentId` AND  (B.`taskId` = ".$this->taskId.")
      
@@ -103,7 +103,8 @@ class BaseDataType
             $resultArrayRow['id'] = $row['id'];
             $resultArrayRow['subTaskId'] = $row['subTaskId'];
 
-            $resultArrayRow['title'] = $row[$this->tableFieldTitle];
+//            $resultArrayRow['title'] = $row[$this->tableFieldTitle];
+               $resultArrayRow['title'] = $row['tmpName'];
             $resultArray[]=$resultArrayRow;
         }
 
@@ -178,29 +179,5 @@ class BaseDataType
         echo "экспортируем на сайт";
     }
 
-    public static function publishImages($subtaskId,$PBId,$PBContentid){
-
-        $siteRoot  = Yii::getPathOfAlias('webroot');
-        $baseDir = $siteRoot.'/files/pictureBox/contentManagerSubTask/'.$subtaskId;
-        $targetDir = $siteRoot.'/files/pictureBox/'.$PBId.'/'.$PBContentid;
-
-        if (file_exists($targetDir)) {
-            foreach (glob("/$targetDir/*") as $file) {
-                unlink($file);
-            }
-        }
-
-        if (file_exists($baseDir)) {
-            foreach (glob("/$baseDir/*") as $file) {
-                $filename = basename($file);
-                copy ($file,$targetDir."/$filename");
-            }
-            Yii::import('pictureBox.components.PBox');
-            $PBox = new PBox($PBId,$PBContentid);
-            $PBox->filesBasePathChange();
-        }
-
-
-    }
 
 }
