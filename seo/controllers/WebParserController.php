@@ -60,7 +60,9 @@ class WebParserController extends Controller
         if ($id){
             $pageModel = SeoPages::model()->findByPk($id);
             Yii::import('begemot.extensions.parser.CWebParser');
+
             $newPageData =  CWebParser::getRemotePageContent($pageModel->url);
+
             $pageModel->content = $newPageData['content'];
             $pageModel->mime = $newPageData['mime'];
             $pageModel->save();
@@ -110,6 +112,17 @@ class WebParserController extends Controller
             $tables = $schema->tables;
 
             $columns = $tables['seo_tags']->columns;
+
+
+
+            foreach ($columns as $tagName){
+                $name = $tagName->name;
+                if ($name!='id' && $name!='pageId')
+                    Yii::app()->db->createCommand()
+                        ->update('seo_tags', array(
+                            $name => '',
+                        ), 'pageId=:pageId', array(':pageId' => $pageId));
+            }
 
             foreach ($tagsCount as $tagName => $value) {
                 if (!isset($columns[$tagName])) {
@@ -176,8 +189,8 @@ class WebParserController extends Controller
     }
     public function actionGetTagFields(){
         $data = SeoTags::model()->attributes;
-        echo json_encode(['url','pageId','h1','strong','title','i','em','quote']);
-//        print_r();
+        echo json_encode(['url','pageId','h1','h2','h3','strong','b','title','i','em','quote']);
+
     }
     public function actionLoadTagsData($page,$sort='',$asc=true){
 

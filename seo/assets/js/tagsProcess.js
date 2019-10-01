@@ -9,14 +9,14 @@ app.controller('tagsProcess', ['$scope', '$http', function ($scope, $http) {
     $scope.executeOneTask = function () {
 
 
-        $http.get('/seo/webParser/tagProcess.html').then(function (response) {
+        $http.get('/seo/webParser/tagProcess').then(function (response) {
             console.log (response.data);
 
             request = response.data
 
             if ($scope.count == undefined) {
 
-                $http.get('/seo/webParser/UnprocessedTagTaskCount.html').then(function (response) {
+                $http.get('/seo/webParser/UnprocessedTagTaskCount').then(function (response) {
                     console.log(response.data)
                     $scope.count = parseInt(response.data)
                     $scope.executed = 0
