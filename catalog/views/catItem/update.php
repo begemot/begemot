@@ -388,7 +388,8 @@ if ($tab == 'data')
     <?php
 
     $picturesConfig = array();
-    $configFile = Yii::getPathOfAlias('webroot') . '/protected/config/catalog/categoryItemPictureSettings.php';
+
+    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS).'.php' ;
     if (file_exists($configFile)) {
 
         $picturesConfig = require($configFile);
