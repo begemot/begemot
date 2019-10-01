@@ -420,7 +420,25 @@ function PictureBox(options) {
                         }
                     })
 
+
+
                     var ladybugInit = function(){
+
+                        $('.nav-tabs li').click(function(){
+
+                            activeFilter = $(this).attr('data-image-filter')
+                            for (imageFilter in areaSelectCollection) {
+                                selectAreaObj = areaSelectCollection[imageFilter]["imageAraeSelectInstance"]
+                               if(imageFilter==activeFilter){
+                                   selectAreaObj.setOptions({ hide:false })
+
+                               }else {
+                                   selectAreaObj.setOptions({ hide:true })
+                               }
+                                selectAreaObj.update();
+                            }
+                        })
+
                         $(".ladybug_ant").each(function () {
 
                             filterWidth = $(this).attr('filter-width');
@@ -429,6 +447,7 @@ function PictureBox(options) {
                                 aspectRatio: filterWidth + ":" + filterHeight,
                                 handles: true,
                                 instance: true,
+                                // parent:'div.tab-content',
                                 onSelectChange: PictureBoxObject.resizeAreaPreview,
                                 onSelectEnd: PictureBoxObject.selectParamSave
                             });
