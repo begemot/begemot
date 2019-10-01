@@ -24,7 +24,13 @@
         <td>{{item.id}}</td>
         <td>{{item.title}}</td>
         <td><a target="_blank" href="/contentTask/taskPerform/edit/accessCode/{{accessCode}}/id/{{item.subTaskId}}">Просмотр</a></td>
-        <td><a target="_blank" href="" ng-click="pushToSite(item.subTaskId,taskId)">Выкатить изменения</a></td>
+        <td>
+            <a target="_blank" href="" ng-click="pushToSite(item.subTaskId,taskId,index)" ng-if="item.exported==0">Выкатить изменения</a>
+            <span ng-if="item.exported==1">
+                Уже экспортированно
+            <a target="_blank" href="" ng-click="pushToSite(item.subTaskId,taskId,index)" >Выкатить</a>
+            </span>
+        </td>
     </tr>
 
 

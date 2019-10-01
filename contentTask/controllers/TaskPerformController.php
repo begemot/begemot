@@ -35,7 +35,7 @@ class TaskPerformController extends Controller
                 'id' => $contentTask->id,
                 'name' => $contentTask->name,
                 'text' => $contentTask->text,
-                'actions'=>unserialize($contentTask->actionsList)
+                'actions' => unserialize($contentTask->actionsList)
             ]);
         }
     }
@@ -56,7 +56,7 @@ class TaskPerformController extends Controller
             $added = ContentTaskAdded::model()->findByPK($id);
 
 
-            if ($added->taskId == $contentTaskId && ($added->status == 'edit' || $added->status == 'new' || $added->status == 'mistake')) {
+            if ($added->taskId == $contentTaskId && ($added->status == 'edit' || $added->status == 'new' || $added->status == 'mistake' || $added->status == 'done')) {
                 $postdata = file_get_contents("php://input");
                 $postdata = json_decode($postdata);
 
@@ -64,7 +64,7 @@ class TaskPerformController extends Controller
 
                 foreach ($postdata->data as $fieldData) {
 
-                    if ($fieldData->name==$type->tableFieldTitle){
+                    if ($fieldData->name == $type->tableFieldTitle) {
                         $added->tmpName = $fieldData->data;
                     }
 
@@ -73,7 +73,7 @@ class TaskPerformController extends Controller
                         'name' => $fieldData->name,
                         'iteration' => $added->iteration,
                         'isBaseData' => 0,
-                        'subTaskId'=>$id
+                        'subTaskId' => $id
                     ];
 
                     $searchResult = ContentTaskData::model()->findByAttributes($attributes);
@@ -90,8 +90,8 @@ class TaskPerformController extends Controller
                     $searchResult->taskId = $added->taskId;
 
                     if ($searchResult->save()) {
-                        if ($added->status=='mistake'){
-                            $added->status = "mistake";
+                        if ($added->status == 'mistake' || $added->status == 'done') {
+
                         } else {
                             $added->status = "edit";
                         }
@@ -133,47 +133,41 @@ class TaskPerformController extends Controller
                  *  и данные, которые можно менять.
                  */
 
-                $data = ContentTaskData::model()->findAllByAttributes(
-                    [
-                        'taskId' => $contentTaskId,
-                        'groupId' => $contentId,
-                        'iteration' => $added->iteration,
-                        'isBaseData' => 1 //база
-                    ]
-                );
+//                $data = ContentTaskData::model()->findAllByAttributes(
+//                    [
+//                        'taskId' => $contentTaskId,
+//                        'groupId' => $contentId,
+//                        'iteration' => $added->iteration,
+//                        'isBaseData' => 1 //база
+//                    ]
+//                );
 
-                $resultBaseArray = [];
-
-
-                foreach ($data as $row) {
-                    $resultArrayRow = [];
-                    $resultArrayRow['data'] = $row->data;
-                    $resultArrayRow['dataType'] = $row->dataType;
-                    $resultArrayRow['name'] = $row->name;
-                    $resultBaseArray[] = $resultArrayRow;
-                }
-
-                $data = ContentTaskData::model()->findAllByAttributes(
-                    [
-                        'taskId' => $contentTaskId,
-                        'groupId' => $contentId,
-                        'iteration' => $added->iteration,
-                        'isBaseData' => 0 // то что в работе
-                    ]);
+                $resultBaseArray = $this->getContentTaskData($contentTaskId, $contentId, $added, 1);
 
 
-                $resultCurrentArray = [];
-                if ($data) {
-                    foreach ($data as $row) {
-                        $resultArrayRow = [];
-                        $resultArrayRow['data'] = $row->data;
-                        $resultArrayRow['dataType'] = $row->dataType;
-                        $resultArrayRow['name'] = $row->name;
-                        $resultCurrentArray[] = $resultArrayRow;
-                    }
-                } else {
+//                foreach ($data as $row) {
+//                    $resultArrayRow = [];
+//                    $resultArrayRow['data'] = $row->data;
+//                    $resultArrayRow['dataType'] = $row->dataType;
+//                    $resultArrayRow['name'] = $row->name;
+//                    $resultBaseArray[] = $resultArrayRow;
+//                }
+
+//                $data = ContentTaskData::model()->findAllByAttributes(
+//                    [
+//                        'taskId' => $contentTaskId,
+//                        'groupId' => $contentId,
+//                        'iteration' => $added->iteration,
+//                        'isBaseData' => 0 // то что в работе
+//                    ]);
+
+
+                $resultCurrentArray = $this->getContentTaskData($contentTaskId, $contentId, $added, 0);
+
+                if (!$resultCurrentArray) {
                     $resultCurrentArray = $resultBaseArray;
                 }
+
                 $result = [
                     'base' => $resultBaseArray,
                     'current' => $resultCurrentArray,
@@ -186,6 +180,39 @@ class TaskPerformController extends Controller
                 throw new Exception('Отказано в доступе');
             }
         }
+    }
+
+    public function getContentTaskData($contentTaskId, $contentId, $added, $isBaseData = 1)
+    {
+        $data = ContentTaskData::model()->findAllByAttributes(
+            [
+                'taskId' => $contentTaskId,
+                'groupId' => $contentId,
+                'iteration' => $added->iteration,
+                'isBaseData' => $isBaseData,
+
+            ]
+        );
+
+        $resultArray = [];
+
+
+        Yii::import('seo.models.SeoCheck');
+
+        foreach ($data as $row) {
+            $seoCheck = SeoCheck::model()->findByAttributes(['uid' => $row->uid]);
+            $resultArrayRow = [];
+            $resultArrayRow['data'] = $row->data;
+            $resultArrayRow['dataType'] = $row->dataType;
+            $resultArrayRow['name'] = $row->name;
+            $resultArrayRow['uid'] = $row->uid;
+
+            if ($seoCheck)
+                $resultArrayRow['checkResult'] = $seoCheck->attributes;
+
+            $resultArray[] = $resultArrayRow;
+        }
+        return $resultArray;
     }
 
     public function actionAjaxAddedList($accessCode)
@@ -230,7 +257,13 @@ class TaskPerformController extends Controller
             $command = $connection->createCommand($sql);
             $result = $command->query();
 
-            $resultArray = [];
+            $resultArray = [
+                'new' => 0,
+                'edit' => 0,
+                'review' => 0,
+                'mistake' => 0,
+                'done' => 0
+            ];
 
             while (($row = $result->read()) !== false) {
 
@@ -261,9 +294,13 @@ class TaskPerformController extends Controller
         if ($contentTask = $this->checkAccessCode($accessCode)) {
 
             $reviewData = ContentTaskReviewData::model()->findByAttributes(['subtaskId' => $id, 'iteration' => $iteration]);
-            if ($reviewData){
+            if ($reviewData) {
 
                 echo $reviewData->jsonData;
+            } else {
+                $added = ContentTaskAdded::model()->findByPK($id);
+                $data = $this->getContentTaskData($contentTask->id, $added->contentId, $added, 0);
+                echo json_encode(['visibleData' => $data]);
             }
 
         }
@@ -338,7 +375,8 @@ class TaskPerformController extends Controller
 
     }
 
-    public function actionAjaxCreateNew($accessCode){
+    public function actionAjaxCreateNew($accessCode)
+    {
         if ($contentTask = $this->checkAccessCode($accessCode)) {
 
             $type = $contentTask->type;
@@ -347,13 +385,24 @@ class TaskPerformController extends Controller
             $model->create($contentTask->id);
         }
     }
-    public function actionAjaxPushToSite($accessCode,$taskId,$subtaskId){
+
+    public function actionAjaxPushToSite($accessCode, $taskId, $subtaskId)
+    {
         if ($contentTask = $this->checkAccessCode($accessCode)) {
 
-        $type = BaseDataType::factoryType($contentTask->type);
-            $type->export($taskId,$subtaskId);
+            $type = BaseDataType::factoryType($contentTask->type);
+
+            $model = ContentTaskAdded::model()->findByAttributes(['taskId' => $taskId, 'id' => $subtaskId]);
+            $model->exported = 1;
+            if ($model->save()) {
+
+                $type->export($taskId, $subtaskId);
+            } else {
+                throw new Exception('Модель не сохранилась!');
+            }
         }
     }
+
     public function actionMarkAsDone($accessCode, $id)
     {
         if ($contentTask = $this->checkAccessCode($accessCode)) {
@@ -366,35 +415,117 @@ class TaskPerformController extends Controller
             }
         }
     }
-    public function actionUpload ($accessCode){
+
+    public function actionSendCheckRequest($accessCode, $id, $name, $mode)
+    {
         if ($contentTask = $this->checkAccessCode($accessCode)) {
+            if (Yii::app()->user->canDo()) {
 
+                $model = ContentTaskAdded::model()->findByAttributes(['taskId' => $contentTask->id, 'id' => $id]);
+                echo 'Отправляем запрос на проверку!';
+                $iteration = $model->iteration;
+                $attr = [
+                    'subTaskId' => $id,
+                    'iteration' => $iteration,
+                    'isBaseData' => 0,
+                    'name' => $name
+                ];
 
-            //Path to autoload.php from current location
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/File.php';
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Basic.php';
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/RequestInterface.php';
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Request.php';
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/ConfigInterface.php';
-            require_once Yii::getPathOfAlias('contentTask.components.Flow').'/Config.php';
-
-
-            $config = new \Flow\Config();
-            echo Yii::getPathOfAlias('webroot').'/temp';
-            $config->setTempDir(Yii::getPathOfAlias('webroot').'/temp/');
-            $request = new \Flow\Request();
-            $uploadFolder = Yii::getPathOfAlias('webroot').'/upload/'; // Folder where the file will be stored
-            $uploadFileName = uniqid()."_".$request->getFileName(); // The name the file will have on the server
-            $uploadPath = $uploadFolder.$uploadFileName;
-            if (\Flow\Basic::save($uploadPath, $config, $request)) {
-                echo "Показывает что сохранили";
-            } else {
-                // This is not a final chunk or request is invalid, continue to upload.
+                $data = ContentTaskData::model()->findByAttributes($attr);
+                if ($data && ($data->uid != '' && !$mode)) {
+                    throw new Exception("Данные уже запрашивались! Ждем ответа от text.ru");
+                } else {
+                    Yii::import('seo.models.SeoCheck');
+                    $seoCheck = new SeoCheck();
+                    if ($uid = $seoCheck->sendCheckRequest($data->data)) {
+                        $data->uid = $uid;
+                        if (!$data->save()) {
+                            throw new Exception("Не смогли сохранить uid");
+                        }
+                    } else {
+                        throw new Exception("Ошибка отправки запроса на text.ru");
+                    }
+                }
             }
-
-
-
         }
     }
 
+    public function actionUpdateCheckRequest($accessCode, $id, $name, $uid)
+    {
+        if ($contentTask = $this->checkAccessCode($accessCode)) {
+            if (Yii::app()->user->canDo()) {
+//                echo 'Отправляем запрос на обновление';
+                Yii::import('seo.models.SeoCheck');
+                $seoCheck = new SeoCheck();
+                $seoCheck->uid = $uid;
+                if ($seoCheck->getCheckResult()) {
+                    echo json_encode($seoCheck->attributes);
+                }
+            }
+        }
+    }
+
+    public function actionDataFields($accessCode)
+    {
+        if ($contentTask = $this->checkAccessCode($accessCode)) {
+            $sql = 'SELECT distinct(name)  FROM rosvesdehod.ContentTaskData where taskId='.$contentTask->id.' ;';
+
+
+
+            $connection=Yii::app()->db;
+            $command = $connection->createCommand($sql);
+            $result = $command->query();
+
+            $resultArray = [];
+
+            while(($row=$result->read())!==false) {
+                $resultArrayRow = [];
+                $resultArrayRow['name'] = $row['name'];
+
+                $resultArray[]=$resultArrayRow;
+            }
+            echo json_encode($resultArray);
+        }
+    }
+
+    public function actionloadAuditData($accessCode,$name)
+    {
+        if ($contentTask = $this->checkAccessCode($accessCode)) {
+            $attr = [
+                'taskId'=>$contentTask->id,
+                'status'=>'done'
+            ];
+
+            $resultArray = [];
+
+            $doneAdded = ContentTaskAdded::model()->findAllByAttributes($attr);
+            foreach ($doneAdded as $addedItem){
+                $dataAttr=[
+                    'subTaskId'=>$addedItem->id,
+                    'iteration'=>$addedItem->iteration,
+                    'name'=>$name,
+                    'isBaseData'=>0
+                ];
+                $contentDataArray = ContentTaskData::model()->findAllByAttributes($dataAttr);
+                foreach ($contentDataArray as $contentData){
+                    $resultLine = [];
+                    $resultLine['tmpName'] = $addedItem->tmpName;
+                    $resultLine['subTaskId'] = $addedItem->id;
+                    $resultLine['uid'] = $contentData['uid'];
+                    $resultLine['name'] = $contentData['name'];
+                    $resultLine['dataId'] = $contentData['id'];
+                    if ($contentData['uid']){
+                        Yii::import('seo.models.SeoCheck');
+                        $seoCheck = SeoCheck::model()->findByAttributes(['uid'=>$contentData['uid']]);
+                        if ($seoCheck){
+                            $resultLine['seoCheck'] = $seoCheck->attributes;
+                        }
+                    }
+
+                    $resultArray[] = $resultLine;
+                }
+            }
+            echo json_encode($resultArray);
+        }
+    }
 }

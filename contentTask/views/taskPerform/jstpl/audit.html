@@ -1,0 +1,51 @@
+<h4>Проверка на уникальность и другие параметры через сервис text.ru</h4>
+<ul class="nav nav-pills">
+
+    <li ng-repeat="(index,item) in dataFields" ng-class="{active:index==auditActiveTab}"
+        ng-click="setauditActiveField(index)">
+        <a href="">{{item.name}}</a>
+    </li>
+
+</ul>
+Символов в сумме: <span class="badge badge-info">{{symbSum}}</span>
+<table class="table">
+    <thead>
+    <td>id</td>
+    <td>Имя</td>
+    <td>проверка</td>
+
+    <td>Уникальность</td>
+    <td>символы</td>
+    <td>спам</td>
+    <td></td>
+    </thead>
+    <tr ng-repeat="(index,item) in auditData">
+        <td>{{item.dataId}}</td>
+        <td>{{item.tmpName}}</td>
+        <td>
+            <span ng-if="item.uid">
+
+               <a href="https://text.ru/antiplagiat/{{item.uid}}">{{item.uid}}</a>
+            </span>
+            <span ng-if="!item.uid">
+
+                не проверялось
+            </span>
+        </td>
+
+        <td>
+            {{item.seoCheck.text_unique}}
+        </td>
+        <td>
+            {{item.seoCheck.count_chars_without_space}}
+        </td>
+        <td>
+            {{item.seoCheck.spam_percent}}
+        </td>
+        <td>
+            <button ng-show="item.uid==null" class="btn" ng-click="sendCheckRequest(item.name,item.subTaskId)">Запросить проверку</button>
+            <button ng-show="item.uid!=null" class="btn" ng-click="sendCheckRequest(item.name,item.subTaskId,'force')">Повторно отправить</button>
+            <button ng-show="item.uid!=null" class="btn" ng-click="updateCheckRequest(index,item.name,item.subTaskId,item.seoCheck.uid)">Проверить готовность и обновить</button>
+        </td>
+    </tr>
+</table>

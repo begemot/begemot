@@ -1,5 +1,5 @@
 <?php
-
+Yii::import('catalog.CatalogModule');
 /**
  * Created by PhpStorm.
  * User: Николай Козлов
@@ -13,6 +13,8 @@ class Catalog extends BaseDataType
 
     public $tableName = 'catItems';
     public $tableFieldTitle = 'name';
+
+    public static $imageConfigAlias = CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS;
 
     public $actions = [
         ['id' => 'edit'],

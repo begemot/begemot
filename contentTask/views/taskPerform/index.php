@@ -1,10 +1,17 @@
 <?php
-Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular.min.js');
-Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular-resource.js');
-Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular-sanitize.js');
+Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js');
+Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-resource.js');
+Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-sanitize.js');
+
 Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/paging.js');
+Yii::app()->clientScript->registerScriptFile('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular-route.js');
+
+
 
 Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/perform.js');
+Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/perfomCtrl.angular.js');
+Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/subTaskService.angular.js');
+
 
 ?>
 <script>
@@ -12,52 +19,54 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/ass
     app.value('accessCode', accessCode)
 </script>
 <div ng-app="performApp">
-    <div ng-controller="performController" class="span6">
+    <div ng-controller="performController" class="span12">
 
         <h1>{{taskData.name}}</h1>
 
         <ul class="nav nav-tabs">
-            <li ng-class="{active:isBasePanelVisible}" ng-click="panel('base')">
-                <a href="">Информация</a>
+            <li ng-class="{active:!$routeParams.tabName}">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/">Информация</a>
             </li>
-            <li ng-class="{active:isTaskNewPanelVisible}"  ng-click="panel('taskNew')" ng-hide="recordsCount.new==0">
-                <a href="">Задачи <span class="label label-info">{{recordsCount.new}}</span></a>
+            <li ng-class="{active:$routeParams.tabName=='new'}"   ng-hide="recordsCount.new==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/new">Задачи <span class="label label-info">{{recordsCount.new}}</span></a>
             </li>
-            <li ng-class="{active:isTaskEditPanelVisible}"  ng-click="panel('taskEdit')" ng-hide="recordsCount.edit==0">
-                <a href="">Начали работу <span class="label label-info">{{recordsCount.edit}}</a>
+            <li ng-class="{active:$routeParams.tabName=='edit'}"   ng-hide="recordsCount.edit==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/edit">Начали работу <span class="label label-info">{{recordsCount.edit}}</span></a>
             </li>
-            <li ng-class="{active:isTaskMistakePanelVisible}"  ng-click="panel('taskMistake')" ng-hide="recordsCount.mistake==0">
-                <a href="">Правки <span class="label label-info">{{recordsCount.mistake}}</a>
+            <li ng-class="{active:$routeParams.tabName=='mistake'}"   ng-hide="recordsCount.mistake==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/mistake">Правки <span class="label label-info">{{recordsCount.mistake}}</span></a>
             </li>
 
-            <li ng-class="{active:isTaskReviewPanelVisible}"  ng-click="panel('taskReview')" ng-hide="recordsCount.review==0">
-                <a href="">Проверка <span class="label label-info">{{recordsCount.review}}</a>
+            <li ng-class="{active:$routeParams.tabName=='review'}"   ng-hide="recordsCount.review==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/review">Проверка <span class="label label-info">{{recordsCount.review}}</span></a>
             </li>
-            <li ng-class="{active:isTaskDonePanelVisible}"  ng-click="panel('taskDone')" ng-hide="recordsCount.done==0">
-                <a href="">Завершено <span class="label label-info">{{recordsCount.done}}</a>
+            <li ng-class="{active:$routeParams.tabName=='done'}"  ng-hide="recordsCount.done==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/done">Завершено <span class="label label-info">{{recordsCount.done}}</span></a>
+            </li>
+            <li ng-class="{active:$routeParams.tabName=='audit'}"  ng-hide="recordsCount.done==0">
+                <a href="/contentTask/taskPerform/taskList?accessCode={{accessCode}}#!/tab/audit">Аудит</a>
             </li>
         </ul>
+        <div ng-view></div>
+        <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/'+$routeParams.tabName+'.html'">123</div>
 
-        <section ng-show="isBasePanelVisible" ng-cloak>
-            <h1>Информация</h1>
-            <div ng-bind-html="taskData.text"></div>
-            <h1>Дополнительно</h1>
-            <button type="button" class="btn btn-success" ng-click="createElement()" ng-show="createBtnVisible">Создать позицию</button>
-        </section>
-        <section ng-show="isTaskNewPanelVisible" ng-cloak>
-            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/newTasks.html'"></div>
-        </section>
-        <section ng-show="isTaskEditPanelVisible" ng-cloak>
-            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/editTasks.html'"></div>
-        </section>
-        <section ng-show="isTaskMistakePanelVisible" ng-cloak>
-            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/mistakeTasks.html'"></div>
-        </section>
-        <section ng-show="isTaskReviewPanelVisible" ng-cloak>
-            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/reviewTasks.html'"></div>
-        </section>
-        <section ng-show="isTaskDonePanelVisible" ng-cloak>
-            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/doneTasks.html'"></div>
-        </section>
+<!--        <section ng-show="isBasePanelVisible" ng-cloak>-->
+<!--       -->
+<!--        </section>-->
+<!--        <section ng-show="isTaskNewPanelVisible" ng-cloak>-->
+<!--            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/newTasks.html'"></div>-->
+<!--        </section>-->
+<!--        <section ng-show="isTaskEditPanelVisible" ng-cloak>-->
+<!--            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/editTasks.html'"></div>-->
+<!--        </section>-->
+<!--        <section ng-show="isTaskMistakePanelVisible" ng-cloak>-->
+<!--            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/mistakeTasks.html'"></div>-->
+<!--        </section>-->
+<!--        <section ng-show="isTaskReviewPanelVisible" ng-cloak>-->
+<!--            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/reviewTasks.html'"></div>-->
+<!--        </section>-->
+<!--        <section ng-show="isTaskDonePanelVisible" ng-cloak>-->
+<!--            <div ng-include="'/protected/modules/contentTask/views/taskPerform/jstpl/doneTasks.html'"></div>-->
+<!--        </section>-->
     </div>
 </div>
