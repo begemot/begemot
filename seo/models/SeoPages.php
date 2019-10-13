@@ -29,7 +29,7 @@ class SeoPages extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('status', 'numerical', 'integerOnly'=>true),
-			array('url, title', 'length', 'max'=>500),
+			array('url, title,checkError', 'length', 'max'=>500),
 			array('content,contentHash,mime', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

@@ -28,7 +28,7 @@ class WebParserController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'tags'),
+                'actions' => array('index', 'view', 'tags', 'pagesCheck'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -36,7 +36,11 @@ class WebParserController extends Controller
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete', 'tagProcess','linkToPage','tagsDataCount','getTagFields','loadTagsData','unprocessedTagTaskCount'),
+                'actions' => array(
+                    'admin', 'sendCheckRequest',
+                    'delete',
+                    'tagProcess',
+                    'linkToPage', 'tagsDataCount', 'getTagFields', 'loadTagsData', 'unprocessedTagTaskCount', 'pagesCheckData'),
                 'expression' => 'Yii::app()->user->canDo("")'
             ),
             array('deny',  // deny all users
@@ -51,22 +55,120 @@ class WebParserController extends Controller
     }
 
     /**
+     * Страница с таблицей проверок с text.ru
+     */
+    public function actionPagesCheck()
+    {
+
+        $this->render('pagesCheck');
+    }
+
+    /**
+     * Выводим json данные по проверке на уникальность
+     * с учетом страниц, поиска и сортировки
+     */
+    public function actionPagesCheckData()
+    {
+
+        if (isset($_GET['direction'])) {
+            if ($_GET['direction'] == 'desc') {
+                $_GET['sort'] = $_GET['sort'] . '.desc';
+            }
+        }
+
+        $activePage = 0;
+        if (isset($_REQUEST['page'])) {
+            $activePage = $_REQUEST['page'] - 1;
+        }
+
+        $criteria = new CDbCriteria;
+
+        $id = (isset($_REQUEST['id']) ? $_REQUEST['id'] : null);
+        $url = (isset($_REQUEST['url']) ? $_REQUEST['url'] : null);
+        $uid = (isset($_REQUEST['uid']) ? $_REQUEST['uid'] : null);
+
+        $criteria->compare('id', $id, true);
+        $criteria->compare('url', $url, true);
+        $criteria->compare('uid', $uid, true);
+//        $criteria->compare('text_unique',$this->text_unique,);
+
+
+        $provider = new CActiveDataProvider(SeoPagesCheck::model(), array(
+            'criteria' => $criteria,
+        ));
+
+        $provider->setPagination([
+
+            'pageSize' => 20,
+            'currentPage' => $activePage
+        ]);
+
+        $provider->setSort([
+            'sortVar' => 'sort',
+            'defaultOrder' => array(
+                'id' => CSort::SORT_ASC,
+            )
+
+        ]);
+
+        $result = $provider->getData();
+        $resultarray = [];
+        foreach ($result as $line) {
+            $resultarray[] = $line->attributes;
+        }
+
+        echo json_encode([
+            'data' => $resultarray,
+            'totalCount' => $provider->totalItemCount
+        ]);
+//        print_r($provider->getSort());
+    }
+
+    public function actionSendCheckRequest($pageId)
+    {
+
+        $page = SeoPages::model()->findByPk($pageId);
+
+        $seoCheck = new SeoCheck();
+
+
+        $textForCheck = SeoCheck::getTextContent($page->content);
+
+        if ($textForCheck) {
+            if ($uid = $seoCheck->sendCheckRequest(strip_tags($textForCheck))) {
+                $page->uid = $uid;
+                if (!$page->save()) {
+                    throw new Exception("Не смогли сохранить uid");
+                }
+            } else {
+                throw new Exception("Ошибка отправки запроса на text.ru");
+            }
+        } else {
+            $page->checkError = 'noContent';
+            if ($page->save())
+                echo json_encode(['error' => 'noContent']);
+        }
+
+    }
+
+
+    /**
      * Обрабатывает одну случайную страницу и считает количество тегов
      */
-    public function actionTagProcess($id=null)
+    public function actionTagProcess($id = null)
     {
         Yii::import('seo.models.*');
 
-        if ($id){
+        if ($id) {
             $pageModel = SeoPages::model()->findByPk($id);
             Yii::import('begemot.extensions.parser.CWebParser');
 
-            $newPageData =  CWebParser::getRemotePageContent($pageModel->url);
+            $newPageData = CWebParser::getRemotePageContent($pageModel->url);
 
             $pageModel->content = $newPageData['content'];
             $pageModel->mime = $newPageData['mime'];
             $pageModel->save();
-        }else{
+        } else {
             $pageModel = SeoPages::model()->findByAttributes(['tagsCoputedFlag' => 0]);
         }
         if ($pageModel) {
@@ -88,8 +190,6 @@ class WebParserController extends Controller
             $tidy = new tidy();
             $str = $tidy->parseString($page, $options, 'utf8');
             $tidy->cleanRepair();
-
-
 
 
             $xmldata = $tidy;
@@ -114,10 +214,9 @@ class WebParserController extends Controller
             $columns = $tables['seo_tags']->columns;
 
 
-
-            foreach ($columns as $tagName){
+            foreach ($columns as $tagName) {
                 $name = $tagName->name;
-                if ($name!='id' && $name!='pageId')
+                if ($name != 'id' && $name != 'pageId')
                     Yii::app()->db->createCommand()
                         ->update('seo_tags', array(
                             $name => '',
@@ -158,11 +257,14 @@ class WebParserController extends Controller
             echo json_encode(['status' => 'done']);
         }
     }
-    public function actionUnprocessedTagTaskCount(){
+
+    public function actionUnprocessedTagTaskCount()
+    {
 
         $count = SeoPages::model()->countByAttributes(['tagsCoputedFlag' => 0]);
-        echo json_encode($count+0);
+        echo json_encode($count + 0);
     }
+
     private function nodeChildsWalk($currentNode, &$tags, &$tagsCount, $level = 0)
     {
         if ($currentNode->hasChildNodes()) {
@@ -187,28 +289,31 @@ class WebParserController extends Controller
 
         }
     }
-    public function actionGetTagFields(){
+
+    public function actionGetTagFields()
+    {
         $data = SeoTags::model()->attributes;
-        echo json_encode(['url','pageId','h1','h2','h3','strong','b','title','i','em','quote']);
+        echo json_encode(['url', 'pageId', 'h1', 'h2', 'h3', 'strong', 'b', 'title', 'i', 'em', 'quote']);
 
     }
-    public function actionLoadTagsData($page,$sort='',$asc=true){
+
+    public function actionLoadTagsData($page, $sort = '', $asc = true)
+    {
 
 
-
-        $start = ($page-1)*10;
+        $start = ($page - 1) * 10;
 
         $sql = 'SELECT * FROM seo_tags  ';
-        if ($sort!=''){
-            $sql = $sql.' order by `'.$sort.'` '.($asc==1?'ASC ':'DESC ');
+        if ($sort != '') {
+            $sql = $sql . ' order by `' . $sort . '` ' . ($asc == 1 ? 'ASC ' : 'DESC ');
         }
-        $sql = $sql.'LIMIT '.$start.',10'.';';
+        $sql = $sql . 'LIMIT ' . $start . ',10' . ';';
 
-        $command =Yii::app()->db->createCommand($sql);
+        $command = Yii::app()->db->createCommand($sql);
         $result = $command->queryAll();
         $resutWithUrl = [];
 
-        foreach ($result as $line){
+        foreach ($result as $line) {
             $page = SeoPages::model()->findByPk($line['pageId']);
             $line['url'] = $page->url;
             $resutWithUrl[] = $line;
@@ -218,16 +323,19 @@ class WebParserController extends Controller
 
     }
 
-    public function actionLinkToPage($id){
+    public function actionLinkToPage($id)
+    {
         $link = SeoPages::model()->findByPk($id);
         echo $link->url;
     }
 
-    public function actionTagsDataCount(){
+    public function actionTagsDataCount()
+    {
         $sqlCount = 'SELECT count(id) FROM seo_tags;';
         $count = Yii::app()->db->createCommand($sqlCount)->queryScalar();
-        echo json_encode($count+0);
+        echo json_encode($count + 0);
     }
+
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed

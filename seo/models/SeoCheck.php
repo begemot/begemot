@@ -2,6 +2,9 @@
 
 class SeoCheck extends CActiveRecord
 {
+
+    const TEXT_BEGIN = '<!-- TEXT -->';
+    const TEXT_END = '<!-- /TEXT -->';
 	/**
 	 * @return string the associated database table name
 	 */
@@ -49,7 +52,7 @@ class SeoCheck extends CActiveRecord
         $postQuery = http_build_query($postQuery, '', '&');
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://api.text.ru/post');
+        curl_setopt($ch, CURLOPT_URL, 'https://api.text.ru/post');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postQuery);
@@ -185,4 +188,22 @@ class SeoCheck extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+
+	public static function wrapContentByTextTag($text){
+	        return '<!-- TEXT -->'.$text.'<!-- /TEXT -->';
+    }
+
+    public static function getTextContent($text){
+ 
+        preg_match_all('#<!-- TEXT -->(.*?)<!-- /TEXT -->#ius',$text,$matches);
+
+        if (isset($matches[1])){
+
+            return implode (' ',$matches[1]);
+        } else {
+            return false;
+        }
+    }
+
 }

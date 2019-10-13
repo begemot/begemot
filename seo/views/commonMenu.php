@@ -14,6 +14,8 @@ $menu= array(
     array('label' => 'Ссылки', 'url' => array('/seo/seoLinks/admin')),
     array('label' => 'Спарсить', 'url' => array('/seo/webParser/index')),
     array('label' => 'Теги', 'url' => array('/seo/webParser/tags')),
+    array('label' => 'Уникальность', 'url' => array('/seo/webParser/pagesCheck')),
+
     array('label' => 'Прочее'),
     array('label' => 'Редактор meta-тегов', 'url' => array('/seo/title/index')),
 );
