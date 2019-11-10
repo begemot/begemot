@@ -657,10 +657,12 @@ class DefaultController extends Controller
      */
     function deleteImageFiles($id, $elementId, $pictureId, $data)
     {
+        if (isset($data['images'][$pictureId]['original'])){
 
-        $deleteFilesList = Yii::getPathOfAlias('webroot') . '/' . $data['images'][$pictureId]['original'];
-        if (file_exists($deleteFilesList))
-            unlink($deleteFilesList);
+            $deleteFilesList = Yii::getPathOfAlias('webroot') . '/' . $data['images'][$pictureId]['original'];
+            if (file_exists($deleteFilesList))
+                unlink($deleteFilesList);
+        }
 
         $images = $data['images'][$pictureId];
 
