@@ -23,7 +23,7 @@ $this->menu = require dirname(__FILE__) . '/../commonMenu.php';
 
 
         $scope.loadData = function () {
-            $http.get('/seo/webParser/pagesCheckData.htm',
+            $http.get('/seo/webParser/pagesCheckData',
                 {
                     params:
                         {

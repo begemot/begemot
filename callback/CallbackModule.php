@@ -73,7 +73,9 @@ class CallbackModule extends CWebModule
                     $subject=$title;
                     foreach ($mails as $mail){
 
-                        mail($mail, $subject, $text,$headers);
+                        if (!mail($mail, $subject, $text,$headers)){
+                            throw new Exception('Не удалась отправка функцией mail()');
+                        }
                     }
                 }
             } elseif ($sendMethod=='smtp'){

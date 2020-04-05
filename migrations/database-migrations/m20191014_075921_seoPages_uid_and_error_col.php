@@ -1,25 +1,18 @@
 <?php
 
-class m20190919_032903_seo_pages_table extends Migrations
+class m20191014_075921_seoPages_uid_and_error_col extends Migrations
 {
     public function up()
     {
 
         if($this->isConfirmed(true) == true) return false;
 
-        $sql = "CREATE TABLE IF NOT EXISTS `seo_pages` (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `url` varchar(500) DEFAULT NULL,
-          `title` varchar(500) DEFAULT NULL,
-          `content` longtext,
-          `status` int(11) DEFAULT NULL,
-          `tagsCoputedFlag` int(11) DEFAULT '0',
-          `contentHash` varchar(200) DEFAULT NULL,
-          `mime` varchar(200) DEFAULT NULL,
-          PRIMARY KEY (`id`),
-          KEY `Index 2` (`url`(255))
-        ) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8;
-        ";
+        $sql = "ALTER TABLE `seo_pages`
+	            ADD COLUMN `uid` varchar(45);
+	            ALTER TABLE `seo_pages`
+	            ADD COLUMN `checkError` varchar(45);
+	            
+	            ";
         $this->execute($sql);
 
         return true;
@@ -29,7 +22,12 @@ class m20190919_032903_seo_pages_table extends Migrations
     {
         if($this->isConfirmed(true) == false) return false;
 
-        $sql = "DROP TABLE `seo_pages`;";
+        $sql = "
+    ALTER TABLE `seo_pages`
+	  DROP COLUMN `uid`;
+    ALTER TABLE `seo_pages`
+	  DROP COLUMN `checkError`;	
+	";
         $this->execute($sql);
 
         return true;
@@ -37,13 +35,12 @@ class m20190919_032903_seo_pages_table extends Migrations
 
     public function getDescription()
     {
-        return "Создание таблицы seo_pages для модуля СЕО";
+        return "seoPages uid и ошибки";
     }
 
     public function isConfirmed($returnBoolean = false){
 
-        $result =$this->tableExist('seo_pages');
-
+        $result = $this->columnExist('seo_pages','uid');
         if($returnBoolean){
             return $result;
         }

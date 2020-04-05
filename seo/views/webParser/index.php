@@ -98,30 +98,45 @@ if ($webParser->getProcessStatus() != 'done') {
         ]
     );
     if ($pages) {
+
         //экспорт страниц
         echo "Парсер закончил работать. Идет обработка данных!";
         echo "Импортируем страницы!";
-        foreach ($pages as $page) {
-            if ($page->mime == 'text/html') {
+        try {
+            $i=0;
+            foreach ($pages as $page) {
+                echo $i++.' ';
+                if ($page->mime == 'text/html') {
 
-                $seoPages = new SeoPages();
-                $seoPages->url = $page->url;
-                $seoPages->content = $page->content;
-                $seoPages->status = $page->http_code;
-                $seoPages->contentHash = $page->content_hash;
-                $seoPages->mime = $page->mime;
-                if ($seoPages->save()) {
+                    $seoPages = new SeoPages();
+                    $seoPages->url = $page->url;
+
+                    $seoPages->content = $page->content;
+
+                    $seoPages->status = $page->http_code;
+
+                    $seoPages->contentHash = $page->content_hash;
+                    echo 123;
+                    $seoPages->mime = $page->mime;
+
+                    if ($seoPages->save()) {
+                        $page->export = 1;
+                        $page->save();
+                    }
+                } else {
                     $page->export = 1;
                     $page->save();
                 }
-            } else {
-                $page->export = 1;
-                $page->save();
-            }
 
+            }
+        } catch(Exception $e) {
+           throw new Exception('Ошибка сохранения страниц!');
         }
+
+
         echo '<script>location.reload();</script>';
     } else if ($urls) {
+
         //экспорт ссылок
         echo "Парсер закончил работать. Идет обработка данных!";
         echo "Импортируем ссылки!";
