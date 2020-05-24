@@ -96,6 +96,7 @@ if ($pageModel) {
             Yii::app()->db->createCommand($sql)->execute();
 
         }
+
         $user = Yii::app()->db->createCommand()
             ->select('id')
             ->from('seo_tags')
@@ -116,9 +117,11 @@ if ($pageModel) {
 
 
     }
+
     $pageModel->tagsCoputedFlag = 1;
     $pageModel->save();
     echo '<script>location.reload();</script>';
+
 } else {
     echo 'Закончили!';
 }
