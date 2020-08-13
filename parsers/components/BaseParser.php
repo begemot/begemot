@@ -126,7 +126,7 @@ class BaseParser extends BaseJob{
     {   
         $file = dirname(Yii::app()->request->scriptFile) . "/files/parsersData/" . $this->name . '.data';
         if (!file_exists($file)){
-            crPhpArr([],$file);
+            PictureBox::crPhpArr([],$file);
         }
         return require($file);
     }
