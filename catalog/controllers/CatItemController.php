@@ -33,7 +33,7 @@ class CatItemController extends Controller
 
                 'actions' => array(
                     'delete', 'createColor', 'deleteColor', 'setColor',
-                    'setColorTo', 'unsetColorTo',
+                    'setColorTo', 'unsetColorTo','ajaxCreate',
                     'deleteModifFromItem',
                     'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'),
 
@@ -93,7 +93,18 @@ class CatItemController extends Controller
 //        }
 
     }
+    public function actionAjaxCreate()
+    {
+        $model = new CatItem;
+        $model->attributes = $_POST['CatItem'];
+        if ($model->save()) {
 
+                echo $model->id;
+
+        } else {
+            echo 'ошибка сохранения';
+        }
+    }
     public function actionGetItemsFromCategory($catId, $curCatId)
     {
         $model = CatItemsToCat::model()->with('item')->findAll(array('condition' => 't.catId=' . $catId, 'order' => 't.order ASC'));

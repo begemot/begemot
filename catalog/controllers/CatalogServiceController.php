@@ -82,7 +82,7 @@ class CatalogServiceController extends Controller
     {
 
 
-        $models = CatItemsToCat::model()->findAllByAttributes(['catId'=>$id]);
+        $models = CatItemsToCat::model()->findAllByAttributes(['catId'=>$id],['order'=>'`order`']);
 
 
         $result = [];
@@ -90,6 +90,7 @@ class CatalogServiceController extends Controller
             $resultLine = [];
             $resultLine['id'] = $catItem->itemId;
             $resultLine['name'] = $catItem->item->name;
+            $resultLine['order'] = $catItem->order;
             $resultLine['img'] = $catItem->item->getItemMainPicture('admin');
             $result[] = $resultLine;
         }

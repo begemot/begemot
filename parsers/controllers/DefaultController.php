@@ -409,9 +409,11 @@ class DefaultController extends Controller
             $catItemId = $linkingModel->toId;
             $catItemModel = CatItem::model()->findByPk($catItemId);
             if (is_null($catItemModel)) {
+                if (!is_null($linkingModel->linking)){
+                    $linkingModel->linking->linked=0;
+                    $linkingModel->linking->save();
+                }
 
-                $linkingModel->linking->linked=0;
-                $linkingModel->linking->save();
 
                 $linkingModel->delete();
             }
