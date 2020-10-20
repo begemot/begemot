@@ -4,7 +4,7 @@ Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/l
 Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-sanitize.js');
 
 Yii::app()->clientScript->registerScriptFile('/protected/modules/contentTask/assets/js/paging.js');
-Yii::app()->clientScript->registerScriptFile('https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular-route.js');
+Yii::app()->clientScript->registerScriptFile('https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-route.js');
 
 
 
