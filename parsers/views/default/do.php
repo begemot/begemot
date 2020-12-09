@@ -479,6 +479,7 @@ require(dirname(__FILE__) . '/../menu.php');
             selector: $(this).attr("data-selector")
         });
     })
+
     $(document).on("click", ".addAsNew", function () {
         console.log('Нажали кнопку добавить как новое');
         var button = $(this);
@@ -490,7 +491,7 @@ require(dirname(__FILE__) . '/../menu.php');
             }, "returnId": true
         };
 
-        $.post("/catalog/catItem/create", params, function (data) {
+        $.post("/catalog/catItem/ajaxCreate", params, function (data) {
             button.parents("TR").find(".composite").html("Уже обьединено");
             button.parents("TR").find("BUTTON").attr("disabled", true);
             button.parent().html('<a href="/catalog/catItem/update/id/' + data + '" target="_blank">Редактировать</a>');

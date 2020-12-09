@@ -217,10 +217,16 @@ class CatItemOptionsController extends Controller
                 $optionRelation = new CatItemsToItems();
                 $optionRelation->itemId = $id;
                 $optionRelation->toItemId = $option->id;
+                $optionRelation->order = $option->order;
                 $optionRelation->save();
             } else {
                 echo 'уже есть!';
+                $searchOption->itemId = $id;
+                $searchOption->toItemId = $option->id;
+                $searchOption->order = $option->order;
+                $searchOption->save();
             }
+
         }
 
     }

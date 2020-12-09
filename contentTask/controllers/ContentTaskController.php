@@ -1,5 +1,7 @@
 <?php
-Yii::setPathOfAlias('RestfullYii', '/home/sites/outhomeman.ru/protected/modules/begemot/extensions/RESTFullYii/starship/RestfullYii/');
+$webroot = Yii::getPathOfAlias('webroot');
+Yii::setPathOfAlias('RestfullYii', $webroot.'/protected/modules/begemot/extensions/RESTFullYii/starship/RestfullYii/');
+Yii::import('RestfullYii.filters.ERestFilter');
 
 class ContentTaskController extends Controller
 {
@@ -220,6 +222,7 @@ class ContentTaskController extends Controller
         return array(
             'accessControl', // perform access control for CRUD operations
             array(
+
                 'RestfullYii.filters.ERestFilter +
 			 	REST.GET, REST.PUT, REST.POST, REST.DELETE'
             ),
