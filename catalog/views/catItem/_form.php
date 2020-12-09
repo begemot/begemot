@@ -104,6 +104,7 @@
                 }
                 echo CHtml::label($name, $itemRow->name_t);
                 $this->widget('begemot.extensions.ckeditor.CKEditor', array('model' => $model, 'value' => $value, 'attribute' => $itemRow->name_t, 'language' => 'ru', 'editorTemplate' => 'full',));
+                $this->widget('begemot.components.htmlClearPanel.htmlClearPanel', array('id' => 'CatItem_'.$itemRow->name_t));
             } else if ($itemRow->type == 'checkboxList') {
                 $select = array();
                 $name_of_field = $itemRow->name_t;

@@ -37,7 +37,7 @@ class m20171229_011557_promoNewRows extends Migrations
 
     public function getDescription()
     {
-        return "такие дела";
+        return "Экспорт страниц в вебпарсере";
     }
 
     public function isConfirmed($returnBoolean = false)

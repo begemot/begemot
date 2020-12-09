@@ -25,6 +25,7 @@ class CatCategory extends CActiveRecord
 
     public $categories;
     public $pubCategories;
+
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
@@ -136,7 +137,7 @@ class CatCategory extends CActiveRecord
     {
 
 
-            $models = $this->findAll(array('order' => 'level desc'));
+        $models = $this->findAll(array('order' => '`level` desc, `order`'));
 
 
         $catsArray = [];
@@ -149,16 +150,35 @@ class CatCategory extends CActiveRecord
             $categoryArray['order'] = $category->order;
             $categoryArray['level'] = $category->level;
             $categoryArray['name_t'] = $category->name_t;
-            $categoryArray['model'] = $category;
+//            $categoryArray['model'] = $category;
 
             $catsArray[$category->id] = $categoryArray;
-            if ($category->published){
+            if ($category->published) {
                 $pubCatsArray[$category->id] = $categoryArray;
             }
         }
 
         $this->categories = $catsArray;
         $this->pubCategories = $pubCatsArray;
+
+    }
+
+    public function getcategoriesTree(){
+        $getcategoriesTree = [];
+
+        if (!is_array($this->categories)){
+            $this->loadCategories();
+        }else {
+            $getcategoriesTree = $this->categories;
+            foreach ($getcategoriesTree as $key=>$cat){
+                if (isset($getcategoriesTree[$cat['pid']])){
+                    $getcategoriesTree[$cat['pid']]['childs'][] = $getcategoriesTree[$key];
+                    unset ($getcategoriesTree[$key]);
+                }
+            }
+            return $getcategoriesTree;
+        }
+
 
     }
 
@@ -189,9 +209,11 @@ class CatCategory extends CActiveRecord
 
     public function getCatArray()
     {
+
         if ($this->categories === null) {
             $this->loadCategories();
         }
+
         return $this->categories;
     }
 
@@ -203,6 +225,7 @@ class CatCategory extends CActiveRecord
 
         return $this->pubCategories;
     }
+
     //Возвращает имя категории по id
     public function getCatName($id)
     {
@@ -290,8 +313,9 @@ class CatCategory extends CActiveRecord
 
     public function categoriesMenu()
     {
-        $categories = $this->getCatArray();
 
+        $categories = $this->getCatArray();
+      
         $menu = $categories;
 
         $menuEnd = array();

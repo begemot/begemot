@@ -32,7 +32,9 @@ class CatItemOptionsController extends Controller
                     'ajaxChangeIsBaseState',
                     'layoutOptionsTable',
                     'ajaxUpdateOptionRelation',
-                    'ajaxNewOptionOrder'
+                    'ajaxNewOptionOrder',
+                    'makeImport',
+                    'removeOptions'
                 ],
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
@@ -79,11 +81,16 @@ class CatItemOptionsController extends Controller
 
     public function actionAjaxNewOptionOrder($itemId)
     {
+
         $sortCollection = $_REQUEST['sortCollection'];
+
             foreach ($sortCollection as $order => $optionId){
                $itemToItem = CatItemsToItems::model()->findByAttributes(['itemId'=>$itemId,'toItemId'=>$optionId]);
                 $itemToItem->order = $order;
-                $itemToItem->save();
+
+                if (!$itemToItem->save()){
+                    throw new Exception("Ошибка сохранения модели");
+                }
             }
 
     }
@@ -195,4 +202,45 @@ class CatItemOptionsController extends Controller
             $this->renderPartial('/catItem/optionsAsTable', ['paentItemId' => $paentItemId, 'alreadyConnetedOptions' => $alreadyConnetedOptions]);
         }
     }
+
+    public function actionMakeImport($id){
+
+        $catItem = CatItem::model()->findByPk($id);
+        $postdata = file_get_contents("php://input");
+        $request = json_decode($postdata);
+        $options = $request->options;
+
+
+        foreach ($options as $option){
+            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId'=>$id,'toItemId'=>$option->id]);
+            if (!$searchOption){
+                $optionRelation = new CatItemsToItems();
+                $optionRelation->itemId = $id;
+                $optionRelation->toItemId = $option->id;
+                $optionRelation->save();
+            } else {
+                echo 'уже есть!';
+            }
+        }
+
+    }
+
+    public function actionRemoveOptions($id){
+
+        $catItem = CatItem::model()->findByPk($id);
+        $postdata = file_get_contents("php://input");
+        $request = json_decode($postdata);
+        $options = $request->options;
+        //получили опции которые нужно убрать из позиции с переданным $id
+
+        foreach ($options as $option){
+            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId'=>$id,'toItemId'=>$option->id]);
+            if ($searchOption){
+                $searchOption->delete();
+                echo 'Открепляем опцию: '.$searchOption->toItem->name;
+            }
+        }
+
+    }
+
 }

@@ -8,9 +8,7 @@ $(document).ready(function () {
         $.ajax({
             url: '/catalog/catItem/update',
             data: "id="+$(this).attr('data-item-id')+"&changePrice="+$(this).val(),
-            success: function(){
-                alert('Load was performed.');
-            }
+  
         });
     });
 
@@ -25,13 +23,15 @@ $(document).ready(function () {
 
                 });
                 var itemId = $('.optionsTable').attr('data-item-id');
-                $.ajax({
-                    url: '/catalog/catItemOptions/ajaxNewOptionOrder',
-                    data: {
+                $.post(
+                    "/catalog/catItemOptions/ajaxNewOptionOrder/itemId/"+itemId,
+                    {
                         sortCollection: sortCollection,
                         itemId:itemId
-                    }
-                })
+                    },
+                    function(){}
+                );
+
             }
         }
     );

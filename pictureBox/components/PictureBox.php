@@ -13,7 +13,7 @@ class PictureBox extends CWidget {
 
     public $divId = 'pictureBox';
 
-    public $theme = 'default';
+    public $theme = 'tiles';
 
     public function init() {
         if (!file_exists(Yii::app()->basePath . '/../files/pictureBox/')) {

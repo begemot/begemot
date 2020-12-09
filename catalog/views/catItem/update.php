@@ -33,7 +33,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
             'items'=>[
 
                 array('label' => 'Список опций',  'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options', 'visible' => isset(Yii::app()->modules['parsers'])),
-                array('label' => 'Конфигуратор', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/configuration', 'active' => $tab == 'configuration', 'visible' => isset(Yii::app()->modules['parsers'])),
+                array('label' => 'Импорт опций', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/optionsImport', 'active' => $tab == 'optionsImport', 'visible' => isset(Yii::app()->modules['parsers'])),
             ]
         ),
         array('label' => 'Парсер', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/parser', 'active' => $tab == 'parser', 'visible' => isset(Yii::app()->modules['parsers'])),
@@ -388,7 +388,8 @@ if ($tab == 'data')
     <?php
 
     $picturesConfig = array();
-    $configFile = Yii::getPathOfAlias('webroot') . '/protected/config/catalog/categoryItemPictureSettings.php';
+
+    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS).'.php' ;
     if (file_exists($configFile)) {
 
         $picturesConfig = require($configFile);

@@ -7,7 +7,7 @@ class BaseFilter{
     
     static public $resultExt = 'jpg';
     
-    public function BaseFilter($_fileName,$_newFileName,$_param){
+    public function __construct($_fileName,$_newFileName,$_param){
         
         $this->fileName = $_fileName;
         $this->newFileName = $_newFileName;

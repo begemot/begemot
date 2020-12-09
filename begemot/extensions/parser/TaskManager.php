@@ -10,7 +10,7 @@ class TaskManager {
      */
     private $processId = null;
 
-    public function TaskManager($processId){
+    public function __construct($processId){
         $this->processId = $processId;
     }
 

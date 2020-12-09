@@ -14,7 +14,7 @@
 
         ?>
         <li >
-            <img class="tile-img" data-id="<?= $key ?>" src="<?php echo $image['admin'] ?>"/>
+            <img class="tile-img" data-id="<?= $key ?>" src="<?php echo $image['admin']. '?' . rand(1, 1000) ?>"/>
 
             <img title="Редактирование изображений" data-id="<?= $key ?>" data-gallery-id="<?= $id  ?>" class="all-images-btn" src="/protected/modules/pictureBox/assets/images-tiles/all-images-btn.png" />
             <img title="Редактирование title и alt" data-id="<?= $key ?>" data-gallery-id="<?= $id  ?>" class="title-btn" src="/protected/modules/pictureBox/assets/images-tiles/title-alt-btn.png" />

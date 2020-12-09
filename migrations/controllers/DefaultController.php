@@ -75,8 +75,9 @@ class DefaultController extends Controller
 				OR file_exists(Yii::app()->getBasePath() . DIRECTORY_SEPARATOR. "migrations" .DIRECTORY_SEPARATOR. $_GET['file'] . ".php")
 			){
 				$model = new $_GET['file'];
+				$str = $_GET['go'];
 
-				$results = $model->$_GET['go']();
+				$results = $model->$str();
 
 				if($results == false){
 					$return = "Данное действие уже выполнялось";

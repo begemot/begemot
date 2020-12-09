@@ -52,7 +52,9 @@ $webParser->addMime('image/png');
 $webParser->addMime('image/gif');
 $webParser->tasksPerExecute = 10;
 $webParser->isInterface = true;
+
 $webParser->parse();
+
 
 
 //$pageContent = $webParser->getPageContent('http://www.buggy-motor.ru/catalog/buggy_79.html');
@@ -73,39 +75,80 @@ Yii::log('    проверяем закончен ли процесс!', 'trace'
 //echo $webParser->getProcessStatus();
 if ($webParser->getProcessStatus() != 'done') {
     Yii::app()->db->createCommand()->truncateTable('seo_pages');
+    Yii::app()->db->createCommand()->truncateTable('seo_links');
+    Yii::app()->db->createCommand()->truncateTable('seo_tags');
     echo '<script>location.reload();</script>';
 } else {
 
     $pages = WebParserPage::model()->findAll(
         [
             'condition' => 'procId=:procId and export=0',
-            'limit'=>50,
+            'limit' => 50,
             'params' => array(
-                    ':procId' => $processId)
+                ':procId' => $processId)
         ]
     );
 
+    $urls = WebParserLink::model()->findAll(
+        [
+            'condition' => 'procId=:procId and export=0',
+            'limit' => 50,
+            'params' => array(
+                ':procId' => $processId)
+        ]
+    );
+    if ($pages) {
 
-    if ($pages){
+        //экспорт страниц
         echo "Парсер закончил работать. Идет обработка данных!";
-        foreach ($pages as $page) {
-            if ($page->mime=='text/html'){
+        echo "Импортируем страницы!";
+        try {
+            $i=0;
+            foreach ($pages as $page) {
+                echo $i++.' ';
+                if ($page->mime == 'text/html') {
 
-                $seoPages = new SeoPages();
-                $seoPages->url = $page->url;
-                $seoPages->content = $page->content;
-                $seoPages->status = $page->http_code;
-                $seoPages->contentHash = $page->content_hash;
-                $seoPages->mime = $page->mime;
-                if ($seoPages->save()){
+                    $seoPages = new SeoPages();
+                    $seoPages->url = $page->url;
+
+                    $seoPages->content = $page->content;
+
+                    $seoPages->status = $page->http_code;
+
+                    $seoPages->contentHash = $page->content_hash;
+                    echo 123;
+                    $seoPages->mime = $page->mime;
+
+                    if ($seoPages->save()) {
+                        $page->export = 1;
+                        $page->save();
+                    }
+                } else {
                     $page->export = 1;
                     $page->save();
                 }
-            } else {
-                $page->export=1;
-                $page->save();
-            }
 
+            }
+        } catch(Exception $e) {
+           throw new Exception('Ошибка сохранения страниц!');
+        }
+
+
+        echo '<script>location.reload();</script>';
+    } else if ($urls) {
+
+        //экспорт ссылок
+        echo "Парсер закончил работать. Идет обработка данных!";
+        echo "Импортируем ссылки!";
+        foreach ($urls as $url) {
+            $seoLink = new SeoLinks();
+            $seoLink->url = $url->sourceUrl;
+            $seoLink->href = $url->url;
+            $seoLink->anchor = $url->anchor;
+            if ($seoLink->save()){
+                $url->export = 1;
+                $url->save();
+            }
         }
         echo '<script>location.reload();</script>';
     } else {

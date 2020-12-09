@@ -98,9 +98,11 @@
 }
 
 .ms-container .ms-selectable li.ms-hover,
-.ms-container .ms-selection li.ms-hover {
+.ms-container .ms-selection li.ms-hover,
+.ms-list li:hover
+{
     cursor: pointer;
-    color: #fff;
+    color: #fff !important;
     text-decoration: none;
     background-color: #08c;
 }
@@ -151,6 +153,10 @@
     -ms-transform: rotate(45deg);
     -o-transform: rotate(45deg);
     transform: rotate(45deg);
+}
+
+.dropdownPart {
+    position: absolute;
 }
 
 @-webkit-keyframes spin {

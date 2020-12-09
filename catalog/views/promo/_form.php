@@ -103,10 +103,10 @@
 
     if (!$model->isNewRecord) {
         $configFile = Yii::getPathOfAlias(CatalogModule::PROMO_CONFIG_FILE_ALIAS);
-        if (file_exists($configFile . '.php')) {
+        if (file_exists($configFile . 'argoBtns.php')) {
 
 
-            $picturesConfig = require($configFile . '.php');
+            $picturesConfig = require($configFile . 'argoBtns.php');
         } else {
             $picturesConfig = $defaultConfig;
         }
