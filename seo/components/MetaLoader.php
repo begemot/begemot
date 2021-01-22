@@ -11,6 +11,7 @@ class MetaLoader {
     private static $title;
     private static $kewords;
     private static $description;
+    private static $relCanonical;
 
     public static $wasLoaded = false;
 
@@ -38,6 +39,23 @@ class MetaLoader {
         return self::$description;
     }
 
+    /**
+     *  Для задания канонической страницы для текущей странице. Вызываем эту функцию и устанавливаем ссылку на
+     * каноническую страницу, если нужно.
+     *
+     *
+     * @param $value
+     */
+    public static function setRelCanonical($value){
+
+
+        self::$relCanonical = $value;
+    }
+
+    public static function getRelCanonical(){
+
+        return self::$relCanonical;
+    }
 
     public static function loadData(){
         if (!self::$wasLoaded){
@@ -53,9 +71,10 @@ class MetaLoader {
                     if (isset($page['url'])){
                         if ($page['url']==$currentUri){
 
-                            self::$title = $page['title'];
-                            self::$kewords = $page['keywords'];
-                            self::$description = $page['description'];
+                            self::$title = (isset($page['title'])?$page['title']:null);
+                            self::$kewords = isset($page['keywords'])?$page['keywords']:null;
+                            self::$description = isset($page['description'])?$page['description']:null;
+                            self::$relCanonical = isset($page['relCanonical'])?$page['relCanonical']:null;
 
                             self::$wasLoaded = true;
 
@@ -67,5 +86,9 @@ class MetaLoader {
             }
         }
     }
+
+
+
+
 
 }

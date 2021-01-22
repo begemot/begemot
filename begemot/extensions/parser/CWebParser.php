@@ -1427,6 +1427,7 @@ class CWebParser
                             unset($params[$paramId]);
                         }
                     }
+
                     asort($params);
                     if (count($params) > 0) {
                         $resultUrl .= '?';
