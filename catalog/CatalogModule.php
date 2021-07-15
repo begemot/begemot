@@ -13,12 +13,6 @@ class CatalogModule extends CWebModule
     public $itemLayout = null;
     public $capcha = false;
     public $tidyleadImage = false;
-
-    //Настройки пагинации
-    public $pagination = false;
-    public $perPage = 12;
-
-
     public $tidyConfig = array(
         'Three'=>array(
 

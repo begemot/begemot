@@ -1,0 +1,10 @@
+#previewSaveBtn{
+    cursor: pointer;
+}
+#previewSaveBtn:hover{
+background-color: red;
+}
+
+.realPreview {
+    width: 300px;
+}

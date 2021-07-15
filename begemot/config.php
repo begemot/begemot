@@ -195,13 +195,13 @@ return array(
                 '/catalog' => '/catalog/site/',
                 'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
-                'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
+                'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
                 'promo_<promoId:\d+>' => 'catalog/site/promoView',
                 //модуль post
                 'allPosts' => 'post/site/allPosts',
 //                'posts' => 'post/site/tagIndex',
-                'posts/<title:[\w-\.]+>_<id:\d+>' => 'post/site/tagIndex',
-                'postsView/<title:[\w-_.]+>_<id:\d+>' => 'post/site/view',
+                'posts/<title:[\w\-\.]+>_<id:\d+>' => 'post/site/tagIndex',
+                'postsView/<title:[\w\-_.]+>_<id:\d+>' => 'post/site/view',
 
                 'company/<title:[\w-]+>_<departId:\d+>' => 'company/site/depart',
                 'employee/<title:[\w-]+>_<empId:\d+>' => 'company/site/emp',

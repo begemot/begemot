@@ -10,6 +10,7 @@ class PictureBoxModule extends CWebModule {
             'pictureBox.models.*',
             'pictureBox.components.*',
             'pictureBox.components.filters.*',
+            'pictureBox.controllers.*',
         ));
         Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.pictureBox.assets'));
     }

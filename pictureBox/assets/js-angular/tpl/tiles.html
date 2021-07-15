@@ -1,0 +1,24 @@
+<p ng-repeat="image in sortCollection">{{image.id}}</p>
+
+<ul class="tiles" dnd-list="images">
+    <li class="" ng-repeat="(imageId,image) in images "
+        dnd-draggable="image"
+        dnd-moved="images.splice($index,1)"
+        dnd-effect-allowed="move"
+        dnd-dragend="orderSave()">
+        <a href="{{image.original}}?123" target="_blank"><img class="tile-img" data-id="0" src="{{image.admin}}" ></a>
+
+        <img title="Редактирование изображений" ng-click="showAllImagesModal(image)" data-toggle="modal" data-target="#resizeModal"  data-gallery-id="sqlLiteTest" class="all-images-btn" src="/protected/modules/pictureBox/assets/images-tiles/all-images-btn.png">
+        <img title="Редактирование title и alt" ng-click="showAltTitleModal(image)" data-toggle="modal" data-target="#titleAltModal"  data-gallery-id="sqlLiteTest" class="title-btn" src="/protected/modules/pictureBox/assets/images-tiles/title-alt-btn.png">
+
+        <img title="Избранное" ng-click="imageFavChange(image.id)" ng-if="image.params.fav" class="fav-btn" src="/protected/modules/pictureBox/assets/images-tiles/star-yellow.png">
+        <img title="Избранное" ng-click="imageFavChange(image.id)" ng-if="!image.params.fav" class="fav-btn" src="/protected/modules/pictureBox/assets/images-tiles/star-grey.png">
+
+        <img title="Удалить"  data-gallery-id="sqlLiteTest" class="delete-btn" src="/protected/modules/pictureBox/assets/images-tiles/delete.png" ng-click="imageDelete(image.id)">
+
+
+        <img  ng-click="imageShownChange(image.id)" ng-if="image.params.show" class="eye-btn" src="/protected/modules/pictureBox/assets/images-tiles/eye.png">
+        <img  ng-click="imageShownChange(image.id)" ng-if="!image.params.show" class="eye-btn" src="/protected/modules/pictureBox/assets/images-tiles/eye-off.png">
+       
+    </li>
+</ul>

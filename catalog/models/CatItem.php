@@ -17,6 +17,19 @@ Yii::import('begemot.extensions.contentKit.ContentKitModel');
 
 class CatItem extends ContentKitModel
 {
+
+
+   private $schemaArray = null;
+
+   public function getSchema(){
+
+
+       return [1,2,3,4,5];
+   }
+    private function loadSchema(){
+
+    }
+
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.

@@ -12,15 +12,15 @@
  */
 
 Yii::import('pictureBox.components.PictureBox');
-Yii::import('begemot.extensions.vault.FileVault');
+Yii::import('begemot.extensions.SQLiteVault');
 
-class PBox
+class PBoxSQLite
 {
 
     public $pictures;
     public $favPictures;
 
-    public $webDataFile = null;
+
     public $dataFile = null;
     public $favDataFile = null;
 
@@ -31,9 +31,7 @@ class PBox
 
     protected $count;
 
-    public $vault = null;
-    public $filters = null;
-    public $subGalleriesList = null;
+    protected $SQLiteVault = null;
 
     public function oldDataFormatCheckAndConvert($dir)
     {
@@ -50,95 +48,81 @@ class PBox
             }
             $file = $dir . 'data.php';
             copy($file, $file . '_old');
-            unlink($file);
         }
 
-//        if (file_exists($dir . 'lastImageId.php')) {
-//            $file = $dir . 'lastImageId.php';
-//            $lastId = require($file);
-//            $this->saveLastImageId($lastId);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
+        if (file_exists($dir . 'lastImageId.php')) {
+            $file = $dir . 'lastImageId.php';
+            $lastId = require($file);
+            $this->saveLastImageId($lastId);
+            copy($file, $file . '_old');
+        }
 
-//        if (file_exists($dir . 'sort.php')) {
-//            $file = $dir . 'sort.php';
-//            $sort = require($file);
-//            $this->saveSortData($sort);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
-//
-//        if (file_exists($dir . 'favData.php')) {
-//            $file = $dir . 'favData.php';
-//            $favData = require($file);
-//            $this->saveFavData($favData);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
+        if (file_exists($dir . 'sort.php')) {
+            $file = $dir . 'sort.php';
+            $sort = require($file);
+            $this->saveSortData($sort);
+            copy($file, $file . '_old');
+        }
+
+        if (file_exists($dir . 'favData.php')) {
+            $file = $dir . 'favData.php';
+            $favData = require($file);
+            $this->saveFavData($favData);
+            copy($file, $file . '_old');
+        }
     }
 
-    public function saveImages($images)
+    private function saveImages($images)
     {
-        if ($this->vault->pushCollection($images)) {
-            return true;
-        } else {
-            return false;
-        }
+        $this->SQLiteVault->pushCollection($images);
     }
 
     public function getImages()
     {
-        return $this->vault->getCollection();
+        return $this->SQLiteVault->getCollection();
     }
 
     private function saveFilters($filters)
     {
-        $this->vault->pushCollection($filters, 'filters');
+        $this->SQLiteVault->pushCollection($filters, 'filters');
     }
 
     public function getFilters()
     {
-        return $this->vault->getCollection('filters');
+        return $this->SQLiteVault->getCollection('filters');
     }
 
     private function saveLastImageId($id)
     {
-        $this->vault->setVar('lastImageId', $id);
+        $this->SQLiteVault->setVar('lastImageId', $id);
     }
 
     public function getLastImageId()
     {
-        return $this->vault->getVar('lastImageId');
+        return $this->SQLiteVault->getVar('lastImageId');
     }
 
-    public function saveSortData($sortData)
+    private function saveSortData($sortData)
     {
-
-        $this->vault->pushCollection($sortData, 'sortData');
+        $this->SQLiteVault->pushCollection( $sortData,'sortData');
     }
 
     public function getSortData()
     {
-        $data = $this->vault->getCollection('sortData');
-        if (!is_array($data))
-            return [];
-        else
-            return $data;
+        return $this->SQLiteVault->getCollection('sortData');
     }
 
-    public function saveFavData($favData)
+    private function saveFavData($favData)
     {
-
-        $this->vault->pushCollection($favData, 'favData');
+        $this->SQLiteVault->pushCollection('$favData', $favData);
     }
 
     public function getFavData()
     {
-        return $this->vault->getCollection('favData');
+        return $this->SQLiteVault->getCollection('$favData');
     }
 
-    public function __construct($galleryId, $id, $subGallery = 'default')
+    public function __construct($galleryId, $id)
     {
 
 
@@ -158,20 +142,9 @@ class PBox
         }
 
 
-        if ($subGallery == 'default') {
+        $dataFile = $elementIdDir . '/SQLite.db';
 
-            $dataFile = $elementIdDir;
-            $this->webDataFile = '/files/pictureBox/' . $galleryId . '/' . $id;
-        } else {
-            $dataFile = $elementIdDir . '/' . $subGallery;
-            if (!file_exists($dataFile)) {
-                mkdir($dataFile, 0777);
-            }
-            $this->webDataFile = '/files/pictureBox/' . $galleryId . '/' . $id . '/' . $subGallery;
-        }
-
-
-        $this->vault = new FileVault($dataFile);
+        $this->SQLiteVault = new SQLiteVault($dataFile);
 
         $this->dataFile = $dataFile;
         $this->oldDataFormatCheckAndConvert($elementIdDir);
@@ -183,30 +156,10 @@ class PBox
 
         $this->galleryId = $galleryId;
         $this->id = $id;
-        $subGallerySearchPath = '';
-        if ($subGallery != 'default') {
-            $tmpPBox = new PBox($galleryId, $id);
-            $this->filters = $tmpPBox->getImagesRenderRules();
-            $subGallerySearchPath = $dataFile.'/../*';
-        } else {
 
-            $this->filters = $this->getImagesRenderRules();
-            $subGallerySearchPath = $dataFile.'/*';
-        }
 
-        $files = glob($subGallerySearchPath,GLOB_ONLYDIR );
-        foreach ($files as $key=>$file){
-            $files[$key] = basename($file);
-        }
-        $this->subGalleriesList = $files;
     }
 
-
-    public function saveSubGalleryList()
-    {
-
-        $this->vault->pushCollection($this->subGalleriesList, 'subGalleryList');
-    }
 
     static public function getTitleFromArray($image)
     {
@@ -353,24 +306,26 @@ class PBox
     {
         Yii::import("pictureBox.controllers.DefaultController");
         Yii::import("pictureBox.components.PictureBox");
-        $sortArray = $this->getSortArray();
+        $sortArray = array_flip($this->getSortArray());
+        ksort($sortArray);
 
         $images = $this->pictures;
-//        print_r($images);
-//        print_r($sortArray);
+
+
         $imagesWithSort = [];
-        $i = 0;
+        if (is_array($images)) {
 
-        foreach ($sortArray as $key => $value) {
-            if (isset($this->pictures[$key])) {
-                $imagesWithSort[$key] = $this->pictures[$key];
 
-            } else {
+            $imagesWithSort = array_replace(array_fill_keys($sortArray, ''), $images);
 
+            foreach ($imagesWithSort as $key => $value) {
+                if (!is_array($value)) {
+                    unset($imagesWithSort[$key]);
+                }
+
+                if (isset($value['params']['show']) && !$value['params']['show']) unset($imagesWithSort[$key]);
             }
         }
-
-
         return $imagesWithSort;
     }
 
@@ -379,8 +334,7 @@ class PBox
         if ($this->sortArray == null) {
 
             $this->sortArray = $this->getSortData();
-            if (count($this->sortArray) == 0) {
-
+            if (count($this->sortArray) < count($this->pictures)) {
                 $this->updateSortData();
             }
         }
@@ -394,9 +348,8 @@ class PBox
 
         $maxSortPosition = 0;
 
-        $sortData = $this->sortArray;
+        $sortData = $this->sortArray();
         //Определяем максимальный индекс сортировки
-        if (!is_array($sortData)) $sortData = [];
         foreach ($sortData as $sortIndex) {
             if ($maxSortPosition < $sortIndex) $maxSortPosition = $sortIndex;
         }
@@ -407,7 +360,7 @@ class PBox
            Добавляем изображения, которые не отсортированы
             то есть чьих id нет в массиве $sortData
         */
-        if (!is_array($images)) $images = [];
+
         foreach ($images as $key => $image) {
             if (!isset($sortData[$key])) {
                 $maxSortPosition++;
@@ -442,7 +395,6 @@ class PBox
     public function saveToFile()
     {
 
-
         $data = array();
         $data['images'] = $this->pictures;
 
@@ -451,8 +403,8 @@ class PBox
         $this->saveSortData($this->sortArray);
         $this->saveFavData($this->favPictures);
 
-        //   $this->SQLiteVault->pushCollection($data['images']);
-        //s  $this->SQLiteVault->pushCollection($this->favPictures, 'favData');
+     //   $this->SQLiteVault->pushCollection($data['images']);
+      //s  $this->SQLiteVault->pushCollection($this->favPictures, 'favData');
 //        $data = $this->favPictures;
 
 //        PictureBox::crPhpArr($data, $this->favDataFile);
@@ -502,14 +454,9 @@ class PBox
         } else {
             $this->pictures[$pictureid]['params']['show'] = false;
         }
+        $this->saveToFile();
 
-        if ($this->saveImages($this->pictures)) {
-            return true;
-        } else {
-            return false;
-        }
-
-
+        return $this->pictures[$pictureid]['params']['show'];
     }
 
     public function deleteAll()
@@ -542,119 +489,6 @@ class PBox
 
     }
 
-    public function addPictureToFav($pictureId)
-    {
-        $this->favPictures[$pictureId] = $this->pictures[$pictureId];
-        $this->saveToFile();
-    }
-
-
-    public function setImagesRenderRules($config)
-    {
-        $this->vault->setVar('imagesConfig', $config);
-    }
-
-    private function getImagesRenderRules()
-    {
-        $config = $this->vault->getVar('imagesConfig');
-
-        return $config;
-    }
-
-    /**
-     * Загрузить можно любой файл по абсолютному пути на сервере. Загрузит оригинал, нарежет, сохранит.
-     *
-     * @param $fileArray массив файла
-     */
-    public function upload($fileArray, $lastImageIdParam = null)
-    {
-
-
-        $temp = explode('.', $fileArray['name']);
-        $imageExt = end($temp);
-
-
-        $tmpname = $fileArray['tmp_name'];
-
-
-        if (is_null($lastImageIdParam)) {
-            $imageId = $this->getLastImageId() + 1;
-        } else {
-            $imageId = $lastImageIdParam;
-        }
-
-        $this->saveLastImageId($imageId);
-
-
-        $basePath = Yii::getPathOfAlias('webroot');
-        //$filesPath = $basePath . '/files/pictureBox/' . $this->galleryId . '/' . $this->id . '/';
-        $filesPath = $this->dataFile;
-        $webFilePath = $this->webDataFile;
-        $newOriginalFile = $filesPath . '/' . $imageId . '.' . $imageExt;
-        $webOriginalFile = $webFilePath . '/' . $imageId . '.' . $imageExt;
-        move_uploaded_file($tmpname, $newOriginalFile);
-
-
-        $resultFiltersStack = array();
-
-        $filters = $this->filters;
-
-        foreach ($filters['nativeFilters'] as $filterName => $toggle) {
-            if ($toggle && isset($filters['imageFilters'][$filterName])) {
-                $resultFiltersStack[$filterName] = $filters['imageFilters'][$filterName];
-            }
-        }
-
-        $config['imageFilters'] = $resultFiltersStack;
-
-        $filterManager = new FiltersManager($newOriginalFile, $config);
-        $filters = $filterManager->getFilteredImages();
-        $pictureForAdd = [];
-        $pictureForAdd['original'] = $webOriginalFile;
-        foreach ($filters as $filterName => $filteredImageFile) {
-
-            $pictureForAdd[$filterName] = $webFilePath . '/' . $filteredImageFile;
-        }
-
-        $this->pictures[$imageId] = $pictureForAdd;
-        $this->saveToFile();
-        $this->updateSortData();
-        $pictureForAdd['id'] = $imageId;
-        return $pictureForAdd;
-    }
-
-    private function getNewImageId()
-    {
-        $newImageId = $this->getLastImageId() + 1;
-        $this->saveLastImageId($newImageId);
-        return $newImageId;
-    }
-
-    public function deleteImage($imageId)
-    {
-        foreach ($this->pictures[$imageId] as $key => $image) {
-            if ($key == 'params') continue;
-            $dir = Yii::getPathOfAlias('webroot');
-
-
-            $file = $dir . $image;
-
-            if (file_exists($file)) {
-                unlink($file);
-            }
-        }
-        unset($this->pictures[$imageId]);
-
-        if ($this->saveImages($this->pictures)) {
-            return true;
-        } else {
-            return false;
-        }
-
-
-    }
-
-    
 }
 
 ?>

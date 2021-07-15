@@ -597,7 +597,7 @@ function PictureBox(options) {
             },
             success: function (html) {
 
-                json = $.parseJSON(html);
+                json = html;
             }
         });
 

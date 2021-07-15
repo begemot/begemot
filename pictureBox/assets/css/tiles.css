@@ -92,4 +92,11 @@ img.eye-btn {
 
     float:left;
 }
+.gallListActive{
+    font-weight: bolder;
+
+}
+.gallListActive::before{
+    content:'Активен:'
+}
 

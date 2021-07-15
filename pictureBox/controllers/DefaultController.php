@@ -57,7 +57,7 @@ class DefaultController extends Controller
     {
         $PBox = new PBox($galleryId, $id);
         $PBox->sortArray = $_REQUEST['sort'];
-        $PBox->saveSortArray();
+        $PBox->saveToFile();
         return true;
     }
 
@@ -327,17 +327,19 @@ class DefaultController extends Controller
     {
         $this->layout = 'pictureBox.views.layouts.ajax';
         if (Yii::app()->request->isAjaxRequest) {
+            $pBox = new PBox($id,$elementId);
+//            $favFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
+//            if (file_exists($favFile)) {
+//
+//                $favArray = require($favFile);
+//
+//                if ($favArray == null) $favArray = [];
+//
+//            } else {
+//                $favArray = [];
+//            }
 
-            $favFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
-            if (file_exists($favFile)) {
-
-                $favArray = require($favFile);
-
-                if ($favArray == null) $favArray = [];
-
-            } else {
-                $favArray = [];
-            }
+            $favArray = $pBox->getFavData();
             echo json_encode($favArray);
         }
     }
@@ -557,11 +559,14 @@ class DefaultController extends Controller
      */
     public function actionAjaxAddFav($id, $elementId, $pictureId)
     {
-        $favData = $this->getFavData($id, $elementId);
+        $pBox = new PBox($id, $elementId);
+        $pBox->addPictureToFav($pictureId);
 
-        $data = $this->getPictureBoxData($id, $elementId);
-        $favData[$pictureId] = $data['images'][$pictureId];
-        $this->putFavData($id, $elementId, $favData);
+//        $favData = $this->getFavData($id, $elementId);
+//
+//        $data = $this->getPictureBoxData($id, $elementId);
+//        $favData[$pictureId] = $data['images'][$pictureId];
+//        $this->putFavData($id, $elementId, $favData);
 
     }
 
@@ -575,12 +580,12 @@ class DefaultController extends Controller
      */
     public function actionAjaxDelFav($id, $elementId, $pictureId)
     {
+        $pBox = new PBox($id, $elementId);
 
-        $favData = $this->getFavData($id, $elementId);
-        if (isset($favData[$pictureId]))
-            unset($favData[$pictureId]);
+        if (isset($pBox->favPictures[$pictureId]))
+            unset($pBox->favPictures[$pictureId]);
 
-        $this->putFavData($id, $elementId, $favData);
+        $pBox->saveToFile();
     }
 
     /**
@@ -592,24 +597,12 @@ class DefaultController extends Controller
     static function getFavData($id, $elementId)
     {
 
-        $favFilename = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
+        $pBox = new PBox($id, $elementId);
 
-        if (!file_exists($favFilename)) {
-            $favData = array();
-            PictureBox::crPhpArr($favData, $favFilename);
-        } else {
-            $favData = require $favFilename;
-        }
-
-        return $favData;
+        return $pBox->getFavData();
     }
 
-    static function putFavData($id, $elementId, $favData)
-    {
 
-        $favFilename = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
-        PictureBox::crPhpArr($favData, $favFilename);
-    }
 
     /**
      * Достаем данные из ячейки хранилища
@@ -699,55 +692,9 @@ class DefaultController extends Controller
 
     static function updateSortData($id, $elementId)
     {
-
-        $dataDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
-        $sortFile = $dataDir . '/sort.php';
-
-        $maxSortPosition = 0;
-
-        if (!file_exists($sortFile)) {
-            PictureBox::crPhpArr([], $sortFile);
-            $sortData = [];
-
-        } else {
-            $sortData = require($sortFile);
-            //Определяем максимальный индекс сортировки
-            foreach ($sortData as $sortIndex) {
-                if ($maxSortPosition < $sortIndex) $maxSortPosition = $sortIndex;
-            }
-
-        }
-
-        $imagesData = require($dataDir . '/data.php');
-
-        $images = $imagesData['images'];
-
-        /*
-           Добавляем изображения, которые не отсортированы
-            то есть чьих id нет в массиве $sortData
-        */
-
-        foreach ($images as $key => $image) {
-            if (!isset($sortData[$key])) {
-                $maxSortPosition++;
-                $sortData[$key] = $maxSortPosition;
-            }
-        }
-
-        /*
-         *  теперь в обратную сторону. смотрим, что бы
-         * все id изображений существовали в массиве $sortData,
-         * если нет, это значит изображение удалили и из сортировки его тоже надо удалить
-         */
-
-        foreach ($sortData as $key => $sortKey) {
-
-            if (!isset($images[$key])) unset ($sortData[$key]);
-
-        }
-
-
-        PictureBox::crPhpArr($sortData, $sortFile);
+        $pBox = new PBox($id,$elementId);
+        $pBox->updateSortData();
+        //TODO::
     }
 
     private function flipFiles($file1, $file2)
