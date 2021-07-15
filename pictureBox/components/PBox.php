@@ -349,7 +349,7 @@ class PBox
 
     }
 
-    public function getSortedImageList()
+    public function getSortedImageList($mode = 'public')
     {
         Yii::import("pictureBox.controllers.DefaultController");
         Yii::import("pictureBox.components.PictureBox");
@@ -365,8 +365,17 @@ class PBox
             if (isset($this->pictures[$key])) {
                 $imagesWithSort[$key] = $this->pictures[$key];
 
+<<<<<<< HEAD
             } else {
 
+=======
+            foreach ($imagesWithSort as $key => $value) {
+                if (!is_array($value)) {
+                    unset($imagesWithSort[$key]);
+                }
+                if ($mode=='public')
+                    if (isset($value['params']['show']) && !$value['params']['show']) unset($imagesWithSort[$key]);
+>>>>>>> 3787cc3c8c4759b0378d087f02b3b9646b4188d2
             }
         }
 

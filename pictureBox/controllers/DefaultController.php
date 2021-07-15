@@ -245,7 +245,7 @@ class DefaultController extends Controller
 
         $PBox = new PBox($id, $elementId);
 
-        $data['images'] = $PBox->getSortedImageList();
+        $data['images'] = $PBox->getSortedImageList('admin');
 
         $config = $this->getConfigFromSession($id, $elementId);
 
