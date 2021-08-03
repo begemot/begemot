@@ -18,24 +18,59 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
 Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/crop.js');
 
 ?>
-<input type="text" data-provide="typeahead" data-items="4" data-source='{
 
-}'>
 <div ng-app="pictureBox" ng-controller="gallery">
+    {{activeSubGallery}}
     <div class="navbar">
         <div class="navbar-inner">
             <a class="brand" href="#">Галлерея</a>
             <ul class="nav">
-                <li><a  href="#FileUpload" role="button"  data-toggle="modal">Загрузить файлы</a></li>
-                <li><a  href="#subGalleryList" role="button"  data-toggle="modal">Подгаллереи</a></li>
+                <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive('default')">Загрузить файлы</a></li>
+                <li><a href="#subGalleryList" role="button" data-toggle="modal">Подгаллереи</a></li>
             </ul>
 
         </div>
     </div>
+    <div>
+        <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" active-gallery="default"
+               all-images-modal="allImagesModal"
+               active-filter="activeFilter"
+               active-sub-gallery="activeSubGallery"
+               get-data-hook="getImagesDataHook"
+               config="config"
+               made-filter-active-hook="madeFilterActiveHook"
+               current-preview-src="currentPreviewSrc"
+               all-data-collection="dataCollection"
+        ></tiles>
 
-    <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" sub-gallery="{{activeSubGallery}}"></tiles>
+
+    </div>
+    <div class="navbar pictureBoxNavBar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">Галлерея</a>
+            <ul class="nav">
+                <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive('salon')">Загрузить файлы</a></li>
+                <li><a href="#subGalleryList" role="button" data-toggle="modal">Подгаллереи</a></li>
+            </ul>
+
+        </div>
+    </div>
+    <div>
+        <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" active-gallery="salon"
+               all-images-modal="allImagesModal"
+               active-filter="activeFilter"
+               active-sub-gallery="activeSubGallery"
+               get-data-hook="getImagesDataHook"
+               config="config"
+               made-filter-active-hook="madeFilterActiveHook"
+               current-preview-src="currentPreviewSrc"
+               all-data-collection="dataCollection"
+        ></tiles>
+
+
+    </div>
+
     <upload gallery-id="<?= $id ?>" id="<?= $elementId ?>"></upload>
-
 
     <div class="modal fade bd-example-modal-lg" id="resizeModal"
          style="width: 850px;margin-left:-425px; height: 800px;margin-top: -400px;">
@@ -51,22 +86,24 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
                     <h4>Оригинальное изображение</h4>
                     <crop
                             gallery-id="<?= $id ?>" id="<?= $elementId ?>"
-                        image-src="{{allImagesModal.image.original}}"
-                        image-id="{{allImagesModal.image.id}}"
-                        blob-send-hook="testHook"
-                        images="images" active-filter="activeFilter"
+                            image-src="{{allImagesModal.image.original}}"
+                            image-id="{{allImagesModal.image.id}}"
+                            blob-send-hook="testHook"
+                            images="images" active-filter="activeFilter"
                             sub-gallery="activeSubGallery"
-                            images-reload="getData"
+
+                            all-data-collection="dataCollection"
                     ></crop>
 
                     <span
                             ng-class="{'badge-success':name!=activeFilter.name,'badge-warning':name==activeFilter.name}"
                             ng-repeat="(name,filter) in config.imageFilters "
                             class="badge badge-pill"
-                            ng-click="madeFilterActive(name)">{{name}}</span>
+                            ng-click="madeFilterActiveHook(name)">{{name}}</span>
                     <div style="display: flex;justify-content: space-between;">
                         <span class="preview" style=""></span>
-                        <span class="badge badge-pill badge-success" ng-click="testHook()"  id="previewSaveBtn">Сохранить</span>
+                        <span class="badge badge-pill badge-success" ng-click="testHook()"
+                              id="previewSaveBtn">Сохранить</span>
                         <img id='realPreview' class='realPreview' src="{{currentPreviewSrc}}" alt="">
                     </div>
 
@@ -125,8 +162,10 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
                 <div class="modal-body">
                     Список подгаллерей:
                     <ul class="nav">
-                        <li  ng-repeat="gal in galList" ng-click="setGallery('default')"><a  ng-class={'gallListActive':'default'==activeSubGallery} href=""  >default</a></li>
-                        <li  ng-repeat="gal in galList" ng-click="setGallery(gal)"><a  ng-class={'gallListActive':gal==activeSubGallery}  href=""  >{{gal}}</a></li>
+                        <li ng-repeat="gal in galList" ng-click="setGallery('default')"><a
+                                    ng-class={'gallListActive':'default'==activeSubGallery} href="">default</a></li>
+                        <li ng-repeat="gal in galList" ng-click="setGallery(gal)"><a
+                                    ng-class={'gallListActive':gal==activeSubGallery} href="">{{gal}}</a></li>
 
                     </ul>
 

@@ -1,28 +1,21 @@
-
-
-
 var app = angular.module('pictureBox', ["dndLists", 'ngFileUpload']);
 
 
-
-
-app.controller('gallery', ['$scope', '$http',function ($scope, $http) {
+app.controller('gallery', ['$scope', '$http', function ($scope, $http) {
     // ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
     // $scope.galId = 'sqlLiteTest';
     //$scope.id = 1;
 
 
-
     $scope.testHook = '';
 
-    $scope.pictureBoxDataObject = [];
+
     $scope.images = [];
     $scope.deleted = [];
     $scope.lastImageId = -1;
 
     $scope.search = {params: {deleted: false}};
     // $scope.search.params.deleted = false;
-
 
     $scope.titleModal = {
         id: '',
@@ -31,152 +24,150 @@ app.controller('gallery', ['$scope', '$http',function ($scope, $http) {
     }
 
     $scope.allImagesModal = {
-        id: '',
-        image: '',
+        id: '123',
+        image: '23',
     }
 
     $scope.activeFilter = null;
 
-
-
-
-    $scope.madeFilterActive = function(name){
-        filter = $scope.config.imageFilters[name][0]
-        console.log($scope.config.imageFilters[name])
-        $scope.activeFilter.name = name
-        $scope.activeFilter.width = filter.param.width
-        $scope.activeFilter.height = filter.param.height
-
-        $scope.currentPreviewSrc =$scope.allImagesModal.image[$scope.activeFilter.name]+'?'+_.random(1000);
-        console.log($scope.currentPreviewSrc)
-    }
-
-    $scope.imagesUpdate = function (data) {
-
-        $scope.images = Array();
-
-        $scope.images = _.values(data.images)
-
-        $scope.images = _.sortBy($scope.images, 'order')
-        $scope.lastImageId = data.lastImageId;
-        $scope.galList = data.subGalleryList;
-
-
-        $scope.config = data.config
-
-        firstFilter = _.keys($scope.config.imageFilters)[1]
-        if (  $scope.activeFilter ==null){
-            $scope.activeFilter = {
-                name:firstFilter,
-                width:$scope.config.imageFilters[firstFilter][0].param.width,
-                height:$scope.config.imageFilters[firstFilter][0].param.height
-            }
-        }
-
-
-    }
-
-
     $scope.imagesSortedKeys = [];
 
-    $scope.getData = function () {
-        $http.get('/pictureBox/api/GetData', {
-            params: {
-                galleryId: $scope.galId,
-                id: $scope.id,
-                subGallery:$scope.activeSubGallery
-            }
-        }).then(function (responce) {
-
-            $scope.imagesUpdate(responce.data);
-        });
+    //Переменная, через которую внешние компоненты понимают в какую галлерею сохранять
+    $scope.activeSubGallery = '';
+    $scope.madeSubGalleryActive = function (name) {
+        $scope.activeSubGallery = name;
 
     }
 
-    $scope.setGallery = (gal)=>{
-        $scope.activeSubGallery = gal;
-        $scope.getData()
+    $scope.getImagesDataHook = function () {
+        console.log('еще не переопределили')
     }
 
-
-
-    $scope.sendData = function () {
-        $http.post('/pictureBox/api/obectSave', {
-
-            images: $scope.images,
-            deleted: $scope.deleted
-
-        }, {
-            params: {
-                galleryId: $scope.galId,
-                id: $scope.id,
-                subGallery:$scope.activeSubGallery
-            }
-        })
+    $scope.madeFilterActiveHook = function () {
+        console.log('еще не переопределили')
     }
 
-
-    $scope.orderSave = function () {
-        $scope.sendData();
-    }
-
-    $scope.getLastImageId = function () {
-        return $http.get('/pictureBox/api/getLastItemId', {
-            params: {
-                galleryId: $scope.galId,
-                id: $scope.id
-            }
-        })
-    }
-
-
-    $scope.imageShownChange = function (imageId) {
-        image = _.find($scope.images, {id: imageId})
-        if (!_.has(image, 'params'))
-            image.params = {show: 1}
-        image.params.show = !image.params.show
-
-        $scope.sendData()
-    }
-
-    $scope.imageFavChange = function (imageId) {
-        image = _.find($scope.images, {id: imageId})
-        if (!_.has(image, 'params'))
-            image.params = {fav: 1}
-        image.params.fav = !image.params.fav
-
-        $scope.sendData()
-    }
-
-    $scope.imageDelete = function (imageId) {
-
-        console.log($scope.deleted)
-        // console.log(_.remove($scope.images,{id:imageId}))
-        $scope.deleted = _.concat($scope.deleted, _.remove($scope.images, {id: imageId}));
-        console.log($scope.deleted)
-        $scope.sendData();
-
-
-    }
-
-
-
+    $scope.dataCollection = {};
 
 }]);
 
 
-app.directive('tiles', function () {
+app.directive('tiles', ['$http', function ($http) {
     return {
         restrict: 'E',
+        scope: {
+            allImagesModal: '=',
+            allDataCollection: '=',
+            activeFilter: '=',
+            activeSubGallery: '=',
+            getDataHook: '=',
+            config: '=',
+            madeFilterActiveHook: '=',
+            currentPreviewSrc: '=',
 
+
+        },
         templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?123',
         link: function (scope, element, attrs) {
-            console.log(attrs);
+            console.log(scope.allDataCollection);
 
             scope.galId = attrs.galleryId;
             scope.id = attrs.id;
+            scope.activeGallery = attrs.activeGallery;
 
-            scope.setGallery('default');
+            scope.sendData = function () {
+                $http.post('/pictureBox/api/obectSave', {
+
+                    images: scope.images,
+                    deleted: scope.deleted
+
+                }, {
+                    params: {
+                        galleryId: scope.galId,
+                        id: scope.id,
+                        subGallery: scope.activeGallery
+                    }
+                })
+            }
+            scope.imageShownChange = function (imageId) {
+                image = _.find(scope.images, {id: imageId})
+                if (!_.has(image, 'params'))
+                    image.params = {show: 1}
+                image.params.show = !image.params.show
+
+                scope.sendData()
+            }
+
+            scope.imageFavChange = function (imageId) {
+                image = _.find(scope.images, {id: imageId})
+                if (!_.has(image, 'params'))
+                    image.params = {fav: 1}
+                image.params.fav = !image.params.fav
+
+                scope.sendData()
+            }
+
+            scope.imageDelete = function (imageId) {
+
+                console.log(scope.deleted)
+                // console.log(_.remove($scope.images,{id:imageId}))
+                scope.deleted = _.concat(scope.deleted, _.remove(scope.images, {id: imageId}));
+                console.log(scope.deleted)
+                scope.sendData();
+
+
+            }
+
+            scope.orderSave = function () {
+                scope.sendData();
+            }
+
+
+            scope.setGallery = (gal) => {
+                scope.activeSubGallery = gal;
+                scope.getData()
+            }
+
+            scope.getDataHook = scope.getData = function () {
+                $http.get('/pictureBox/api/GetData', {
+                    params: {
+                        galleryId: scope.galId,
+                        id: scope.id,
+                        subGallery: scope.activeGallery
+                    }
+                }).then(function (responce) {
+
+                    scope.imagesUpdate(responce.data);
+                });
+
+            }
+            scope.imagesUpdate = function (data) {
+
+                scope.images = Array();
+
+                scope.images = _.values(data.images)
+
+                scope.images = _.sortBy(scope.images, 'order')
+                scope.lastImageId = data.lastImageId+0;
+                scope.galList = data.subGalleryList;
+
+
+                scope.config = data.config
+
+                firstFilter = _.keys(scope.config.imageFilters)[1]
+                if (scope.activeFilter == null) {
+                    scope.activeFilter = {
+                        name: firstFilter,
+                        width: scope.config.imageFilters[firstFilter][0].param.width,
+                        height: scope.config.imageFilters[firstFilter][0].param.height
+                    }
+                }
+
+                scope.updateExternalData()
+            }
+
+            scope.setGallery(scope.activeGallery);
+
             scope.showAltTitleModal = function (i) {
 
                 image = _.find(scope.images, {id: i.id})
@@ -210,8 +201,8 @@ app.directive('tiles', function () {
                     image: image,
 
                 }
-                scope.currentPreviewSrc =image[scope.activeFilter.name]+'?'+_.random(1000);
-
+                scope.currentPreviewSrc = image[scope.activeFilter.name] + '?' + _.random(1000);
+                scope.setGallery(scope.activeGallery)
                 // scope.titleModal = {
                 //     id: i.id,
                 //     title: image.title,
@@ -219,12 +210,42 @@ app.directive('tiles', function () {
                 // }
             }
 
+            scope.madeFilterActiveHook = scope.madeFilterActive = function (name) {
+                filter = scope.config.imageFilters[name][0]
+                console.log(scope.config.imageFilters[name])
+                scope.activeFilter.name = name
+                scope.activeFilter.width = filter.param.width
+                scope.activeFilter.height = filter.param.height
+
+                scope.currentPreviewSrc = scope.allImagesModal.image[scope.activeFilter.name] + '?' + _.random(1000);
+                console.log(scope.currentPreviewSrc)
+            }
 
 
+            scope.getLastImageId = function () {
+                return $http.get('/pictureBox/api/getLastItemId', {
+                    params: {
+                        galleryId: scope.galId,
+                        id: scope.id
+                    }
+                })
+            }
+
+            scope.updateExternalData = function () {
+                data = {};
+                data.lastImageId = scope.lastImageId;
+                data.sendData = scope.sendData;
+                data.images = scope.images;
+                data.getData = scope.getData;
+
+                scope.allDataCollection[scope.activeGallery] = data;
+
+                console.log(scope.allDataCollection);
+            }
 
         }
     }
-})
+}])
 
 app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
     return {
@@ -246,20 +267,27 @@ app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
 
                 scope.filePointer = 0
                 scope.uploadFile = function () {
-                    scope.lastImageId++;
+
                     file = scope.files[scope.filePointer]
                     //scope.files = _.drop(scope.files)
                     console.log('Загружаем файл')
                     console.log(scope.filePointer)
-                    console.log(file)
+
+                    imageId = 0;
+                    imageId = parseInt(scope.dataCollection[scope.activeSubGallery].lastImageId);
+                    imageId++;
+                    scope.dataCollection[scope.activeSubGallery].lastImageId = imageId;
+                    images = scope.dataCollection[scope.activeSubGallery].images;
                     file.upload = Upload.upload({
                         url: '/pictureBox/api/upload',
                         data: {
                             file: file,
                             galleryId: scope.galId,
                             id: scope.id,
-                            lastId: scope.lastImageId,
-                            subGallery:scope.activeSubGallery
+
+                            lastId: imageId,
+                            //  lastId: scope.lastImageId,
+                            subGallery: scope.activeSubGallery
                         }
                     });
 
@@ -267,16 +295,16 @@ app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
                         console.log('Закончили загрузку');
 
 
-                        response.data[0].order = scope.images.length
+                        response.data[0].order = images.length
                         response.data[0].params = {show: true, fav: false}
-                        scope.images.push(response.data[0])
+                        images.push(response.data[0])
                         console.log(response.data);
 
                         if (scope.filePointer < files.length - 1) {
                             scope.filePointer++
                             scope.uploadFile()
                         } else {
-                            scope.sendData();
+                            scope.dataCollection[scope.activeSubGallery].sendData();
                         }
 
                         $timeout(function () {

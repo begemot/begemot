@@ -65,7 +65,7 @@ class ApiController extends Controller
         ];
 
 
-        echo json_encode($allData);
+        echo json_encode($allData,JSON_NUMERIC_CHECK);
 
     }
 
@@ -95,9 +95,11 @@ class ApiController extends Controller
 
         }
 
-        print_r($postdata['deleted']);
+
         if (isset($postdata['deleted'])) {
+
             foreach ($postdata['deleted'] as $item) {
+                if (!is_array($item)) continue;
                 $webroot = Yii::getPathOfAlias('webroot');
                 foreach ($item as $key => $imageFile) {
                     if (is_array($imageFile)) continue;
@@ -210,7 +212,7 @@ class ApiController extends Controller
 
             }
 
-            echo json_encode($addedImages);
+            echo json_encode($addedImages,JSON_NUMERIC_CHECK);
         }
     }
 
@@ -228,7 +230,7 @@ class ApiController extends Controller
 
     public function actionSavePreviewImage($gallery, $id, $imageId, $filterName,$subGallery='default')
     {
-
+        print_r($_FILES);
         if (isset($_FILES['croppedImage'])) {
 
             $pbox = new PBox($gallery, $id,$subGallery);

@@ -18,18 +18,19 @@ app.directive('crop', ['$http',
             template: '<div style="width: 600px;height:400px;display:block;margin:0 auto;"><img src="{{imageSrc}}" /></div>',
             scope: {
                 imageSrc: '@imageSrc',
+                allDataCollection: '=',
                 imageId:'@',
                 activeFilter: '=',
                 blobSendHook: '=',
                 images:'=',
                 subGallery:'=',
-                imagesReload:'='
+
+
             },
 
             link: function (scope, iElement, iAttrs, controller) {
+                console.log(scope.allDataCollection);
 
-                //  element.wrap('<div class="angularCropContainer"></div>')
-                // element.wrap('<div class="angularCropContainer1"></div>')
                 imageDomObj = $(iElement).find('img')[0]
 
 
@@ -37,10 +38,10 @@ app.directive('crop', ['$http',
                 var previewReady = false;
 
                 imageDomObj.onload = onLoadFunction = function () {
-
+                    if (scope.activeFilter==null) return;
                     if (_.isObject(scope.cropperObj))
                         scope.cropperObj.destroy()
-
+                    console.log(scope.activeFilter);
                     scope.cropperObj =
                         new Cropper(imageDomObj, {
                             viewMode: 0,
@@ -121,7 +122,13 @@ app.directive('crop', ['$http',
 
 
                         formData.append('croppedImage', blob/*, 'example.png' */);
-
+                        console.log({
+                            gallery:scope.galId,
+                            id:scope.id,
+                            imageId:scope.imageId,
+                            filterName:scope.activeFilter.name,
+                            subGallery:scope.subGallery
+                        });
                         $http({
                             url:'/pictureBox/api/savePreviewImage',
                             method: 'POST',
@@ -143,8 +150,10 @@ app.directive('crop', ['$http',
                                 img.attr('src',img.attr('src')+'?'+_.random(1000))
                                 console.log(img.attr('src'));
                             })
-
-                            scope.imagesReload();
+                            console.log(scope.allDataCollection);
+                            console.log(scope.allDataCollection[scope.subGallery]);
+                            scope.allDataCollection[scope.subGallery].getData();
+                            //cope.imagesReload();
 
                         })
 
