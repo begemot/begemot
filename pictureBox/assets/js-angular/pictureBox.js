@@ -1,12 +1,59 @@
 var app = angular.module('pictureBox', ["dndLists", 'ngFileUpload']);
 
 
-app.controller('gallery', ['$scope', '$http', function ($scope, $http) {
+app.service('galleryControl', ['$http', 'values', function ($http, values) {
+    this.activeSubGallery = 'default';
+    this.dataCollection = {};
+    this.activeFilter = '';
+    this.allImagesModal = {};
+    this.config = {};
+    this.currentPreviewSrc = '';
+    this.titleModal = {};
+    var activeFilterChangesCallbacks = [];
+    this.activeFilterChangesAddCallback = function (callback) {
+        activeFilterChangesCallbacks.push(callback);
+    }
+    this.setActiveFilter = function (filterNew) {
+        console.log('this.setActiveFilter');
+        this.activeFilter = filterNew;
+        notifyObservers();
+    }
+
+    var notifyObservers = function () {
+        console.log('notifyObservers');
+        _.forEach(activeFilterChangesCallbacks, function (callback) {
+
+            callback();
+        });
+    };
+
+
+}]);
+
+app.controller('gallery', ['$scope', '$http', 'galleryControl', 'values', function ($scope, $http, galleryControl, values) {
     // ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
     // $scope.galId = 'sqlLiteTest';
     //$scope.id = 1;
+    $scope.galList = null;
+    $scope.values = values;
+    var loadGalList = function () {
+        if (this.galList == null) {
+            $http.get('/pictureBox/api/getGalleries', {
+                params: {
+                    galleryId: values.galId,
+                    id: values.id,
+                    subGallery: galleryControl.activeGallery
+                }
+            }).then(function (responce) {
+                $scope.galList = responce.data
 
-
+            });
+        }
+    }
+    loadGalList();
+    $scope.getGalList = function () {
+        return galleryControl.galList
+    }
     $scope.testHook = '';
 
 
@@ -17,62 +64,89 @@ app.controller('gallery', ['$scope', '$http', function ($scope, $http) {
     $scope.search = {params: {deleted: false}};
     // $scope.search.params.deleted = false;
 
-    $scope.titleModal = {
+    galleryControl.titleModal = {
         id: '',
         title: '',
         alt: ''
     }
 
-    $scope.allImagesModal = {
+    galleryControl.allImagesModal = {
         id: '123',
         image: '23',
     }
+    $scope.getPreview = function () {
+        return galleryControl.currentPreviewSrc;
+    }
 
-    $scope.activeFilter = null;
+    $scope.getConfig = function () {
+        return galleryControl.config;
+    }
+    $scope.getAllImagesModal = function () {
+        return galleryControl.allImagesModal;
+    }
 
+    $scope.getTitleModal = function () {
+        return galleryControl.titleModal;
+    }
+
+    galleryControl.activeFilter = null;
+    $scope.getActiveFilterName = function () {
+        return galleryControl.activeFilter.name;
+    }
     $scope.imagesSortedKeys = [];
 
     //Переменная, через которую внешние компоненты понимают в какую галлерею сохранять
-    $scope.activeSubGallery = '';
+
     $scope.madeSubGalleryActive = function (name) {
-        $scope.activeSubGallery = name;
+        galleryControl.activeSubGallery = name;
 
     }
 
-    $scope.getImagesDataHook = function () {
-        console.log('еще не переопределили')
+
+    $scope.madeFilterActive = function (name) {
+        filter = galleryControl.config.imageFilters[name][0]
+        console.log(galleryControl.config.imageFilters[name])
+
+
+        // galleryControl.activeFilter.name = name
+        // galleryControl.activeFilter.width = filter.param.width
+        //galleryControl.activeFilter.height = filter.param.height
+        galleryControl.setActiveFilter({
+            name: name,
+            width: filter.param.width,
+            height: filter.param.height
+        });
+        galleryControl.currentPreviewSrc = galleryControl.allImagesModal.image[galleryControl.activeFilter.name] + '?' + _.random(1000);
+        console.log(galleryControl.currentPreviewSrc)
     }
 
-    $scope.madeFilterActiveHook = function () {
-        console.log('еще не переопределили')
-    }
-
-    $scope.dataCollection = {};
+    galleryControl.dataCollection = {};
 
 }]);
 
 
-app.directive('tiles', ['$http', function ($http) {
+app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryControl) {
     return {
         restrict: 'E',
         scope: {
-            allImagesModal: '=',
-            allDataCollection: '=',
-            activeFilter: '=',
-            activeSubGallery: '=',
-            getDataHook: '=',
-            config: '=',
-            madeFilterActiveHook: '=',
-            currentPreviewSrc: '=',
+            //  allImagesModal: '=',
+            //  allDataCollection: '=',
+            //  activeFilter: '=',
+            // activeSubGallery: '=',
+            //   getDataHook: '=',
+            //    config: '=',
+            //    madeFilterActiveHook: '=',
+            // currentPreviewSrc: '=',
 
 
         },
         templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?123',
         link: function (scope, element, attrs) {
-            console.log(scope.allDataCollection);
+            console.log(galleryControl);
 
             scope.galId = attrs.galleryId;
             scope.id = attrs.id;
+
             scope.activeGallery = attrs.activeGallery;
 
             scope.sendData = function () {
@@ -109,10 +183,10 @@ app.directive('tiles', ['$http', function ($http) {
 
             scope.imageDelete = function (imageId) {
 
-                console.log(scope.deleted)
+                //  console.log(scope.deleted)
                 // console.log(_.remove($scope.images,{id:imageId}))
                 scope.deleted = _.concat(scope.deleted, _.remove(scope.images, {id: imageId}));
-                console.log(scope.deleted)
+                //  console.log(scope.deleted)
                 scope.sendData();
 
 
@@ -124,7 +198,7 @@ app.directive('tiles', ['$http', function ($http) {
 
 
             scope.setGallery = (gal) => {
-                scope.activeSubGallery = gal;
+                galleryControl.activeSubGallery = gal;
                 scope.getData()
             }
 
@@ -148,19 +222,19 @@ app.directive('tiles', ['$http', function ($http) {
                 scope.images = _.values(data.images)
 
                 scope.images = _.sortBy(scope.images, 'order')
-                scope.lastImageId = data.lastImageId+0;
+                scope.lastImageId = data.lastImageId + 0;
                 scope.galList = data.subGalleryList;
 
 
-                scope.config = data.config
+                galleryControl.config = data.config
 
-                firstFilter = _.keys(scope.config.imageFilters)[1]
-                if (scope.activeFilter == null) {
-                    scope.activeFilter = {
+                firstFilter = _.keys(galleryControl.config.imageFilters)[1]
+                if (galleryControl.activeFilter == null) {
+                    galleryControl.setActiveFilter({
                         name: firstFilter,
-                        width: scope.config.imageFilters[firstFilter][0].param.width,
-                        height: scope.config.imageFilters[firstFilter][0].param.height
-                    }
+                        width: galleryControl.config.imageFilters[firstFilter][0].param.width,
+                        height: galleryControl.config.imageFilters[firstFilter][0].param.height
+                    })
                 }
 
                 scope.updateExternalData()
@@ -172,22 +246,24 @@ app.directive('tiles', ['$http', function ($http) {
 
                 image = _.find(scope.images, {id: i.id})
                 console.log(image)
-                scope.titleModal = {
+                galleryControl.titleModal = {
                     id: i.id,
                     title: image.title,
                     alt: image.alt
                 }
+                scope.setGallery(scope.activeGallery)
             }
 
             $('#titleAltModal').on('hidden.bs.modal', function (e) {
-                console.log(scope.titleModal)
+                if (scope.activeGallery != galleryControl.activeSubGallery) return;
+                console.log(galleryControl.titleModal)
 
-                image = _.find(scope.images, {id: scope.titleModal.id})
-                image.title = scope.titleModal.title
-                image.alt = scope.titleModal.alt
+                image = _.find(scope.images, {id: galleryControl.titleModal.id})
+                image.title = galleryControl.titleModal.title
+                image.alt = galleryControl.titleModal.alt
 
                 scope.sendData()
-
+                $('#titleAltModal').modal('hide');
             })
 
 
@@ -196,29 +272,18 @@ app.directive('tiles', ['$http', function ($http) {
                 image = _.find(scope.images, {id: i.id})
                 console.log(image)
 
-                scope.allImagesModal = {
+                galleryControl.allImagesModal = {
                     id: image.id,
                     image: image,
 
                 }
-                scope.currentPreviewSrc = image[scope.activeFilter.name] + '?' + _.random(1000);
+                galleryControl.currentPreviewSrc = image[galleryControl.activeFilter.name] + '?' + _.random(1000);
                 scope.setGallery(scope.activeGallery)
                 // scope.titleModal = {
                 //     id: i.id,
                 //     title: image.title,
                 //     alt: image.alt
                 // }
-            }
-
-            scope.madeFilterActiveHook = scope.madeFilterActive = function (name) {
-                filter = scope.config.imageFilters[name][0]
-                console.log(scope.config.imageFilters[name])
-                scope.activeFilter.name = name
-                scope.activeFilter.width = filter.param.width
-                scope.activeFilter.height = filter.param.height
-
-                scope.currentPreviewSrc = scope.allImagesModal.image[scope.activeFilter.name] + '?' + _.random(1000);
-                console.log(scope.currentPreviewSrc)
             }
 
 
@@ -238,20 +303,20 @@ app.directive('tiles', ['$http', function ($http) {
                 data.images = scope.images;
                 data.getData = scope.getData;
 
-                scope.allDataCollection[scope.activeGallery] = data;
+                galleryControl.dataCollection[scope.activeGallery] = data;
 
-                console.log(scope.allDataCollection);
+                console.log(galleryControl.dataCollection);
             }
 
         }
     }
 }])
 
-app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
+app.directive('upload', ['Upload', '$timeout', 'galleryControl', function (Upload, $timeout, galleryControl) {
     return {
         restrict: 'E',
 
-        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tilesUpload.html?12123',
+        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tilesUpload.html?123',
         link: function (scope, element, attrs) {
 
 
@@ -274,10 +339,10 @@ app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
                     console.log(scope.filePointer)
 
                     imageId = 0;
-                    imageId = parseInt(scope.dataCollection[scope.activeSubGallery].lastImageId);
+                    imageId = parseInt(galleryControl.dataCollection[galleryControl.activeSubGallery].lastImageId);
                     imageId++;
-                    scope.dataCollection[scope.activeSubGallery].lastImageId = imageId;
-                    images = scope.dataCollection[scope.activeSubGallery].images;
+                    galleryControl.dataCollection[galleryControl.activeSubGallery].lastImageId = imageId;
+                    images = galleryControl.dataCollection[galleryControl.activeSubGallery].images;
                     file.upload = Upload.upload({
                         url: '/pictureBox/api/upload',
                         data: {
@@ -287,7 +352,7 @@ app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
 
                             lastId: imageId,
                             //  lastId: scope.lastImageId,
-                            subGallery: scope.activeSubGallery
+                            subGallery: galleryControl.activeSubGallery
                         }
                     });
 
@@ -304,7 +369,7 @@ app.directive('upload', ['Upload', '$timeout', function (Upload, $timeout) {
                             scope.filePointer++
                             scope.uploadFile()
                         } else {
-                            scope.dataCollection[scope.activeSubGallery].sendData();
+                            galleryControl.dataCollection[galleryControl.activeSubGallery].sendData();
                         }
 
                         $timeout(function () {

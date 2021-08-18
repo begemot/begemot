@@ -18,57 +18,34 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
 Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/crop.js');
 
 ?>
+<script>
+
+    app.service('values', function ($http) {
+        this.galId = '<?= $id ?>';
+        this.id = <?= $elementId ?>;
+    });
+
+</script>
 
 <div ng-app="pictureBox" ng-controller="gallery">
-    {{activeSubGallery}}
-    <div class="navbar">
-        <div class="navbar-inner">
-            <a class="brand" href="#">Галлерея</a>
-            <ul class="nav">
-                <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive('default')">Загрузить файлы</a></li>
-                <li><a href="#subGalleryList" role="button" data-toggle="modal">Подгаллереи</a></li>
-            </ul>
+    <div ng-repeat="g in galList">
+        <div class="navbar pictureBoxNavBar">
+            <div class="navbar-inner">
+                <a class="brand" href="#">Галлерея: {{values.galId}},{{values.id}}, подгаллерея {{g}}</a>
+                <ul class="nav">
+                    <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive(g)">Загрузить файлы</a></li>
+
+                </ul>
+
+            </div>
+        </div>
+        <div>
+            <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" active-gallery="{{g}}"></tiles>
+
 
         </div>
     </div>
-    <div>
-        <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" active-gallery="default"
-               all-images-modal="allImagesModal"
-               active-filter="activeFilter"
-               active-sub-gallery="activeSubGallery"
-               get-data-hook="getImagesDataHook"
-               config="config"
-               made-filter-active-hook="madeFilterActiveHook"
-               current-preview-src="currentPreviewSrc"
-               all-data-collection="dataCollection"
-        ></tiles>
 
-
-    </div>
-    <div class="navbar pictureBoxNavBar">
-        <div class="navbar-inner">
-            <a class="brand" href="#">Галлерея</a>
-            <ul class="nav">
-                <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive('salon')">Загрузить файлы</a></li>
-                <li><a href="#subGalleryList" role="button" data-toggle="modal">Подгаллереи</a></li>
-            </ul>
-
-        </div>
-    </div>
-    <div>
-        <tiles gallery-id="<?= $id ?>" id="<?= $elementId ?>" active-gallery="salon"
-               all-images-modal="allImagesModal"
-               active-filter="activeFilter"
-               active-sub-gallery="activeSubGallery"
-               get-data-hook="getImagesDataHook"
-               config="config"
-               made-filter-active-hook="madeFilterActiveHook"
-               current-preview-src="currentPreviewSrc"
-               all-data-collection="dataCollection"
-        ></tiles>
-
-
-    </div>
 
     <upload gallery-id="<?= $id ?>" id="<?= $elementId ?>"></upload>
 
@@ -86,25 +63,25 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
                     <h4>Оригинальное изображение</h4>
                     <crop
                             gallery-id="<?= $id ?>" id="<?= $elementId ?>"
-                            image-src="{{allImagesModal.image.original}}"
-                            image-id="{{allImagesModal.image.id}}"
+                            image-src="{{getAllImagesModal().image.original}}"
+                            image-id="{{getAllImagesModal().image.id}}"
                             blob-send-hook="testHook"
-                            images="images" active-filter="activeFilter"
+                            images="images"
                             sub-gallery="activeSubGallery"
 
                             all-data-collection="dataCollection"
                     ></crop>
-
+                    {{galleryControl.activeFilter.name}}
                     <span
-                            ng-class="{'badge-success':name!=activeFilter.name,'badge-warning':name==activeFilter.name}"
-                            ng-repeat="(name,filter) in config.imageFilters "
+                            ng-class="{'badge-success':name!=getActiveFilterName(),'badge-warning':name==getActiveFilterName()}"
+                            ng-repeat="(name,filter) in getConfig().imageFilters "
                             class="badge badge-pill"
-                            ng-click="madeFilterActiveHook(name)">{{name}}</span>
+                            ng-click="madeFilterActive(name)">{{name}}</span>
                     <div style="display: flex;justify-content: space-between;">
                         <span class="preview" style=""></span>
                         <span class="badge badge-pill badge-success" ng-click="testHook()"
                               id="previewSaveBtn">Сохранить</span>
-                        <img id='realPreview' class='realPreview' src="{{currentPreviewSrc}}" alt="">
+                        <img id='realPreview' class='realPreview' src="{{getPreview()}}" alt="">
                     </div>
 
                     <!--                    <span class="badge badge-pill badge-warning">Warning</span>-->
@@ -133,11 +110,11 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
                     <form>
                         <div class="form-group">
                             <label for="title-text" class="col-form-label">Title:</label>
-                            <textarea ng-model="titleModal.title" class="form-control" id="title-text"></textarea>
+                            <textarea ng-model="getTitleModal().title" class="form-control" id="title-text"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="alt-text" class="col-form-label">Alt:</label>
-                            <textarea ng-model="titleModal.alt" class="form-control" id="alt-text"></textarea>
+                            <textarea ng-model="getTitleModal().alt" class="form-control" id="alt-text"></textarea>
                         </div>
                     </form>
 

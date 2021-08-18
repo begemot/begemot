@@ -130,7 +130,19 @@ class ApiController extends Controller
         echo json_encode($images);
 
     }
+    public function actionGetGalleries($galleryId, $id){
 
+        $pBox = new PBox($galleryId, $id);
+        $wr = Yii::getPathOfAlias('webroot');
+        $filelist = glob($wr.'/'.$pBox->webDataFile.'/*',GLOB_ONLYDIR);
+        $resultList = ['default'];
+
+        foreach ($filelist as $dir){
+            $resultList[] =  basename($dir);
+        }
+
+        echo(json_encode($resultList));
+    }
 //    public function actionImageDelete($galleryId, $id, $imageId)
 //    {
 //

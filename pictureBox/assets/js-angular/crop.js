@@ -10,17 +10,16 @@ function each(arr, callback) {
 }
 
 
-app.directive('crop', ['$http',
-    function ($http) {
+app.directive('crop', ['$http','galleryControl',
+    function ($http,galleryControl) {
         return {
             restrict: 'E',
 
             template: '<div style="width: 600px;height:400px;display:block;margin:0 auto;"><img src="{{imageSrc}}" /></div>',
             scope: {
                 imageSrc: '@imageSrc',
-                allDataCollection: '=',
                 imageId:'@',
-                activeFilter: '=',
+
                 blobSendHook: '=',
                 images:'=',
                 subGallery:'=',
@@ -29,7 +28,7 @@ app.directive('crop', ['$http',
             },
 
             link: function (scope, iElement, iAttrs, controller) {
-                console.log(scope.allDataCollection);
+
 
                 imageDomObj = $(iElement).find('img')[0]
 
@@ -38,15 +37,15 @@ app.directive('crop', ['$http',
                 var previewReady = false;
 
                 imageDomObj.onload = onLoadFunction = function () {
-                    if (scope.activeFilter==null) return;
+                    if (galleryControl.activeFilter==null) return;
                     if (_.isObject(scope.cropperObj))
                         scope.cropperObj.destroy()
-                    console.log(scope.activeFilter);
+                    console.log('imageDomObj.onload = onLoadFunction = function () {');
                     scope.cropperObj =
                         new Cropper(imageDomObj, {
                             viewMode: 0,
                             responsive: true,
-                            aspectRatio: scope.activeFilter.width / scope.activeFilter.height,
+                            aspectRatio: galleryControl.activeFilter.width / galleryControl.activeFilter.height,
                             minContainerWidth: 600,
                             minContainerHeight: 400,
                             ready: function () {
@@ -65,8 +64,8 @@ app.directive('crop', ['$http',
                                 each(previews, function (elem) {
                                     elem.innerHTML = '';
                                     elem.style.cssText = (
-                                        'width:' + scope.activeFilter.width + 'px;' +
-                                        'height:' + scope.activeFilter.height + 'px;' +
+                                        'width:' + galleryControl.activeFilter.width + 'px;' +
+                                        'height:' + galleryControl.activeFilter.height + 'px;' +
                                         'display: block;overflow: hidden;'
                                     );
                                     elem.appendChild(clone.cloneNode());
@@ -106,10 +105,10 @@ app.directive('crop', ['$http',
                 }
                 this.cropperInit = onLoadFunction
 
-                scope.$watch('activeFilter.name', function () {
-                    onLoadFunction()
-                });
 
+                galleryControl.activeFilterChangesAddCallback(onLoadFunction);
+                galleryControl.activeFilterChangesAddCallback(onLoadFunction);
+                galleryControl.activeFilterChangesAddCallback(onLoadFunction);
                 scope.blobSendHook = function () {
                     console.log(scope.imageId)
                     scope.galId = iAttrs.galleryId;
@@ -126,7 +125,7 @@ app.directive('crop', ['$http',
                             gallery:scope.galId,
                             id:scope.id,
                             imageId:scope.imageId,
-                            filterName:scope.activeFilter.name,
+                            filterName:galleryControl.activeFilter.name,
                             subGallery:scope.subGallery
                         });
                         $http({
@@ -138,7 +137,7 @@ app.directive('crop', ['$http',
                                 gallery:scope.galId,
                                 id:scope.id,
                                 imageId:scope.imageId,
-                                filterName:scope.activeFilter.name,
+                                filterName:galleryControl.activeFilter.name,
                                 subGallery:scope.subGallery
                             }
                         }).then(()=>{
@@ -150,9 +149,8 @@ app.directive('crop', ['$http',
                                 img.attr('src',img.attr('src')+'?'+_.random(1000))
                                 console.log(img.attr('src'));
                             })
-                            console.log(scope.allDataCollection);
-                            console.log(scope.allDataCollection[scope.subGallery]);
-                            scope.allDataCollection[scope.subGallery].getData();
+
+                            galleryControl.dataCollection[scope.subGallery].getData();
                             //cope.imagesReload();
 
                         })

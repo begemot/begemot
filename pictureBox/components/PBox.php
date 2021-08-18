@@ -35,6 +35,11 @@ class PBox
     public $filters = null;
     public $subGalleriesList = null;
 
+    /**
+     * @param $dir
+     *
+     * Переделывает данные старого формата в новый
+     */
     public function oldDataFormatCheckAndConvert($dir)
     {
         $dir = $dir . '/';
@@ -446,16 +451,9 @@ class PBox
         $data = array();
         $data['images'] = $this->pictures;
 
-//        PictureBox::crPhpArr($data, $this->dataFile);
         $this->saveImages($this->pictures);
         $this->saveSortData($this->sortArray);
         $this->saveFavData($this->favPictures);
-
-        //   $this->SQLiteVault->pushCollection($data['images']);
-        //s  $this->SQLiteVault->pushCollection($this->favPictures, 'favData');
-//        $data = $this->favPictures;
-
-//        PictureBox::crPhpArr($data, $this->favDataFile);
 
     }
 
@@ -564,9 +562,16 @@ class PBox
     /**
      * Загрузить можно любой файл по абсолютному пути на сервере. Загрузит оригинал, нарежет, сохранит.
      *
-     * @param $fileArray массив файла
+     *
+     *
+     * @param $fileArray массив файла, стандартного формата при загрузки файлов POST
+     *  должны быть след. параметры
+     *  $fileArray['name'] - имя файла оригинала с расширением test.jpg
+     *  $fileArray['tmp_name'] - полное имя файла, который физически есть на сервере
+     *
+     * @param null $lastImageIdParam добавляет в "коробку" изображение с id равным $lastImageIdParam+1
      */
-    public function upload($fileArray, $lastImageIdParam = null)
+    public function upload($fileArray, $lastImageIdParam = null,$isPostLoaded = true)
     {
 
 
@@ -592,7 +597,13 @@ class PBox
         $webFilePath = $this->webDataFile;
         $newOriginalFile = $filesPath . '/' . $imageId . '.' . $imageExt;
         $webOriginalFile = $webFilePath . '/' . $imageId . '.' . $imageExt;
-        move_uploaded_file($tmpname, $newOriginalFile);
+
+        if ($isPostLoaded){
+
+            move_uploaded_file($tmpname, $newOriginalFile);
+        }else {
+            copy($tmpname, $newOriginalFile);
+        }
 
 
         $resultFiltersStack = array();
@@ -622,6 +633,23 @@ class PBox
         $pictureForAdd['id'] = $imageId;
         return $pictureForAdd;
     }
+
+    /**
+     * @param $fileNameOrUrl
+     * @param null $lastImageIdParam
+     *
+     * Добавляет в коробку изображение, которое уже физически есть на сервере и не обязательно было загружено по HTTP.
+     * Либо по url на удаленном сервере в публичном доступе
+     */
+    public function addImagefile($fileNameOrUrl,$lastImageIdParam = null){
+        $fileArray = [];
+        $fileArray['name'] = basename($fileNameOrUrl);
+        $fileArray['tmp_name'] = $fileNameOrUrl;
+        $this->upload($fileArray,$lastImageIdParam,false);
+    }
+
+
+
 
     private function getNewImageId()
     {
