@@ -1,5 +1,5 @@
 <?php
-
+Yii::import('pictureBox.components.filters.*');
 /**
  * Класс служит для пакетной работы с изображениями.
  *

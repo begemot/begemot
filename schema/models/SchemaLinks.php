@@ -1,22 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "SchemaData".
+ * This is the model class for table "SchemaLinks".
  *
- * The followings are the available columns in table 'SchemaData':
+ * The followings are the available columns in table 'SchemaLinks':
  * @property integer $id
- * @property string $value
- * @property integer $fieldId
- * @property integer $groupId
+ * @property string $linkType
+ * @property integer $linkId
+ * @property integer $schemaId
  */
-class SchemaData extends CActiveRecord
+class SchemaLinks extends CActiveRecord
 {
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return 'SchemaData';
+		return 'SchemaLinks';
 	}
 
 	/**
@@ -27,12 +27,11 @@ class SchemaData extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('fieldId,groupId,schemaId', 'numerical', 'integerOnly'=>true),
-
-
+			array('linkId, schemaId', 'numerical', 'integerOnly'=>true),
+			array('linkType', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id,  fieldId, catId', 'safe', 'on'=>'search'),
+			array('id, linkType, linkId, schemaId', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -54,9 +53,9 @@ class SchemaData extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-
-			'fieldId' => 'Field',
-			'catId' => 'Cat',
+			'linkType' => 'Link Type',
+			'linkId' => 'Link',
+			'schemaId' => 'Schema',
 		);
 	}
 
@@ -79,12 +78,15 @@ class SchemaData extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-
-		$criteria->compare('fieldId',$this->fieldId);
-		$criteria->compare('catId',$this->catId);
+		$criteria->compare('linkType',$this->linkType,true);
+		$criteria->compare('linkId',$this->linkId);
+		$criteria->compare('schemaId',$this->schemaId);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
+            'pagination' => [
+                'pageSize' => 100,
+            ],
 		));
 	}
 
@@ -92,55 +94,10 @@ class SchemaData extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return SchemaData the static model class
+	 * @return SchemaLinks the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
 	}
-
-	public function setData ($value,$type){
-
-
-
-        Yii::import ('schema.models.types.*');
-        $className = 'SchmType'.$type;
-
-        $model = $className::model()->findByAttributes(
-            ['fieldDataId'=>$this->id]
-        );
-
-        if (!$model){
-            $model=   new $className();
-            $model->fieldDataId = $this->id;
-        }
-        $this->valueId =$model->id;
-        $model->value = $value;
-
-         if ( $model->save()){
-             $this->valueId = $model->id;
-             $this->save();
-         }
-
-    }
-
-    public function delete(){
-	    Yii::import('schema.models.types.*');
-	    if ($this->fieldType=='String'){
-            $data = SchmTypeString::model()->findByAttributes([
-                'fieldDataId'=>$this->id
-            ]);
-
-        } else if ($this->fieldType=='Text') {
-            $data = SchmTypeText::model()->findByAttributes([
-                'fieldDataId'=>$this->id
-            ]);
-        } else {
-	        throw new Exception('Сделать для других типов данных. Неизвестный тип данных:'.$this->fieldType);
-        }
-	    if ($data)
-            $data->delete();
-	    
-	    parent::delete();
-    }
 }

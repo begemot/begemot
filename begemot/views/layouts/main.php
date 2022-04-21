@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="language" content="ru" />
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
 
 
     <base href="<?=$_SERVER['HTTP_HOST']?>"/>
@@ -36,6 +36,7 @@ $begemotMaenuArray = array(
             array('label'=>'Структура компании', 'url'=>array('/company/companyDepart/admin'),'visible'=>Yii::app()->hasModule('slider')),
             array('label'=>'Цены', 'url'=>array('/priceList/prices/admin'),'visible'=>Yii::app()->hasModule('priceList')),
             array('label'=>'ContentManager', 'url'=>array('/contentTask/contentTask/admin'),'visible'=>Yii::app()->hasModule('contentTask')),
+            array('label'=>'Schemas', 'url'=>array('/schema/default/index'),'visible'=>Yii::app()->hasModule('schema')),
         ),
     ),
 

@@ -8,80 +8,8 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/catalog/views/c
 $colors = CatColorToCatItem::model()->findAllByAttributes(['catItemId'=>$_REQUEST['id']]);
 
 ?>
+
 <h2>Цвета этого товара</h2>
-<table id="topTable" class="table table-striped">
-    <thead>
-    <td>Название цвета</td>
-    <td>Цвет</td>
-    <td>Изображение</td>
-    <td>Прикрепить/убрать</td>
-    <td>Удалить</td>
-    </thead>
-    <?php foreach ($colors as $color): ?>
-        <tr data-color-id="<?= $color->colorId ?>" data-cat-item-id="<?= $_REQUEST['id'] ?>">
-            <td><?= $color->color->name ?></td>
-            <td class="colorTd" width="100"
-                style="cursor: pointer;background-color: <?= $color->color->colorCode ?>"></td>
-            <td><?php
-
-                $picturesConfig = [];
-
-                $this->widget(
-                    'application.modules.pictureBox.components.PictureBox', array(
-                        'id' => 'colorItem',
-                        'elementId' => $color->color->id,
-                        'config' => $picturesConfig,
-                        'theme' => 'oneSmall'
-                    )
-                );
-
-                ?></td>
-            <td><input class="colorCheckbox" type="checkbox"
-                       value="" checked></td>
-            <td><a class="colorDeleteBtn btn btn-danger">Удалить</a></td>
-        </tr>
-    <?php endforeach; ?>
-</table>
-
-<?php
-$colors = CatColor::model()->findAll();
-?>
-<h2>Остальные цвета</h2>
-<table id="bottomTable" class="table table-striped">
-    <thead>
-    <td>Название цвета</td>
-    <td>Цвет</td>
-    <td>Изображение</td>
-    <td>Прикрепить/убрать</td>
-    <td>Удалить</td>
-    </thead>
-    <?php foreach ($colors as $color): ?>
-        <?php if ($color->isLinkedWithColor($_REQUEST['id'])) continue; ?>
-        <tr data-color-id="<?= $color->id ?>" data-cat-item-id="<?= $_REQUEST['id'] ?>">
-            <td><?= $color->name ?></td>
-            <td class="colorTd" width="100"
-                style="cursor: pointer;background-color: <?= $color->colorCode ?>"></td>
-            <td><?php
-
-                $picturesConfig = [];
-
-                $this->widget(
-                    'application.modules.pictureBox.components.PictureBox', array(
-                        'id' => 'colorItem',
-                        'elementId' => $color->id,
-                        'config' => $picturesConfig,
-                        'theme' => 'oneSmall'
-                    )
-                );
-
-                ?></td>
-            <td><input class="colorCheckbox" type="checkbox"
-                       value=""></td>
-            <td><a class="colorDeleteBtn btn btn-danger">Удалить</a></td>
-        </tr>
-    <?php endforeach; ?>
-</table>
-
 <style>
     .colorpicker-saturation {
         width: 200px;
@@ -124,3 +52,92 @@ $colors = CatColor::model()->findAll();
         </div>
     </div>
 </div>
+
+<table id="topTable" class="table table-striped">
+    <thead>
+    <td>id</td>
+    <td>Название цвета</td>
+    <td>Цвет</td>
+    <td></td>
+    </thead>
+    <?php foreach ($colors as $color): ?>
+        <tr data-color-id="<?= $color->colorId ?>" data-cat-item-id="<?= $_REQUEST['id'] ?>">
+            <td><?= $color->color->id ?></td>
+            <td><?= $color->color->name ?></td>
+            <td class="colorTd" width="100"
+                style="cursor: pointer;background-color: <?= $color->color->colorCode ?>"></td>
+
+
+            <td><a class="colorDeleteBtn btn btn-danger">Удалить</a></td>
+        </tr>
+    <?php endforeach; ?>
+</table>
+
+<h2>Изображения по цветам</h2>
+
+<?php
+Yii::import('pictureBox.components.PBoxFiles');
+//$pbox = new PBoxSQLite('sqlLiteTest', 1);
+
+$picturesConfig = array(
+    'divId' => 'pictureBox',
+    'nativeFilters' => array(
+        'main' => true,
+        'admin' =>true,
+    ),
+    'catalog' => true,
+    'filtersTitles' => array(
+        'main' => 'Основная',
+        'catalog' => 'каталог',
+        'admin' =>'Системный',
+    ),
+    'imageFilters' => array(
+        'admin' => array(
+            0 => array(
+                'filter' => 'CropResizeUpdate',
+                'param' => array(
+                    'width' => 298,
+                    'height' => 198,
+                ),
+            ),
+        ),
+        'main' => array(
+            0 => array(
+                'filter' => 'CropResize',
+                'param' => array(
+                    'width' => 320,
+                    'height' => 219,
+                ),
+            ),
+        ),
+        'catalog' => array(
+            0 => array(
+                'filter' => 'CropResize',
+                'param' => array(
+                    'width' => 163,
+                    'height' => 120,
+                ),
+            ),
+        ),
+    ),
+//    'original' => array(
+//        1 => array(
+//            'filter' => 'WaterMark',
+//            'param' => array(
+//                'watermark' => '/images/watermark.png',
+//            ),
+//        ),
+//    ),
+);
+
+
+
+
+$this->widget(
+    'application.modules.pictureBox.components.ColorsPictureBox', array(
+        'id' => 'catColors',
+        'elementId' => $_REQUEST['id'],
+        'config' => $picturesConfig,
+        'theme' => 'tiles'
+    )
+);

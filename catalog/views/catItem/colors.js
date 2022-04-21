@@ -19,46 +19,6 @@ $(document).ready (function(){
         }
     });
 
-    $('.colorCheckbox').click(function(){
-
-        var $colorId = $(this).parent().parent().attr('data-color-id');
-        var $catItemId = $(this).parent().parent().attr('data-cat-item-id');
-
-        if ($(this).prop("checked")){
-            $.ajax({
-                url: '/catalog/catItem/setColorTo',
-                data:{
-                    colorId:$colorId,
-                    catItemId:$catItemId
-                },
-
-                success: function(data) {
-
-                }
-            });
-
-            $(this).parent().parent().clone(true).appendTo('#topTable');
-            $(this).parent().parent().remove();
-
-        } else {
-            $.ajax({
-                url: '/catalog/catItem/unsetColorTo',
-                data:{
-                    colorId:$colorId,
-                    catItemId:$catItemId
-                },
-
-                success: function(data) {
-
-                }
-            });
-
-            $(this).parent().parent().clone(true).appendTo('#bottomTable');
-            $(this).parent().parent().remove();
-
-
-        }
-    });
 
 
     $('.colorTd').click(function(){

@@ -11,12 +11,29 @@
  * @property integer $scemaId
  * @property string $type
  */
+
+Yii::import('schema.models.types.*');
 class SchemaField extends CActiveRecord
 {
 
-    public static function getSchemaFieldByName($name, $schemaId)
+    public static function getSchemaFieldByName($name, $schemaId=null)
     {
-        $model = self::model()->findByAttributes(['name' => $name, 'schemaId' => $schemaId]);
+        if ($schemaId!=null){
+
+            $model = self::model()->findByAttributes(['name' => $name, 'schemaId' => $schemaId]);
+        } else {
+            $model = self::model()->findAllByAttributes(['name' => $name]);
+
+            if (is_array($model) && count($model)>1){
+                throw new Exception('Полей с таким именем больше одного у разных Schema. Надо что-то делать');
+            } else{
+                if (isset($model[0])){
+                    $model=$model[0];
+                } else if (count($model)==0){
+                    $model = false;
+                }
+            }
+        }
 
         if ($model) {
             return $model;
@@ -34,7 +51,13 @@ class SchemaField extends CActiveRecord
 
     }
 
-    public static function setData($fielddName,$value,$schemaId, $groupId = null)
+
+    public function setFieldData($value,$fieldId,$linkedDataId,$linkType){
+//        $linkType = ;
+        self::setData($fieldId,$value,$this->schemaId,$linkedDataId,$linkType);
+    }
+
+    public static function setData($fielddName,$value,$schemaId, $groupId = null,$linkType)
     {
 
         $field = self::getSchemaFieldByName($fielddName,$schemaId);
@@ -42,7 +65,8 @@ class SchemaField extends CActiveRecord
         $model = SchemaData::model()->findByAttributes([
             'fieldId'=>$field->id,
             'schemaId'=>$schemaId,
-            'groupId'=>$groupId
+            'groupId'=>$groupId,
+            'linkType'=>$linkType
         ]);
 
         if (!$model) {
@@ -51,6 +75,7 @@ class SchemaField extends CActiveRecord
             $model->schemaId = $schemaId;
             $model->groupId = $groupId;
             $model->fieldType = $field->type;
+            $model->linkType = $linkType;
         }
 
       if ($model->save()){

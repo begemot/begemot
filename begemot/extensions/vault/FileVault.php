@@ -28,7 +28,15 @@ class FileVault implements Vault
             $fileName = $this->dataPath . '/data_' . $tag . '.php';
         }
 
-        if ($this->crPhpArrayFile($fileName,$collection)){
+        $this->startSession();
+
+        if (isset($_SESSION['fileValut'][$fileName])){
+            $_SESSION['fileValut'][$fileName] = $collection;
+            session_commit();
+        }
+
+
+        if ($this->crPhpArrayFile($fileName, $collection)) {
             return true;
         } else {
             return false;
@@ -42,8 +50,18 @@ class FileVault implements Vault
         } else {
             $fileName = $this->dataPath . '/data_' . $tag . '.php';
         }
+        if (!file_exists($fileName)) $_SESSION['fileValut'][$fileName] = [];
+
+        $this->startSession();
+
+        if (isset($_SESSION['fileValut'][$fileName]))
+            return $_SESSION['fileValut'][$fileName];
+
+
         if (file_exists($fileName)) {
-            return require($fileName);
+            $data =  require($fileName);
+            $_SESSION['fileValut'][$fileName] = $data;
+            return $data;
         } else {
             return [];
         }
@@ -52,16 +70,30 @@ class FileVault implements Vault
     public function setVar($name, $value)
     {
 
-        $varFileName = $this->dataPath.'/'.$name.'.php';
-        $this->crPhpArrayFile($varFileName,$value);
+        $this->startSession();
+        $varFileName = $this->dataPath . '/' . $name . '.php';
+
+
+        $_SESSION['fileValut'][$varFileName] = $value;
+
+        $this->crPhpArrayFile($varFileName, $value);
     }
 
     public function getVar($name)
     {
-        $varFileName = $this->dataPath.'/'.$name.'.php';
-        if (file_exists($varFileName)){
+        $this->startSession();
+        $varFileName = $this->dataPath . '/' . $name . '.php';
 
-            return require $varFileName;
+        if (!file_exists($varFileName)) $_SESSION['fileValut'][$varFileName] = false;
+
+        if (isset($_SESSION['fileValut'][$varFileName]))
+            return $_SESSION['fileValut'][$varFileName];
+
+        if (file_exists($varFileName)) {
+
+            $data = require $varFileName;
+            $_SESSION['fileValut'][$varFileName] = $data;
+            return $_SESSION['fileValut'][$varFileName];
         } else {
             return false;
         }
@@ -74,7 +106,7 @@ class FileVault implements Vault
   return
  " . var_export($data, true) . ";
 ?>";
-        if (file_put_contents($fileName, $code)){
+        if (file_put_contents($fileName, $code)) {
             return true;
         } else {
             return false;
@@ -82,5 +114,12 @@ class FileVault implements Vault
 
     }
 
+    private function startSession()
+    {
+       if (PHP_SESSION_ACTIVE != session_status()){
+           session_start();
+       }
+
+    }
 
 }

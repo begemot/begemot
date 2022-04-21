@@ -549,17 +549,9 @@ class CatItemController extends Controller
     public function actionCreateColor($colorName, $colorCode, $catItemId)
     {
 
-        $color = new CatColor();
-        $color->name = $colorName;
-        $color->colorCode = $colorCode;
-        $color->save();
+        CatColor::createColor($colorName, $colorCode, $catItemId);
 
-        $colorToCatItem = new CatColorToCatItem();
-        $colorToCatItem->catItemId = $catItemId;
-        $colorToCatItem->colorId = $color->id;
-        $colorToCatItem->save();
-
-        $this->redirect('/catalog/catItem/update/id/1309/tab/colors');
+        $this->redirect('/catalog/catItem/update/id/'.$catItemId.'/tab/colors');
     }
 
     public function actionSetColorTo($colorId, $catItemId)

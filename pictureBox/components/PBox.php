@@ -179,6 +179,7 @@ class PBox
         $this->vault = new FileVault($dataFile);
 
         $this->dataFile = $dataFile;
+
         $this->oldDataFormatCheckAndConvert($elementIdDir);
 
 //        $this->favDataFile = $favDatafile = $pictureBoxDir . '/' . $galleryId . '/' . $id . '/favData.php';
@@ -192,18 +193,19 @@ class PBox
         if ($subGallery != 'default') {
             $tmpPBox = new PBox($galleryId, $id);
             $this->filters = $tmpPBox->getImagesRenderRules();
-            $subGallerySearchPath = $dataFile.'/../*';
+            $subGallerySearchPath = $dataFile . '/../*';
         } else {
 
             $this->filters = $this->getImagesRenderRules();
-            $subGallerySearchPath = $dataFile.'/*';
+            $subGallerySearchPath = $dataFile . '/*';
         }
 
-        $files = glob($subGallerySearchPath,GLOB_ONLYDIR );
-        foreach ($files as $key=>$file){
+        $files = glob($subGallerySearchPath, GLOB_ONLYDIR);
+        foreach ($files as $key => $file) {
             $files[$key] = basename($file);
         }
         $this->subGalleriesList = $files;
+
     }
 
 
@@ -513,10 +515,26 @@ class PBox
     public function deleteAll()
     {
 
-        $dir = dirname($this->dataFile);
+        $dir = $this->dataFile;
 
-        foreach (glob($dir . '/*.*') as $filename) {
-            unlink($filename);
+        foreach (glob($dir . '/*', GLOB_ONLYDIR) as $filename) {
+            //echo $filename;
+            $this->deleteFilesInDir($filename);
+            rmdir($filename);
+        }
+
+        $this->deleteFilesInDir($dir);
+        rmdir($dir);
+    }
+
+    private function deleteFilesInDir($dir)
+    {
+
+        foreach (glob($dir . '/*') as $filename) {
+            if (!is_dir($filename))
+                if (!unlink($filename)){
+                    throw new Exception('file is not deleted');
+                }
         }
     }
 
@@ -571,7 +589,7 @@ class PBox
      *
      * @param null $lastImageIdParam добавляет в "коробку" изображение с id равным $lastImageIdParam+1
      */
-    public function upload($fileArray, $lastImageIdParam = null,$isPostLoaded = true)
+    public function upload($fileArray, $lastImageIdParam = null, $isPostLoaded = true)
     {
 
 
@@ -585,6 +603,7 @@ class PBox
         if (is_null($lastImageIdParam)) {
             $imageId = $this->getLastImageId() + 1;
         } else {
+
             $imageId = $lastImageIdParam;
         }
 
@@ -598,10 +617,10 @@ class PBox
         $newOriginalFile = $filesPath . '/' . $imageId . '.' . $imageExt;
         $webOriginalFile = $webFilePath . '/' . $imageId . '.' . $imageExt;
 
-        if ($isPostLoaded){
+        if ($isPostLoaded) {
 
             move_uploaded_file($tmpname, $newOriginalFile);
-        }else {
+        } else {
             copy($tmpname, $newOriginalFile);
         }
 
@@ -609,6 +628,14 @@ class PBox
         $resultFiltersStack = array();
 
         $filters = $this->filters;
+//        if (is_bool($filters)) {
+//            echo '<pre>';
+//            echo 123;
+//            print_r($filters);
+//            echo '<pre>';
+//            die();
+//        }
+
 
         foreach ($filters['nativeFilters'] as $filterName => $toggle) {
             if ($toggle && isset($filters['imageFilters'][$filterName])) {
@@ -641,14 +668,21 @@ class PBox
      * Добавляет в коробку изображение, которое уже физически есть на сервере и не обязательно было загружено по HTTP.
      * Либо по url на удаленном сервере в публичном доступе
      */
-    public function addImagefile($fileNameOrUrl,$lastImageIdParam = null){
+    public function addImagefile($fileNameOrUrl, $lastImageIdParam = null)
+    {
+
+
         $fileArray = [];
         $fileArray['name'] = basename($fileNameOrUrl);
         $fileArray['tmp_name'] = $fileNameOrUrl;
-        $this->upload($fileArray,$lastImageIdParam,false);
+        return $this->upload($fileArray, $lastImageIdParam, false);
+
     }
 
+    public function addImagesFromArray()
+    {
 
+    }
 
 
     private function getNewImageId()
@@ -682,7 +716,17 @@ class PBox
 
     }
 
-    
+    public static function boxFilesExist($galleryId, $id)
+    {
+
+        $elementIdDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $galleryId . '/' . $id;
+        if (file_exists($elementIdDir)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
 
 ?>

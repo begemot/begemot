@@ -76,17 +76,28 @@ class SiteController extends Controller
         $this->pageTitle = $item->seo_title;
 //        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
+        if ($category){
+            if ($category->layout) {
+                $this->layout = $category->layout;
+            }
 
-        if ($category->layout) {
-            $this->layout = $category->layout;
+            $hrefParams = array(
+                'title' => $category->name_t,
+                'catId' => $category->id,
+                'itemName' => $item->name_t,
+                'item' => $item->id,
+            );
+            $itemViewFile = $category->itemViewFile;
+        } else {
+            $hrefParams = array(
+                'title' => 'none',
+                'catId' => 1,
+                'itemName' => $item->name_t,
+                'item' => $item->id,
+            );
+            $itemViewFile = 'itemView';
         }
 
-        $hrefParams = array(
-            'title' => $category->name_t,
-            'catId' => $category->id,
-            'itemName' => $item->name_t,
-            'item' => $item->id,
-        );
 
         $itemHref = Yii::app()->urlManager->createUrl('catalog/site/itemView', $hrefParams);
 
@@ -94,7 +105,7 @@ class SiteController extends Controller
             $this->redirect($itemHref, true, 301);
         }
 
-        $itemViewFile = $category->itemViewFile ? $category->itemViewFile : 'itemView';
+
 
         $this->render($itemViewFile, array('item' => $item, 'category' => $category));
 

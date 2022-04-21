@@ -14,22 +14,33 @@
  * @property string $article
  */
 Yii::import('begemot.extensions.contentKit.ContentKitModel');
-
+Yii::import('catalog.models.*');
+Yii::import('webroot.protected.modules.schema.components.*');
 class CatItem extends ContentKitModel
 {
 
 
-   private $schemaArray = null;
+    private $schemaArray = null;
 
-   public function getSchema(){
-
-
-       return [1,2,3,4,5];
-   }
-    private function loadSchema(){
+    public function schemaGet($fieldId)
+    {
+        $schemaType = 'catItem';
+        $groupId = $this->id;
+        $link = new CSchemaLink($schemaType,$groupId);
+        return $link->get($fieldId);
 
     }
+    public function schemaSet($fieldId,$value,$dataType='String')
+    {
+        
+        $schemaType = 'catItem';
+        $groupId = $this->id;
 
+        $link = new CSchemaLink($schemaType,$groupId);
+
+        $link->setData($fieldId,$value,$dataType);
+
+    }
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.
@@ -89,7 +100,8 @@ class CatItem extends ContentKitModel
             'name' => array(self::BELONGS_TO, 'CatItemsToCat', 'itemId'),
             'category' => array(self::BELONGS_TO, 'CatCategory', 'catId'),
             'reviews' => array(self::HAS_MANY, 'Reviews', 'pid', 'condition' => 'status=1'),
-            'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)','order'=>'`options_options`.`order`'),
+            'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)', 'order' => '`options_options`.`order`'),
+            'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
         );
     }
 
@@ -117,7 +129,7 @@ class CatItem extends ContentKitModel
 
     public function getCategoriesItemIn()
     {
-        $categories = CatItemsToCat::model()->with('cat')->findAll(array("condition" => '`t`.`itemId`=' . $this->id .''));
+        $categories = CatItemsToCat::model()->with('cat')->findAll(array("condition" => '`t`.`itemId`=' . $this->id . ''));
 
         return $categories;
     }
@@ -146,12 +158,13 @@ class CatItem extends ContentKitModel
         echo "<a  data-id= '{$this->id}'  class='removeBtn btn btn-primary btn-mini'>Убрать из раздела</a>";
     }
 
-    public static function getSale($id, $type = ''){
-        
+    public static function getSale($id, $type = '')
+    {
 
-        if($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))){
+
+        if ($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))) {
             foreach ($listOfCategoryDiscounts as $categoryDiscount) {
-                if(CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))){
+                if (CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))) {
                     return $categoryDiscount->discount->sale;
                 }
             }
@@ -159,16 +172,17 @@ class CatItem extends ContentKitModel
 
         $saleOfItem = DiscountRelation::model()->with("discount")->find(array("condition" => "type=2 AND active=1 AND targetId=" . $id));
 
-        if($saleOfItem) return $saleOfItem->discount->sale;
+        if ($saleOfItem) return $saleOfItem->discount->sale;
 
         return false;
 
     }
 
-    public static function getMinSale($id){
-        if($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))){
+    public static function getMinSale($id)
+    {
+        if ($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))) {
             foreach ($listOfCategoryDiscounts as $categoryDiscount) {
-                if(CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))){
+                if (CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))) {
                     return $categoryDiscount->discount->minSale;
                 }
             }
@@ -176,15 +190,16 @@ class CatItem extends ContentKitModel
 
         $saleOfItem = DiscountRelation::model()->with("discount")->find(array("condition" => "type=2 AND active=1 AND targetId=" . $id));
 
-        if($saleOfItem) return $saleOfItem->discount->minSale;
+        if ($saleOfItem) return $saleOfItem->discount->minSale;
 
         return false;
     }
 
-    public static function getMaxSale($id){
-        if($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))){
+    public static function getMaxSale($id)
+    {
+        if ($listOfCategoryDiscounts = DiscountRelation::model()->with("discount")->findAll(array("condition" => "type=1"))) {
             foreach ($listOfCategoryDiscounts as $categoryDiscount) {
-                if(CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))){
+                if (CatItemsToCat::model()->find('catId=:catId AND itemId=:itemId AND active=1', array(':catId' => $categoryDiscount->targetId, ":itemId" => $id))) {
                     return $categoryDiscount->discount->maxSale;
                 }
             }
@@ -192,7 +207,7 @@ class CatItem extends ContentKitModel
 
         $saleOfItem = DiscountRelation::model()->with("discount")->find(array("condition" => "type=2 AND active=1 AND targetId=" . $id));
 
-        if($saleOfItem) return $saleOfItem->discount->maxSale;
+        if ($saleOfItem) return $saleOfItem->discount->maxSale;
 
         return false;
     }
@@ -289,7 +304,7 @@ class CatItem extends ContentKitModel
         $criteria->order = '`id` desc';
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
-            'pagination'=>array('pageSize'=>50),
+            'pagination' => array('pageSize' => 50),
         ));
     }
 
@@ -322,7 +337,6 @@ class CatItem extends ContentKitModel
         return $images;
 
 
-
     }
 
     public function getItemWithMaximalPrice($catId)
@@ -331,27 +345,26 @@ class CatItem extends ContentKitModel
 
 
         $criteria = new CDbCriteria;
-        $criteria->select='max(i.price) as maxprice';
+        $criteria->select = 'max(i.price) as maxprice';
         $criteria->with = array('item' => array('alias' => 'i'));
         $criteria->condition = 't.catId = :catId AND i.published = :published';
         $criteria->params = array(':catId' => $catId, ':published' => 1);
         $price = CatItemsToCat::model()->find($criteria);
 
 
+        if (isset($price->maxprice)) $returnPrice = $price->maxprice;
 
-        if(isset($price->maxprice)) $returnPrice = $price->maxprice;
-
-        return (int) $returnPrice;
+        return (int)$returnPrice;
     }
 
     //get path of one main picture, wich take from fav or common images list
     public function getItemMainPicture($tag = null)
     {
 
-            Yii::import("pictureBox.components.PBox");
-            $PBox = new PBox("catalogItem", $this->id);
-            $image = $PBox->getFirstImage($tag);
-            return $image;
+        Yii::import("pictureBox.components.PBox");
+        $PBox = new PBox("catalogItem", $this->id);
+        $image = $PBox->getFirstImage($tag);
+        return $image;
 
         $imagesDataPath = Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/' . $this->id;
         $favFilePath = $imagesDataPath . '/favData.php';
@@ -388,17 +401,17 @@ class CatItem extends ContentKitModel
 
     public function searchInModel($queryWord)
     {
-      $queryWord = addcslashes($queryWord, '%_'); // escape LIKE's special characters
-      $criteria = new CDbCriteria( array(
-          'condition' => "name LIKE :match",
-          'params'    => array(':match' => "%$queryWord%") 
-      ) );
+        $queryWord = addcslashes($queryWord, '%_'); // escape LIKE's special characters
+        $criteria = new CDbCriteria(array(
+            'condition' => "name LIKE :match",
+            'params' => array(':match' => "%$queryWord%")
+        ));
 
-      $items = CatItem::model()->findAll( $criteria ); 
+        $items = CatItem::model()->findAll($criteria);
 
-      return $items;
+        return $items;
     }
-    
+
     public function combinedWithParser()
     {
 
@@ -413,6 +426,44 @@ class CatItem extends ContentKitModel
         }
 
         return null;
+    }
+
+    public function createColorAndAddImages($array)
+    {
+
+
+        Yii::import('catalog.models.*');
+
+        foreach ($array as $color) {
+            if ($color == 'no colors') continue;
+            if (!isset($color['title']) || !isset($color['code'])) {
+                throw new Exception('не существует title или code');
+            }
+            $title = $color['title'];
+            $code = $color['code'];
+            if (!($colorToItemId = CatColor::isCatItemHasColorByTitle($this->id, $title))) {
+
+                $colorToItemId = $this->addNewColor($title, $code);
+            }
+
+            foreach ($color['images'] as $image) {
+                $this->addImageToColor($colorToItemId, $image);
+            }
+
+        }
+
+    }
+
+    public function addNewColor($title, $code)
+    {
+        Yii::import('catalog.models.*');
+        return CatColor::createColor($title, $code, $this->id);
+    }
+
+    public function addImageToColor($colorToItemId, $image)
+    {
+        Yii::import('catalog.models.*');
+        return CatColor::addImageToColor($colorToItemId, $image);
     }
 
 }
