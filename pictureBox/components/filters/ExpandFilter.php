@@ -2,7 +2,7 @@
 class ExpandFilter extends BaseFilter{
        
     public function make (){
-        
+
         $im = new Imagick($this->fileName);
 
          $width = round($im->getImageWidth()*0.1);

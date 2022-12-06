@@ -8,12 +8,13 @@
 
 class CSchemaModel
 {
+
 //  Эти два парамера переопределяем при наследовании класса
     protected $schemaId = null;
     protected $linkType = null;
     protected $groupId = null;
 
-    public $CSchemaLink = null;
+    public $schemaLink = null;
 
     public function __construct($id)
     {
@@ -22,14 +23,15 @@ class CSchemaModel
         }
 
         $this->groupId = $id;
-        $this->CSchemaLink =  new CSchemaLink($this->linkType,$this->groupId,$this->schemaId);
+        $this->schemaLink =  new CSchemaLink($this->linkType,$this->groupId,$this->schemaId);
     }
 
     public function set ($fieldId, $value, $type='String'){
-        $this->CSchemaLink->set($fieldId, $value,$this->linkType, $type);
+        $this->schemaLink->set($fieldId, $value,$this->linkType, $type);
     }
+
     public function get ($fieldId){
-       return  $this->CSchemaLink->get($fieldId);
+       return  $this->schemaLink->get($fieldId);
     }
 
 }

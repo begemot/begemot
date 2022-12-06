@@ -242,12 +242,14 @@ class ApiController extends Controller
 
     public function actionSavePreviewImage($gallery, $id, $imageId, $filterName,$subGallery='default')
     {
-        print_r($_FILES);
+
         if (isset($_FILES['croppedImage'])) {
 
             $pbox = new PBox($gallery, $id,$subGallery);
             $imagick = new Imagick($_FILES['croppedImage']['tmp_name']);
             $images = $pbox->getImages();
+
+
             if (isset($images[$imageId])) {
 
                 $filters = $pbox->filters['imageFilters'];
@@ -272,16 +274,16 @@ class ApiController extends Controller
                         $filename = $baseDir.$images[$imageId][$filterName];
                         $filename =              explode('?',$filename);
                         $filename = array_shift($filename);
-                        print_r($filename);
-                        $imagick->resizeImage($width,$height,imagick::FILTER_BOX ,1);
+//                        print_r($filename);
+                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
 
                         $imagick->writeImage($filename);
                     }
-                }
+                } else throw new Exception('$filters[$filterName] - не существует');
 
 
 
-            }
-        }
+            } else throw new Exception('$images['.$imageId.'] - не существует');
+        } else throw new Exception('$_FILES[\'croppedImage\'] - не существует');
     }
 }

@@ -39,13 +39,24 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
 
         $picturesConfig = require($configFile);
 
+//        $this->widget(
+//            'application.modules.pictureBox.components.PictureBox', array(
+//            'id' => 'catalogCategory',
+//            'elementId' => $model->id,
+//            'config' => $picturesConfig,
+//                )
+//        );
+
         $this->widget(
-            'application.modules.pictureBox.components.PictureBox', array(
-            'id' => 'catalogCategory',
-            'elementId' => $model->id,
-            'config' => $picturesConfig,
-                )
+            'application.modules.pictureBox.components.ColorsPictureBox', array(
+                'id' => 'catalogCategory',
+                'elementId' =>  $model->id,
+                'config' => $picturesConfig,
+                'theme' => 'tiles'
+            )
         );
+
+
     } else{
         Yii::app()->user->setFlash('error','Отсутствует конфигурационный файл:'.$configFile);
     }

@@ -142,13 +142,16 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
         },
         templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?123',
         link: function (scope, element, attrs) {
-            console.log(galleryControl);
+
 
             scope.galId = attrs.galleryId;
             scope.id = attrs.id;
 
             scope.activeGallery = attrs.activeGallery;
 
+            console.log('$$$$$$')
+            console.log(scope.activeGallery)
+            console.log('$$$$')
             scope.sendData = function () {
                 $http.post('/pictureBox/api/obectSave', {
 

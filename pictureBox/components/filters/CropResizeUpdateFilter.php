@@ -2,7 +2,7 @@
 class CropResizeUpdateFilter extends BaseFilter{
        
     public function make (){
-        
+
     	$width = $this->param['width'];
     	$height = $this->param['height'];
 

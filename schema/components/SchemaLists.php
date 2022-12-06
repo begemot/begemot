@@ -5,11 +5,7 @@ Yii::import('schema.models.types.*');
 
 class SchemaLists
 {
-    /*
 
-     *
-     *
-     */
     /**
      * @param $fieldName имя поля по которому ищем совпадение
      * @param $value значение(или массив значений) которое проверяем на совпадение

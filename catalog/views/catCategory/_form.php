@@ -13,7 +13,13 @@
         <?php echo $form->labelEx($model, 'pid'); ?>
         <?php
         $select = ($model->isNewRecord ? '-1' : $model->pid);
-        $listArray = CHtml::listData($model->findAll(), 'id', 'name');
+       // $listArray = CHtml::listData($model->findAll(array("order" => "`order`")), 'id', 'name');
+        $listArray = [];
+        $cats = $model->findAll(array("order" => "`order`"));
+        foreach ($cats as $cat) {
+            $listArray[$cat->id] = str_repeat('--',$cat->level).''.$cat->name;
+        }
+
         $listArray[-1] = 'корневой уровень';
         echo CHtml::dropDownList('CatCategory[pid]', $select,
             $listArray,
@@ -27,6 +33,11 @@
         <?php echo $form->labelEx($model, 'name'); ?>
         <?php echo $form->textField($model, 'name', array('size' => 60, 'maxlength' => 70)); ?>
         <?php echo $form->error($model, 'name'); ?>
+    </div>
+    <div class="row">
+        <?php echo $form->labelEx($model, 'type'); ?>
+        <?php echo $form->dropDownList($model, 'type', array('base' => 'Простой', 'clusterized' => 'Кластеризация')); ?>
+        <?php echo $form->error($model, 'type'); ?>
     </div>
     <div class="row">
         <?php echo $form->labelEx($model, 'name_t'); ?>

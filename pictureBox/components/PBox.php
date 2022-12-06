@@ -273,12 +273,12 @@ class PBox
 
     }
 
-    public function getFirstImage($tag)
+    public function getFirstImage($tag='original')
     {
 
-        if (is_null($this->favPictures)) {
-            $array = $this->getSortedImageList();
+        if (count($this->favPictures)==0) {
 
+            $array = $this->getSortedImageList();
 
         } else {
             $array = $this->favPictures;
@@ -570,7 +570,7 @@ class PBox
         $this->vault->setVar('imagesConfig', $config);
     }
 
-    private function getImagesRenderRules()
+    public function getImagesRenderRules()
     {
         $config = $this->vault->getVar('imagesConfig');
 
@@ -591,7 +591,6 @@ class PBox
      */
     public function upload($fileArray, $lastImageIdParam = null, $isPostLoaded = true)
     {
-
 
         $temp = explode('.', $fileArray['name']);
         $imageExt = end($temp);

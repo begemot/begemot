@@ -4,7 +4,7 @@
         dnd-moved="images.splice($index,1)"
         dnd-effect-allowed="move"
         dnd-dragend="orderSave()">
-        <a href="{{image.original}}?123" target="_blank"><img class="tile-img" data-id="0" src="{{image.admin}}" ></a>
+        <a href="{{image.original}}?" target="_blank"><img class="tile-img" data-id="0" src="{{image.admin}}" ></a>
 
         <img title="Редактирование изображений" ng-click="showAllImagesModal(image)" data-toggle="modal" data-target="#resizeModal"  data-gallery-id="sqlLiteTest" class="all-images-btn" src="/protected/modules/pictureBox/assets/images-tiles/all-images-btn.png">
         <img title="Редактирование title и alt" ng-click="showAltTitleModal(image)" data-toggle="modal" data-target="#titleAltModal"  data-gallery-id="sqlLiteTest" class="title-btn" src="/protected/modules/pictureBox/assets/images-tiles/title-alt-btn.png">

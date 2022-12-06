@@ -50,11 +50,11 @@ class CSchemaLink
             $this->createFieldAndData($fieldId, $value, $dataType);
         } else {
 
-            $this->set($fieldId, $value, $this->linkType,$dataType);
+            $this->set($fieldId, $value, $this->linkType, $dataType);
         }
     }
 
-    public function set($fieldId, $value,$linkType, $type)
+    public function set($fieldId, $value, $linkType, $type)
     {
         $model = SchemaField::model()->findByAttributes([
             'name' => $fieldId,
@@ -67,7 +67,6 @@ class CSchemaLink
             $model->name = $fieldId;
             $model->type = $type;
             $model->schemaId = $this->schemaLinkDb->schemaId;
-
 
 
             if ($model->save()) {
@@ -105,7 +104,7 @@ class CSchemaLink
                 $model->schemaId = $schemaId;
                 if (!$model->save()) {
                     throw new Exception('Не удалось создать SchemaLink');
-                } else{
+                } else {
                     $this->schemaLinkDb = $model;
                 }
             }
@@ -155,9 +154,38 @@ class CSchemaLink
 
     public function isSchemaInstanceExist()
     {
-        if (count($this->getSchemasFieldsData()) > 0) {
+    
+        $linkType = $this->linkType;
+
+        $groupId = $this->linkedDataId;
+
+        $fields = self::getSchemasFields($groupId, $linkType);
+
+        $fieldsId = array_column($fields, 'id');
+
+        $query = $data = Yii::app()->db->createCommand()->select(
+            '*'
+        )->
+        from('SchemaData')->
+        where(
+            ['and',
+                'groupId=:groupId',
+                'linkType=:linkId',
+                ['in', 'fieldId', $fieldsId],
+            ]
+            , [
+                ':groupId' => $groupId,
+                ':linkId' => $linkType,
+            ]
+        );
+
+        $fieldsAndData = $query->queryRow();
+
+        if ($fieldsAndData){
             return true;
-        } else return false;
+        } else{
+            return false;
+        }
     }
 
     function getAllSchemas()
@@ -226,7 +254,6 @@ class CSchemaLink
         $fieldsAndData = $query->queryAll();
 
 
-
         $fieldsNames = array_column($fieldsAndData, 'name');
         return array_combine($fieldsNames, $fieldsAndData);
     }
@@ -279,9 +306,9 @@ class CSchemaLink
             if (isset($fieldsArray[$dataFieldId])) {
 
                 $typeModel = SchmTypeString::model()->findByPk($data['valueId']);
-                if (!$typeModel){
+                if (!$typeModel) {
 
-                    
+
                     continue;
                 }
 

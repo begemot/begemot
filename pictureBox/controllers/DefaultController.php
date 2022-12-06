@@ -501,19 +501,28 @@ class DefaultController extends Controller
      * @param type $pictureId Идентификатор изображения
      * @param type $filterName Имя фильтра. Изначально устанавливается в конфиге
      */
-    public function actionAjaxMakeFilteredImage($id, $elementId, $pictureId, $filterName, $x = null, $y = null, $width = null, $height = null)
+    public function actionAjaxMakeFilteredImage($id, $elementId, $pictureId, $filterName, $x = null, $y = null, $width = null, $height = null,$subGallery='default')
     {
 
         if (Yii::app()->request->isAjaxRequest) {
 
-            $data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
-            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
-            $config = $this->getConfigFromSession($id, $elementId);
+            //$data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
+            $pBox = new PBox($id,$elementId,$subGallery);
+            //$data = $pBox->dataFile;
+            $images = $pBox->pictures;
+           // $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
+            $dir = $pBox->dataFile;
 
-            $temp = explode('.', $data['images'][$pictureId]['original']);
+            $config = $pBox->getImagesRenderRules();
+//            $config = $this->getConfigFromSession($id, $elementId);
+
+            $temp = explode('.', $images[$pictureId]['original']);
             $imageExt = end($temp);
 
-
+            echo '<pre>';
+            print_r($pBox);
+            echo '<pre>';
+            die();
             if (isset($config['imageFilters'][$filterName])) {
 
                 $originalImagePath = $dir . "/" . $pictureId . '.' . $imageExt;
@@ -681,7 +690,10 @@ class DefaultController extends Controller
     {
 
 
-        session_start();
+        if(!isset($_SESSION))
+        {
+            session_start();
+        }
 
         if (isset($_SESSION['pictureBox'][$id . '_' . $elementId])) {
             return $_SESSION['pictureBox'][$id . '_' . $elementId];

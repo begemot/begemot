@@ -126,7 +126,7 @@ app.directive('crop', ['$http','galleryControl',
                             id:scope.id,
                             imageId:scope.imageId,
                             filterName:galleryControl.activeFilter.name,
-                            subGallery:scope.subGallery
+                            subGallery:galleryControl.activeSubGallery
                         });
                         $http({
                             url:'/pictureBox/api/savePreviewImage',
@@ -138,7 +138,7 @@ app.directive('crop', ['$http','galleryControl',
                                 id:scope.id,
                                 imageId:scope.imageId,
                                 filterName:galleryControl.activeFilter.name,
-                                subGallery:scope.subGallery
+                                subGallery:galleryControl.activeSubGallery
                             }
                         }).then(()=>{
                             each(previews, function (elem) {

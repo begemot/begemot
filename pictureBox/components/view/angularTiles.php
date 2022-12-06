@@ -60,14 +60,14 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
                     <h4 class="modal-title">Обрезка миниатюр оригинального изображения</h4>
                 </div>
                 <div class="modal-body" style="max-height: 1000px;">
-                    <h4>Оригинальное изображение</h4>
+                    <h4>Оригинальное изображение{{activeGallery}}123</h4>
                     <crop
                             gallery-id="<?= $id ?>" id="<?= $elementId ?>"
                             image-src="{{getAllImagesModal().image.original}}"
                             image-id="{{getAllImagesModal().image.id}}"
                             blob-send-hook="testHook"
                             images="images"
-                            sub-gallery="activeSubGallery"
+                            sub-gallery="activeGallery"
 
                             all-data-collection="dataCollection"
                     ></crop>

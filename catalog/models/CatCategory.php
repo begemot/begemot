@@ -17,6 +17,8 @@
  */
 class CatCategory extends CActiveRecord
 {
+     const deleted = 0;
+     const normal = 1;
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.
@@ -47,10 +49,10 @@ class CatCategory extends CActiveRecord
                 'createAttribute' => 'dateCreate',
                 'updateAttribute' => 'dateUpdate',
             ),
-            'CBOrderModelBehavior' => array(
-                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
-
-            ),
+//            'CBOrderModelBehavior' => array(
+//                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
+//
+//            ),
             'slug' => array(
                 'class' => 'begemot.extensions.SlugBehavior',
             ),
@@ -137,8 +139,11 @@ class CatCategory extends CActiveRecord
     {
 
 
-        $models = $this->findAll(array('order' => '`level` desc, `order`'));
-
+        $models = $this->findAll(
+            array(
+                'order' => '`order`',
+                'condition'=>'status="'.CatCategory::normal.'"'
+            ));
 
         $catsArray = [];
         $pubCatsArray = [];
@@ -150,6 +155,7 @@ class CatCategory extends CActiveRecord
             $categoryArray['order'] = $category->order;
             $categoryArray['level'] = $category->level;
             $categoryArray['name_t'] = $category->name_t;
+            $categoryArray['type'] = $category->type;
 //            $categoryArray['model'] = $category;
 
             $catsArray[$category->id] = $categoryArray;
@@ -162,7 +168,7 @@ class CatCategory extends CActiveRecord
         $this->pubCategories = $pubCatsArray;
 
     }
-
+    //TODO: новый алгоритм работы с категориями эту функцию умножает на ноль
     public function getcategoriesTree(){
         $getcategoriesTree = [];
 
@@ -187,10 +193,41 @@ class CatCategory extends CActiveRecord
         $this->name_t = $this->mb_transliterate($this->name);
         if ($this->isNewRecord) {
 
-            $this->orderBeforeSave();
+           // $this->orderBeforeSave();
+            /*
+             * TODO ищем максимальный order у всех категорий
+             *
+             * создаваемому присваеваем order=maxorder+1
+             *
+             *
+             */
+            $command = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory` where `pid`='.$this->pid)->queryRow();
+            if(!is_null($command['max'])){
+
+                $this->order =$command['max']+1;
+            } elseif ($this->pid==-1) {
+                //это первый корневой раздел
+                $this->order =1;
+            } else {
+                //$this->order = CatCategory::model()->findByPk($this->pid);
+                $this->order = CatCategory::model()->findByPk($this->pid)->order+1;
+
+            }
+
+            $criteria=new CDbCriteria;
+            $criteria->select='*';  // выбираем только поле 'title'
+            $criteria->condition='`order`>=:maxpidorder';
+            $criteria->params=array(':maxpidorder'=>$this->order);
+            $cats=CatCategory::model()->findAll($criteria);
+
+            foreach ($cats as $cat){
+                $cat->order =1+$cat->order;
+                $cat->save();
+            }
 
 
         }
+
         if ($this->pid == -1) {
             $this->level = 0;
         } else {
@@ -280,6 +317,30 @@ class CatCategory extends CActiveRecord
         return count($this->getCatChilds($id));
     }
 
+    public function getAllCatChildsCount($id)
+    {
+        return count($this->getAllCatChilds($id));
+    }
+
+    public function getMaxOrderOfSubTree($catId){
+        $catsOrderList = $this->categories;
+
+        $minOrder = $catsOrderList[$catId]['order'];
+        $level = $catsOrderList[$catId]['level'];
+
+        foreach ($catsOrderList as $id => $item) {
+
+            if ($item['order'] > $minOrder && $id != $catId && $level >= $item['level']) {
+                $maxOrder = $item['order'] - 1;
+
+                break;
+            }
+            $maxOrder = $item['order'];
+        }
+
+        return $maxOrder;
+    }
+
     public function getCategory($id)
     {
 
@@ -345,19 +406,7 @@ class CatCategory extends CActiveRecord
         return $menuEnd;
     }
 
-    // public function insert(&$arr, $value, $index){
-    //     $lengh = count($arr);
-    //     if($index<0||$index>$lengh)
-    //         return;
 
-    //     for($i=$lengh; $i>$index; $i--){
-    //         $arr[$i] = $arr[$i-1];
-    //     }
-
-    //     $arr[$index] = $value;
-    // }
-
-    //get picture fav list array
     public function getCatFavPictures()
     {
 
