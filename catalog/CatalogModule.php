@@ -9,6 +9,7 @@ class CatalogModule extends CWebModule
     static public $catalogCategoryViewLayout = 'application.views.layouts.catalogCategoryViewLayout';
     static public $catalogItemViewLayout = 'application.views.layouts.catalogItemViewLayout';
 
+    public $pagination = false;
     public $baseLayout = null;
     public $itemLayout = null;
     public $capcha = false;
