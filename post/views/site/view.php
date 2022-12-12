@@ -1,5 +1,5 @@
 <?php
-
+die('123');
 $this->pageTitle = $model->title_seo;
 
 $imagesData = Yii::app()->basePath . '/../files/pictureBox/posts/' . $model->id . '/data.php';

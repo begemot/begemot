@@ -51,7 +51,8 @@ class PostsTags extends CActiveRecord {
 // NOTE: you may need to adjust the relation name and the related
 // class name for the relations automatically generated below.
         return array(
-            'posts'=>array(self::HAS_MANY, 'Posts', 'tag_id')
+            'posts'=>array(self::HAS_MANY, 'Posts', 'tag_id'),
+            'newFirstPosts'=>array(self::HAS_MANY, 'Posts', 'tag_id','order'=>'id DESC')
         );
     }
 
