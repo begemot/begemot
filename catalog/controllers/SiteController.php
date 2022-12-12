@@ -61,8 +61,9 @@ class SiteController extends Controller
         echo $returnVal;
     }
 
-    public function actionItemView($catId = 0, $item = 0)
+    public function actionItemView($item=0,$catId=0)
     {
+
 
         if (!is_null($this->module->itemLayout)) {
             $this->layout = $this->module->itemLayout;
@@ -87,7 +88,12 @@ class SiteController extends Controller
                 'itemName' => $item->name_t,
                 'item' => $item->id,
             );
-            $itemViewFile = $category->itemViewFile;
+            if ($category->itemViewFile){
+
+                $itemViewFile = $category->itemViewFile;
+            } else {
+                $itemViewFile = 'itemView';
+            }
         } else {
             $hrefParams = array(
                 'title' => 'none',
@@ -104,7 +110,7 @@ class SiteController extends Controller
         if ($itemHref !== $uri) {
             $this->redirect($itemHref, true, 301);
         }
-
+    
 
 
         $this->render($itemViewFile, array('item' => $item, 'category' => $category));

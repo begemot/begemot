@@ -1,4 +1,5 @@
 <?php
+
 return array(
     'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '../..',
 
@@ -165,7 +166,6 @@ return array(
     'components' => array(
 
 
-
         'user' => array(
             // enable cookie-based authentication
             'class' => 'application.modules.user.components.WebUser',
@@ -193,10 +193,10 @@ return array(
                 //модуль pages
                 array('class' => 'application.modules.pages.components.PageUrlRule'),
                 //модуль catalog
-                '/catalog' => '/catalog/site/',
-                'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
-                'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
-                'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
+              //  '/catalog' => '/catalog/site/',
+               // 'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
+                //'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
+               'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
                 'promo_<promoId:\d+>' => 'catalog/site/promoView',
                 //модуль post
                 'allPosts' => 'post/site/allPosts',
@@ -217,24 +217,24 @@ return array(
                 'katalog' => '/site/ModelsAndPrices',
                 'moto' => '/catalog/site/RCategoryView/catId/72/V_nalichii',
                 'video' => '/site/video',
-                'api/<module:\w+>/<controller:\w+>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
-                'api/<module:\w+>/<controller:\w+>/<id:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
-                'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
-                'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
-                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>', 'verb' => 'PUT'],
-                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'PUT'],
-                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w*>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'PUT'],
-                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>', 'verb' => 'DELETE'],
-                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'DELETE'],
-                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'DELETE'],
-                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>', 'verb' => 'POST'],
-                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w+>', 'verb' => 'POST'],
-                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'POST'],
-                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'POST'],
-                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>', 'verb' => 'OPTIONS'],
-                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w+>', 'verb' => 'OPTIONS'],
-                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'OPTIONS'],
-                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'OPTIONS'],
+//                'api/<module:\w+>/<controller:\w+>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
+//                'api/<module:\w+>/<controller:\w+>/<id:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
+//                'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
+//                'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>' => ['<module>/<controller>/REST.GET', 'verb' => 'GET'],
+//                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>', 'verb' => 'PUT'],
+//                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'PUT'],
+//                ['<module>/<controller>/REST.PUT', 'pattern' => 'api/<module:\w+>/<controller:\w*>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'PUT'],
+//                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>', 'verb' => 'DELETE'],
+//                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'DELETE'],
+//                ['<module>/<controller>/REST.DELETE', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'DELETE'],
+//                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>', 'verb' => 'POST'],
+//                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w+>', 'verb' => 'POST'],
+//                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'POST'],
+//                ['<module>/<controller>/REST.POST', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'POST'],
+//                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>', 'verb' => 'OPTIONS'],
+//                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w+>', 'verb' => 'OPTIONS'],
+//                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>', 'verb' => 'OPTIONS'],
+//                ['<module>/<controller>/REST.OPTIONS', 'pattern' => 'api/<module:\w+>/<controller:\w+>/<id:\w*>/<param1:\w*>/<param2:\w*>', 'verb' => 'OPTIONS'],
 
 
 //                '<controller:\w+>/<id:\d+>' => '<controller>/view',
@@ -245,7 +245,6 @@ return array(
             )
 
         ),
-
 
 
 //        'errorHandler' => array(
@@ -301,7 +300,7 @@ return array(
         // this is used in contact page
         'adminEmail' => 'scott2to@gmail.com',
         'RestfullYii' => [
-            'req.auth.user'=>function($application_id, $username, $password) {
+            'req.auth.user' => function ($application_id, $username, $password) {
                 return true;
             },
         ]
