@@ -395,13 +395,15 @@ if ($tab == 'data')
         $picturesConfig = require($configFile);
 
         $this->widget(
-            'application.modules.pictureBox.components.PictureBox', array(
+            'application.modules.pictureBox.components.PictureBoxFiles', array(
                 'id' => 'catalogItem',
                 'elementId' => $model->id,
                 'config' => $picturesConfig,
                 'theme' => 'tiles'
             )
         );
+
+
     } else {
         Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
     }
