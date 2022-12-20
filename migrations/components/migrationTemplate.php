@@ -1,14 +1,19 @@
 <?php
 
-class <class_name> extends Migrations
+class <class_name> extends BaseMigration
 {
     public function up()
     {
 
         if($this->isConfirmed(true) == true) return false;
 
-        $sql = "ALTER TABLE `catItems`
-	ADD COLUMN `top` INT NULL AFTER `authorId`;";
+        $sql = "CREATE TABLE moshovercraft.NewTable (
+	test varchar(100) NULL
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb3
+COLLATE=utf8mb3_general_ci;
+";
         $this->execute($sql);
 
         return true;
@@ -18,8 +23,7 @@ class <class_name> extends Migrations
     {
         if($this->isConfirmed(true) == false) return false;
 
-        $sql = "ALTER TABLE `catItems`
-	DROP COLUMN `top`;";
+        $sql = "DROP TABLE `NewTable`;";
         $this->execute($sql);
 
         return true;
@@ -31,15 +35,8 @@ class <class_name> extends Migrations
     }
 
     public function isConfirmed($returnBoolean = false){
-        Yii::app()->db->schema->refresh();
-        $table = Yii::app()->db->schema->getTable('catItems');
-        $result = isset($table->columns['top']);
 
-        if($returnBoolean){
-            return $result;
-        }
-
-        return parent::confirmByWords($result);
+        return $this->tableExist('NewTable');
     }
 
     /*

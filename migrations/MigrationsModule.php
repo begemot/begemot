@@ -18,16 +18,11 @@ class MigrationsModule extends CWebModule {
     }
 
     public function beforeControllerAction($controller, $action) {
-        
-        if ($controller->id != 'site') {
 
-            $component=Yii::createComponent(array(
-
-                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
-
-            ));
-            Yii::app()->setComponent('bootstrap',$component);
-        }
+//        if ($controller->id != 'site') {
+//            $bootstrapPath ='/bower_components/bootstrap/dist/js/';
+//            Yii::app()->clientScript->registerScriptFile($bootstrapPath.'bootstrap.js');
+//        }
         return true;
     }
 
