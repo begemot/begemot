@@ -2,7 +2,7 @@
 
 class LoginController extends Controller
 {
-    public $layout = 'application.modules.begemot.views.layouts.column2';
+    public $layout = 'application.modules.begemot.views.layouts.bs5clearLayout';
 	public $defaultAction = 'login';
 
 	/**
