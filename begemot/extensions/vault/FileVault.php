@@ -52,10 +52,10 @@ class FileVault implements Vault
         }
         if (!file_exists($fileName)) $_SESSION['fileValut'][$fileName] = [];
 
-        $this->startSession();
-
-        if (isset($_SESSION['fileValut'][$fileName]))
-            return $_SESSION['fileValut'][$fileName];
+//        $this->startSession();
+//
+//        if (isset($_SESSION['fileValut'][$fileName]))
+//            return $_SESSION['fileValut'][$fileName];
 
 
         if (file_exists($fileName)) {
