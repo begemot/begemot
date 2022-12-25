@@ -84,7 +84,7 @@ if (file_exists($localMenuFile)){
 
 ?>
 
-        
+
 <?php $this->widget('bootstrap.widgets.TbNavbar', array(
     'type'=>'inverse', // null or 'inverse'
     'brand'=>'Begemot',
@@ -98,11 +98,15 @@ if (file_exists($localMenuFile)){
         ),
     ),
 )); ?>
-      
+
         
 
 
-	<?php echo $content; ?>
+	<?php
+
+    echo $content;
+
+    ?>
 
 
 
