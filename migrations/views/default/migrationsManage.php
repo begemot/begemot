@@ -87,9 +87,9 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/modules/assets/
 <div ng-app="migration" ng-controller="ctrl">
     <div style="display: flex;margin-top: 20px;">
         <div class=" p-3 bg-white" style="width: 280px;">
-            <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+
                 <span class="fs-5 fw-semibold">Модуль миграций</span>
-            </a>
+
             <ul class="list-unstyled ps-0">
                 <li class="mb-1">
 
