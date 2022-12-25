@@ -7,8 +7,8 @@ $begemotMenuArray = array(
     array('label' => 'Система', 'url' => array(''),
         'items' => array(
             array('label' => 'Пользователи', 'url' => array('/user/admin'), 'visible' => Yii::app()->hasModule('user')),
-            array('label' => 'Разрешения', 'url' => array('/srbac'), 'visible' => Yii::app()->hasModule('user')),
-            array('label' => 'Ипорт ролей', 'url' => array('/RolesImport'), 'visible' => Yii::app()->hasModule('user')),
+            array('label' => 'Разрешения', 'url' => array('/srbac'), 'visible' => Yii::app()->hasModule('srbac')),
+            array('label' => 'Ипорт ролей', 'url' => array('/RolesImport'), 'visible' => Yii::app()->hasModule('RolesImport')),
         ),
     ),
     array('label' => 'Контент', 'url' => array(''),
@@ -45,7 +45,7 @@ $begemotMenuArray = array(
     array('label' => 'Галлерея',
         'items' => array(
             array('url' => array('/gallery'), 'visible' => Yii::app()->hasModule('gallery'), 'label' => 'Фото'),
-            array('url' => array('/videoGallery/videoGalleryVideo/admin'), 'label' => 'Видео'),
+            array('url' => array('/videoGallery/videoGalleryVideo/admin'), 'label' => 'Видео', 'visible' => Yii::app()->hasModule('videoGallery')),
 
         ),
     ),
@@ -67,6 +67,18 @@ $begemotMenuArray = array(
 //    array_unshift($begemotMaenuArray, $localMenu);
 //}
 
+function checkVisiblesOfAllSubMenu($menuArray)
+{
+    $booleanResult = false;
+
+    foreach ($menuArray as $menuItem) {
+        if ($menuItem['visible'] == true) {
+            $booleanResult = true;
+            break;
+        }
+    }
+    return $booleanResult;
+}
 
 ?>
 <nav class="navbar navbar-expand-lg bg-light">
@@ -82,6 +94,11 @@ $begemotMenuArray = array(
                 <?php foreach ($begemotMenuArray as $menuItem): ?>
 
                     <?php
+
+                    if (isset($menuItem['visible']) && $menuItem['visible']==false) {
+                        continue;
+                    }
+
                     $url = '#';
                     if (isset($menuItem['url'])) {
                         $url = $this->createUrl($menuItem['url'][0], []);
@@ -89,12 +106,14 @@ $begemotMenuArray = array(
                     ?>
 
                     <?php if (!isset($menuItem['items'])): ?>
+
                         <li class="nav-item ">
-                            <a class="nav-link" aria-current="page" href="<?=$url?>"><?= $menuItem['label'] ?></a>
+                            <a class="nav-link" aria-current="page" href="<?= $url ?>"><?= $menuItem['label'] ?></a>
                         </li>
                     <?php else: ?>
-
-
+                        <?php
+                        if (!checkVisiblesOfAllSubMenu($menuItem['items'])) continue;
+                        ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                aria-expanded="false">
@@ -103,12 +122,15 @@ $begemotMenuArray = array(
                             <ul class="dropdown-menu">
                                 <?php foreach ($menuItem['items'] as $menuSubItem): ?>
                                     <?php
+
+                                    if (!$menuSubItem['visible']) continue;
                                     $suburl = '#';
                                     if (isset($menuSubItem['url'])) {
                                         $suburl = $this->createUrl($menuSubItem['url'][0], []);
                                     }
                                     ?>
-                                    <li><a class="dropdown-item" href="<?=$suburl?>"><?= $menuSubItem['label'] ?></a></li>
+                                    <li><a class="dropdown-item" href="<?= $suburl ?>"><?= $menuSubItem['label'] ?></a>
+                                    </li>
                                 <?php endforeach; ?>
                             </ul>
                         </li>
