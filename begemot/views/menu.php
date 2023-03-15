@@ -8,6 +8,7 @@ return array(
             array('label' => 'Разрешения', 'url' => array('/srbac'), 'visible' => Yii::app()->hasModule('srbac')),
             array('label' => 'Ипорт ролей', 'url' => array('/RolesImport'), 'visible' => Yii::app()->hasModule('RolesImport')),
             array('label' => 'Модули', 'url' => array('/modules'), 'visible' => Yii::app()->hasModule('modules')),
+            array('label' => 'Кеширование', 'url' => array('/cache/cache'), 'visible' => Yii::app()->hasModule('cache')),
         ),
     ),
     array('label' => 'Контент', 'url' => array(''),

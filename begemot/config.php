@@ -15,6 +15,7 @@ return array(
         'application.modules.begemot.components.NestedDynaTree.*',
         'application.modules.begemot.extensions.crontab.*',
         'application.modules.begemot.extForBaseClasses.*',
+
     ),
     'language' => 'ru',
 

@@ -16,6 +16,10 @@ class FileVault implements Vault
     public function __construct($vaultPath)
     {
         $this->dataPath = $vaultPath;
+
+        if (!file_exists($vaultPath)){
+            mkdir($vaultPath,0777,true);
+        }
     }
 
     public function pushCollection($collection, $tag = 'default')

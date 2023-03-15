@@ -24,6 +24,7 @@ function checkVisiblesOfAllSubMenu($menuArray)
 }
 
 ?>
+
 <nav class="navbar navbar-expand-lg bg-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">Begemot</a>
@@ -58,7 +59,7 @@ function checkVisiblesOfAllSubMenu($menuArray)
                         if (!checkVisiblesOfAllSubMenu($menuItem['items'])) continue;
                         ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            <a  class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                aria-expanded="false">
                                 <?= $menuItem['label'] ?>
                             </a>
@@ -91,3 +92,27 @@ function checkVisiblesOfAllSubMenu($menuArray)
         </div>
     </div>
 </nav>
+<script>
+    function closeAll(){
+        $('nav ul.dropdown-menu').removeClass('show')
+    }
+    function open(element){
+        closeAll()
+       $(element).parent().find('ul.dropdown-menu').addClass('show')
+      // /  console.log( $(element).parent().find('ul.dropdown-menu'))
+    }
+    $(document).on('click', function() {
+
+        closeAll()
+    });
+
+
+    $('nav li.dropdown').click(function(event) {
+        // event.stopPropagation();
+        console.log(event.target)
+        open(event.target)
+        event.stopPropagation();
+    });
+
+
+</script>
