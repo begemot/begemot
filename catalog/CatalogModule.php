@@ -93,5 +93,8 @@ class CatalogModule extends CWebModule
         }
     }
 
+    static public function getMenu(){
+        return require dirname(__FILE__).'/views/catItem/commonMenu.php';
+    }
 
 }
