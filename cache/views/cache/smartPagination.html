@@ -1,0 +1,38 @@
+<!--<ul class="pagination">-->
+<!--  <li ng-class="{disabled: currentPage == 1}">-->
+<!--    <a href="#" ng-click="currentPage = 1">First</a>-->
+<!--  </li>-->
+<!--  <li ng-class="{disabled: currentPage == 1}">-->
+<!--    <a href="#" ng-click="currentPage = currentPage - 1">Previous</a>-->
+<!--  </li>-->
+<!--  <li ng-repeat="page in pages" ng-class="{active: currentPage == page, ellipsis: page == '...'}">-->
+<!--    <a href="#" ng-click="currentPage = page">{{ page }}</a>-->
+<!--  </li>-->
+<!--  <li ng-class="{disabled: currentPage == totalPages}">-->
+<!--    <a href="#" ng-click="currentPage = currentPage + 1">Next</a>-->
+<!--  </li>-->
+<!--  <li ng-class="{disabled: currentPage == totalPages}">-->
+<!--    <a href="#" ng-click="currentPage = totalPages">Last</a>-->
+<!--  </li>-->
+<!--</ul>-->
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <li ng-class="{disabled: currentPage == 1}" class="page-item">
+      <a href="" ng-click="setCurrentPage(1)" class="page-link">First</a>
+    </li>
+    <li ng-class="{disabled: currentPage == 1}" class="page-item">
+      <a href="" ng-click="setCurrentPage(currentPage - 1)" class="page-link">Previous</a>
+    </li>
+    <li ng-repeat="page in pages" ng-class="{active: currentPage == page}" class="page-item">
+      <a ng-if="page!='...'" href="" ng-click="setCurrentPage(page)" class="page-link">{{ page }}</a>
+      <a ng-if="page=='...'" href="" class="page-link">{{ page }}</a>
+    </li>
+    <li ng-class="{disabled: currentPage == totalPages}" class="page-item">
+      <a href="" ng-click="setCurrentPage(currentPage+1)" class="page-link">Next</a>
+    </li>
+    <li ng-class="{disabled: currentPage == totalPages}" class="page-item">
+      <a href="" ng-click="setCurrentPage(totalPages)" class="page-link">Last</a>
+    </li>
+  </ul>
+</nav>
