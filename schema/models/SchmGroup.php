@@ -289,7 +289,7 @@ class SchmGroup extends CActiveRecord
      * @param $fieldIds массив полей схемы, которые нужно вытащить для группы
      * @return array возвращает сгруппированные данные по groupId
      */
-    public function getGroupData($linkedId, $linkType, $fieldIds)
+    public function getGroupData($linkedId, $linkType, $fieldIds=[])
     {
         $schemaGroup = SchmGroup::model()->findByAttributes(['assignedId' => $linkedId]);
         // Define the search criteria
@@ -297,13 +297,23 @@ class SchmGroup extends CActiveRecord
         $groupIds = $schemaGroup->getGroupIds(); // array of group ids
         $groupIds = "'" . implode("','", $groupIds) . "'";
 
-        $fieldIds = implode(',', $fieldIds);
+
+
+        $fieldIdsSqlPart = '';
+
+        if(is_array($fieldIds) && count($fieldIds)>0){
+            $fieldIds = implode(',', $fieldIds);
+            $fieldIdsSqlPart = "AND `sd`.`fieldId` IN (:fieldIds)";
+
+        }
+
+
         $sql = "SELECT `sd`.*, `sts`.`value`
         FROM `SchemaData` sd
         JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
         WHERE sd.linkType = \":linkType\"
           AND `sd`.`groupId` IN (:groupIds)
-          AND `sd`.`fieldId` IN (:fieldIds)";
+          ".$fieldIdsSqlPart;
 
         $command = Yii::app()->db->createCommand($sql);
 //            $command->bindParam();

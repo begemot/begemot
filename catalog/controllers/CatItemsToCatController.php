@@ -95,26 +95,26 @@ class CatItemsToCatController extends Controller
             /** @var SchmGroup $schemaGroup */
 
             $schemaGroup = new SchmGroup();
-            $groupedArray = $schemaGroup->getGroupData($id, 'catItem', array(1, 3));
-
-            $filteredData = CArrayHelper::filter($groupedArray, array('groupId' => 4));
-            // Create a new data provider object with the array of data
-            $dataProvider = new CArrayDataProvider($filteredData);
-// Create the sort object and set the sorting criteria
-            $sort = new CSort();
-            $sort->attributes = [
-                'groupId'
-            ];
-            $sort->defaultOrder = '1 DESC';
-// Pass the sort object to the data provider's sort property
-            $dataProvider->setSort($sort);
-
-
-            $dataProvider->filter = array('groupId' => 4);
-
-
-            $sortedData = $dataProvider->getData();
-            print_r($sortedData);
+            $groupedArray = $schemaGroup->getGroupData($id, 'catItem',array(1, 3));
+            print_r($groupedArray);
+//            $filteredData = CArrayHelper::filter($groupedArray, array('groupId' => 4));
+//            // Create a new data provider object with the array of data
+//            $dataProvider = new CArrayDataProvider($filteredData);
+//// Create the sort object and set the sorting criteria
+//            $sort = new CSort();
+//            $sort->attributes = [
+//                'groupId'
+//            ];
+//            $sort->defaultOrder = '1 DESC';
+//// Pass the sort object to the data provider's sort property
+//            $dataProvider->setSort($sort);
+//
+//
+//            $dataProvider->filter = array('groupId' => 4);
+//
+//
+//            $sortedData = $dataProvider->getData();
+//            print_r($sortedData);
             // Set the sort criteria for the data provider
 
 
