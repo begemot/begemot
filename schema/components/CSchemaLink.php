@@ -118,7 +118,6 @@ class CSchemaLink
             $this->fieldsAndDataArray = $this->getSchemasFieldsData();
         }
 
-
         if (isset($this->fieldsAndDataArray[$fieldName]['value'])) {
             return $this->fieldsAndDataArray[$fieldName]['value'];
         } else {
@@ -154,7 +153,7 @@ class CSchemaLink
 
     public function isSchemaInstanceExist()
     {
-    
+
         $linkType = $this->linkType;
 
         $groupId = $this->linkedDataId;
@@ -181,9 +180,9 @@ class CSchemaLink
 
         $fieldsAndData = $query->queryRow();
 
-        if ($fieldsAndData){
+        if ($fieldsAndData) {
             return true;
-        } else{
+        } else {
             return false;
         }
     }
@@ -278,50 +277,51 @@ class CSchemaLink
 
         Yii::import('schema.models.types.*');
 
-        $dataArray = Yii::app()->db->createCommand()->select('*')->
-        from('SchemaData')->
-        where('groupId=:id and linkType=:linkType', array(':id' => $groupId, 'linkType' => $linkType))->queryAll();
+        $dataArray = Yii::app()->db->createCommand()
+            ->select('*')
+            ->from('SchemaData')
+            ->where('groupId=:id and linkType=:linkType', array(':id' => $groupId, 'linkType' => $linkType))
+            ->queryAll();
 
         $fieldsIdArray = array_column($dataArray, 'fieldId', 'id');
 
-        $fieldsArray = Yii::app()->db->createCommand()->select('*')->
-        from('SchemaField')->
-        where(array('in', 'id', $fieldsIdArray))
+        $fieldsArray = Yii::app()->db->createCommand()
+            ->select('*')
+            ->from('SchemaField')
+            ->where(array('in', 'id', $fieldsIdArray))
             ->queryAll();
 
         $fieldsIdsArray = array_column($fieldsArray, 'id');
         $fieldsArray = array_combine($fieldsIdsArray, $fieldsArray);
         $schemaIdArray = array_column($fieldsArray, 'schemaId', 'id');
 
-        $schemaArray = Yii::app()->db->createCommand()->select('*')->
-        from('Schema')->
-        where(array('in', 'id', $schemaIdArray))
+        $schemaArray = Yii::app()->db->createCommand()
+            ->select('*')
+            ->from('Schema')
+            ->where(array('in', 'id', $schemaIdArray))
             ->queryAll();
         $schemaArrayIds = array_column($schemaArray, 'id');
         $schemaArray = array_combine($schemaArrayIds, $schemaArray);
-        // $arrayId = array_column($fields, 'name', 'id');
+
         foreach ($dataArray as $key => $data) {
-
             $dataFieldId = $data['fieldId'];
+
             if (isset($fieldsArray[$dataFieldId])) {
-
                 $typeModel = SchmTypeString::model()->findByPk($data['valueId']);
+
                 if (!$typeModel) {
-
-
                     continue;
                 }
 
                 $fieldsArray[$dataFieldId]['value'] = $typeModel->value;
-
                 $schemaId = $fieldsArray[$dataFieldId]['schemaId'];
 
                 if (isset($schemaArray[$schemaId])) {
                     $schemaArray[$schemaId]['data'][] = $fieldsArray[$dataFieldId];
                 }
-
             }
         }
+
         return $schemaArray;
     }
 

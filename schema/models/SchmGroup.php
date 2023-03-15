@@ -16,8 +16,7 @@ class SchmGroup extends CActiveRecord
     public function relations()
     {
         return array(
-            'params'=>array(self::HAS_MANY, 'SchmGroupParams', 'groupId'),
-
+            'params' => array(self::HAS_MANY, 'SchmGroupParams', 'groupId'),
         );
     }
 
@@ -35,56 +34,77 @@ class SchmGroup extends CActiveRecord
      */
     public static function groupClusterize($fieldsIdArray, $complectIds = [])
     {
-        $dataBySchemaField = [];
 
-        $wheresql = '';
-        if (count($complectIds) > 0) {
-            $wheresql = ' and groupId in(' . implode(',', $complectIds) . ')';
+        Yii::import('cache.models.Cache');
+        $cache = new Cache();
+
+        $fieldsCaheKey = '';
+        if (is_array($fieldsIdArray) && count($fieldsIdArray)) {
+            $fieldsCaheKey = implode('_', $fieldsIdArray);
+        }
+        $complectIdsCaheKeys = '';
+        if (is_array($complectIds) && count($complectIds)) {
+            $complectIdsCaheKeys = implode('_', $complectIds);
         }
 
-        foreach ($fieldsIdArray as $schemaId => $fieldName) {
-            $tmpArray = Yii::app()->db->createCommand()->select('*')->
-            from('SchemaData')->
-            where('`fieldId`=' . $schemaId . $wheresql)->
-            leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
-                ->queryAll();
+        if (!($result = $cache->getValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_'))) {
+            $dataBySchemaField = [];
 
-            $dataBySchemaField[$schemaId] = array_combine(array_column($tmpArray, 'groupId'), array_column($tmpArray, 'value'));
-            $dataBySchemaField[$schemaId] = self::arrayClusterize($dataBySchemaField[$schemaId]);
-        }
+            $wheresql = '';
+            if (count($complectIds) > 0) {
+                $wheresql = ' and groupId in(' . implode(',', $complectIds) . ')';
+            }
 
-        $groups = [];
+            foreach ($fieldsIdArray as $schemaId => $fieldName) {
+                $tmpArray = Yii::app()->db->createCommand()->select('*')->
+                from('SchemaData')->
+                where('`fieldId`=' . $schemaId . $wheresql)->
+                leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
+                    ->queryAll();
+
+                $dataBySchemaField[$schemaId] = array_combine(array_column($tmpArray, 'groupId'), array_column($tmpArray, 'value'));
+                $dataBySchemaField[$schemaId] = self::arrayClusterize($dataBySchemaField[$schemaId]);
+            }
+
+            $groups = [];
 
 
-        //пересекаем начальные группы другими группами
-        foreach ($dataBySchemaField as $fieldId => $groupData) {
+            //пересекаем начальные группы другими группами
+            foreach ($dataBySchemaField as $fieldId => $groupData) {
 
 
-            if (count($groups) == 0) {
+                if (count($groups) == 0) {
 
-                $baseData = $dataBySchemaField[$fieldId];
-                foreach ($baseData as $value => $ids) {
-                    $groups[] = [
-                        'params' => [
-                            $fieldId => $value
-                        ],
-                        'ids' => $ids
-                        ,
-                    ];
+                    $baseData = $dataBySchemaField[$fieldId];
+                    foreach ($baseData as $value => $ids) {
+                        $groups[] = [
+                            'params' => [
+                                $fieldId => $value
+                            ],
+                            'ids' => $ids
+                            ,
+                        ];
+                    }
+
+                    continue;
                 }
 
-                continue;
-            }
 
+                $newGroups = [];
+                foreach ($groups as $group) {
+                    $newGroups = array_merge(self::groupWithArrayIntersect($fieldId, $groupData, $group), $newGroups);
+                }
+                $groups = $newGroups;
 
-            $newGroups = [];
-            foreach ($groups as $group) {
-                $newGroups = array_merge(self::groupWithArrayIntersect($fieldId, $groupData, $group), $newGroups);
             }
-            $groups = $newGroups;
+            $cache->setValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_', serialize($groups));
+
+        } else {
+
+            $groups = unserialize($result);
 
         }
-        Yii::import('pictureBox.components.PBox');
+
 
         return $groups;
     }
@@ -102,15 +122,16 @@ class SchmGroup extends CActiveRecord
 
     }
 
-    public function getAssinedCatalogCategory($parentCategoryId = -1){
+    public function getAssinedCatalogCategory($parentCategoryId = -1)
+    {
 
-        if ($this->assignedId ==0){
+        if ($this->assignedId == 0) {
 
             Yii::import('catalog.models.CatCategory');
             $catCategory = new CatCategory();
             $catCategory->pid = $parentCategoryId;
             $catCategory->name = $this->groupName;
-            if($catCategory->save()){
+            if ($catCategory->save()) {
                 $this->assignedId = $catCategory->id;
                 $this->save();
             }
@@ -136,40 +157,39 @@ class SchmGroup extends CActiveRecord
                 //если хотя бы по одному параметру не нашли, значит точно группы такой нет
                 return self::createSchmGroup($group);
             }
+
 //            формируем массивы для дальнейшей работы
             $paramArray = [];
-            foreach ($paramLists[$paramId] as $paramModel){
+            foreach ($paramLists[$paramId] as $paramModel) {
                 $paramArray[] = $paramModel->groupId;
             }
             $arrayForIntersect[$paramId] = $paramArray;
         }
 
         //пересекаем массивы. В итоге должны получить либо id группы либо пустой массив и это значит нужно создавать группу
-        $i=0;
+        $i = 0;
         $resultIntersect = [];
-        foreach ($arrayForIntersect as $tmpArr){
-            if ($i==0) {
+        foreach ($arrayForIntersect as $tmpArr) {
+            if ($i == 0) {
                 $resultIntersect = $tmpArr;
                 $i++;
                 continue;
             }
 
-            $resultIntersect = array_intersect($resultIntersect,$tmpArr);
+            $resultIntersect = array_intersect($resultIntersect, $tmpArr);
 
             $i++;
         }
 
-        if (count($resultIntersect)==0){
+        if (count($resultIntersect) == 0) {
             return self::createSchmGroup($group);
         } else {
-            if (count($resultIntersect)>1){
+            if (count($resultIntersect) > 1) {
                 throw new Exception('Почему-то два результата! Проверять! Не должно быть больше одного.');
             } else {
                 return SchmGroup::model()->findByPk(array_shift($resultIntersect));
             }
         }
-
-
 
 
     }
@@ -197,11 +217,11 @@ class SchmGroup extends CActiveRecord
                 $schmGroupParam->groupId = $schemaGroup->id;
                 $schmGroupParam->fieldId = $paramId;
                 $schmGroupParam->valueMd5 = md5($paramValue);
+                $schmGroupParam->value = $paramValue;
                 $schmGroupParam->save();
 
             }
         }
-
 
 
         return $schemaGroup;
@@ -249,6 +269,78 @@ class SchmGroup extends CActiveRecord
 
         return $result;
     }
+
+    public function getGroupIds()
+    {
+        Yii::import('schema.models.*');
+        Yii::import('schema.components.*');
+        $params = $this->params;
+        $complectIds = [];
+        foreach ($params as $param) {
+            //$SchemaField = SchemaField::model()->findByPk($param->fieldId);
+            $complectIds = SchemaLists::equalList($param->field->name, $param->value, 'catItem', $complectIds);
+        }
+        return $complectIds;
+    }
+
+    /**
+     * @param $linkedId id связанной сущности
+     * @param $linkType тип связи или ее идентификатор
+     * @param $fieldIds массив полей схемы, которые нужно вытащить для группы
+     * @return array возвращает сгруппированные данные по groupId
+     */
+    public function getGroupData($linkedId, $linkType, $fieldIds)
+    {
+        $schemaGroup = SchmGroup::model()->findByAttributes(['assignedId' => $linkedId]);
+        // Define the search criteria
+
+        $groupIds = $schemaGroup->getGroupIds(); // array of group ids
+        $groupIds = "'" . implode("','", $groupIds) . "'";
+
+        $fieldIds = implode(',', $fieldIds);
+        $sql = "SELECT `sd`.*, `sts`.`value`
+        FROM `SchemaData` sd
+        JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
+        WHERE sd.linkType = \":linkType\"
+          AND `sd`.`groupId` IN (:groupIds)
+          AND `sd`.`fieldId` IN (:fieldIds)";
+
+        $command = Yii::app()->db->createCommand($sql);
+//            $command->bindParam();
+//            $command->bindParam();
+//            $command->bindParam();
+        $params = [
+            ':linkType' => $linkType,
+            ':groupIds' => $groupIds,
+            ':fieldIds' => $fieldIds
+
+        ];
+
+
+        $sql = $command->getText();
+
+        foreach ($params as $name => $value) {
+            $sql = str_replace($name, $value, $sql);
+        }
+
+
+        $command = Yii::app()->db->createCommand($sql);
+        //$command = Yii::app()->db->createCommand($sql);
+        $results = $command->queryAll();
+
+        $groupedArray = [];
+
+        foreach ($results as $element) {
+            $groupId = $element['groupId'];
+            if (!array_key_exists($groupId, $groupedArray)) {
+                $groupedArray[$groupId]['groupId'] = $groupId;
+            }
+            $groupedArray[$groupId][$element['fieldId']] = $element['value'];
+        }
+
+        return $groupedArray;
+    }
+
 
     /**
      * @return string the associated database table name
