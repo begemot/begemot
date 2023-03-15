@@ -407,7 +407,7 @@ class CatItemController extends Controller
 
         $dataProvider = new CatItem('search');
 
-//
+
         if (isset($_GET['CatItem']))
             $dataProvider->Attributes = $_GET['CatItem'];
 

@@ -75,53 +75,88 @@ class CatItemsToCatController extends Controller
 
         $cat = CatCategory::model()->findByPk($id);
 
-        if ($cat->type == 'base') {
-            $model = new CatItemsToCat('search');
-            $model->unsetAttributes();
-            $model->dbCriteria->order = "`t`.`order` ASC";
+        //  if ($cat->type == 'base') {
+        $model = new CatItemsToCat('search');
+        $model->unsetAttributes();
+        $model->dbCriteria->order = "`t`.`order` ASC";
 
-            if (isset($_GET['CatItemsToCat']))
-                $model->attributes = $_GET['CatItemsToCat'];
+        if (isset($_GET['CatItemsToCat']))
+            $model->attributes = $_GET['CatItemsToCat'];
 
-            $this->render('admin', array(
-                'category' => CatCategory::model()->findByPk($id),
-                'id' => $id,
-                'model' => $model,
-            ));
-        } else {
-            Yii::import('schema.models.*');
-            Yii::import('schema.components.*');
-            Yii::import('system.web.CArrayHelper');
-            /** @var SchmGroup $schemaGroup */
-
-            $schemaGroup = new SchmGroup();
-            $groupedArray = $schemaGroup->getGroupData($id, 'catItem',array(1, 3));
-            print_r($groupedArray);
-//            $filteredData = CArrayHelper::filter($groupedArray, array('groupId' => 4));
-//            // Create a new data provider object with the array of data
-//            $dataProvider = new CArrayDataProvider($filteredData);
-//// Create the sort object and set the sorting criteria
-//            $sort = new CSort();
-//            $sort->attributes = [
-//                'groupId'
-//            ];
-//            $sort->defaultOrder = '1 DESC';
-//// Pass the sort object to the data provider's sort property
-//            $dataProvider->setSort($sort);
-//
-//
-//            $dataProvider->filter = array('groupId' => 4);
-//
-//
-//            $sortedData = $dataProvider->getData();
-//            print_r($sortedData);
-            // Set the sort criteria for the data provider
+        $this->render('admin', array(
+            'category' => CatCategory::model()->findByPk($id),
+            'id' => $id,
+            'model' => $model,
+        ));
 
 
+    }
 
+    public function actionSchemaAdmin($id)
+    {
+        Yii::import('schema.models.*');
+        Yii::import('schema.components.*');
+        /** @var SchmGroup $schemaGroup */
+        $schemaGroup = SchmGroup::model()->findByAttributes(['assignedId' => $id]);
+
+
+        // Define the search criteria
+        $linkType = 'catItem';
+        $groupIds = $schemaGroup->getGroupIds(); // array of group ids
+        $groupIds = "'" . implode("','", $groupIds) . "'";
+        $fieldIds = array(3); // array of field ids
+        $fieldIds = implode(',', $fieldIds);
+        $sql = "SELECT `sd`.*, `sts`.`value`
+        FROM `SchemaData` sd
+        JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
+        WHERE sd.linkType = \":linkType\"
+          AND `sd`.`groupId` IN (:groupIds)
+          AND `sd`.`fieldId` IN (:fieldIds)";
+
+        $command = Yii::app()->db->createCommand($sql);
+
+        $params = [
+            ':linkType' => $linkType,
+            ':groupIds' => $groupIds,
+            ':fieldIds' => $fieldIds
+
+        ];
+
+
+        $sql = $command->getText();
+
+        foreach ($params as $name => $value) {
+            $sql = str_replace($name, $value, $sql);
         }
 
 
+        $command = Yii::app()->db->createCommand($sql);
+        //$command = Yii::app()->db->createCommand($sql);
+        $results = $command->queryAll();
+        //  print_r($results);
+        $groupIdsArray = [];
+        foreach ($results as $item) {
+            $groupIdsArray[] = $item['groupId'];
+        }
+
+// Print the result
+        // print_r($groupIds);
+        $criteria = new CDbCriteria(array(
+            'condition' => 'id IN (' . implode(',', $groupIdsArray) . ')',
+            'order' => 'id DESC',
+        ));
+
+        $dataProvider = new CActiveDataProvider('CatItem', array(
+            'criteria' => $criteria,
+            'pagination' => array(
+                'pageSize' => 1000,
+            ),
+        ));
+
+        $this->render('scemaCategories', array(
+            'dataProvider' => $dataProvider,
+
+        ));
     }
 
     public function loadModel($id)
