@@ -21,7 +21,7 @@ class CatItemsToCatController extends Controller
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
                 'actions' => array('delete', 'orderUp', 'orderDown', 'changeThroughDisplayValue',
                     // 'index',
-                    'admin'),
+                    'admin','schemaAdmin'),
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
 
@@ -141,20 +141,30 @@ class CatItemsToCatController extends Controller
 
 // Print the result
         // print_r($groupIds);
+        $model = new CatItem('search');
         $criteria = new CDbCriteria(array(
             'condition' => 'id IN (' . implode(',', $groupIdsArray) . ')',
             'order' => 'id DESC',
         ));
 
+        if (isset($_GET['CatItem']))
+            $model->attributes = $_GET['CatItem'];
+
+        $criteria->compare('id', $model->id, true);
+        $criteria->compare('name', $model->name, true);
         $dataProvider = new CActiveDataProvider('CatItem', array(
             'criteria' => $criteria,
             'pagination' => array(
-                'pageSize' => 1000,
+                'pageSize' => 30,
             ),
         ));
 
+
+
         $this->render('scemaCategories', array(
             'dataProvider' => $dataProvider,
+            'model'=>$model
+
 
         ));
     }
