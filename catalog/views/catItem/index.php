@@ -36,8 +36,8 @@ Yii::app()->clientScript->registerScript('checkBoxScript',$js,1);
 
 $this->widget('bootstrap.widgets.TbGridView', array(
     'id' => 'test-grid',
-    'dataProvider' => $dataProvider->search(),
-    'filter' => $dataProvider,
+    'dataProvider' => $model->search(),
+    'filter' => $model,
     'selectableRows'=>0,
 
 

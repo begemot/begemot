@@ -397,23 +397,23 @@ class CatItemController extends Controller
     public function actionIndex()
     {
 
-        $dataProvider = new CActiveDataProvider('CatItem',
-            array(
-                'criteria' => array('order' => '`id` desc'),
-                'pagination' => array(
-                    'pageSize' => 1000,
-                ),
-            ));
+//        $dataProvider = new CActiveDataProvider('CatItem',
+//            array(
+//                'criteria' => array('order' => '`id` desc'),
+//                'pagination' => array(
+//                    'pageSize' => 1000,
+//                ),
+//            ));
 
-        $dataProvider = new CatItem('search');
+        $model = new CatItem('search');
 
 
         if (isset($_GET['CatItem']))
-            $dataProvider->Attributes = $_GET['CatItem'];
+            $model->Attributes = $_GET['CatItem'];
 
 
         $this->render('index', array(
-            'dataProvider' => $dataProvider,
+            'model' => $model,
 
         ));
 
