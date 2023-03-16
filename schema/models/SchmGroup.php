@@ -284,12 +284,12 @@ class SchmGroup extends CActiveRecord
     }
 
     /**
-     * @param $linkedId id связанной сущности
+     * @param $linkedId id связанной сущности,
      * @param $linkType тип связи или ее идентификатор
      * @param $fieldIds массив полей схемы, которые нужно вытащить для группы
      * @return array возвращает сгруппированные данные по groupId
      */
-    public function getGroupData($linkedId, $linkType, $fieldIds=[])
+    public function getGroupData($linkedId, $linkType, $fieldIds=[],$limit = 0)
     {
         $schemaGroup = SchmGroup::model()->findByAttributes(['assignedId' => $linkedId]);
         // Define the search criteria
@@ -306,14 +306,17 @@ class SchmGroup extends CActiveRecord
             $fieldIdsSqlPart = "AND `sd`.`fieldId` IN (:fieldIds)";
 
         }
-
+        $limitSqlString = '';
+        if($limit!=0){
+            $limitSqlString = ' limit 1';
+        }
 
         $sql = "SELECT `sd`.*, `sts`.`value`
         FROM `SchemaData` sd
         JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
         WHERE sd.linkType = \":linkType\"
           AND `sd`.`groupId` IN (:groupIds)
-          ".$fieldIdsSqlPart;
+          ".$fieldIdsSqlPart.$limitSqlString;
 
         $command = Yii::app()->db->createCommand($sql);
 //            $command->bindParam();
