@@ -5,6 +5,18 @@ Yii::import('schema.models.types.*');
 
 class SchemaLists
 {
+    public static function fromTolList(string $fieldName, string $linkType, array $groupIdList = [], $fromValue = null, $toValue = null): array
+    {
+
+        return self::getList($fieldName, ['from' => $fromValue, 'to' => $toValue], $linkType, $groupIdList);
+    }
+
+    public static function equalList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
+    {
+
+
+        return self::getList($fieldName, $value, $linkType, $groupIdList);
+    }
 
     /**
      * @param $fieldName имя поля по которому ищем совпадение
@@ -16,43 +28,65 @@ class SchemaLists
      * Возвращает массив groupId связанных сущностей, например $linkType=CatItem,
      * у которых совпадают значения поля  fieldId с $value
      */
-    public static function equalList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
+    public static function getList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
     {
 
         Yii::import('cache.models.Cache');
         $cache = new Cache();
         $groupCacheKey = '';
-        if(count($groupIdList)>0){
-            $groupCacheKey = implode('_',$groupIdList);
+        if (count($groupIdList) > 0) {
+            $groupCacheKey = implode('_', $groupIdList);
         }
         $valueCacheKey = '';
         if (is_array($value)) {
-
-            $valueCacheKey = implode('_', $value);
+            if (isset($value['from']) || isset($value['to'])) {
+                $valueCacheKey = 'getList_from_' . $value['from'] . '_to_' . $value['to'];
+            } else
+                $valueCacheKey = 'getList_' . implode('_', $value);
         } else {
-            $valueCacheKey =  $value ;
+            $valueCacheKey = 'getList_' . $value;
         }
 
 //        print_r($fieldName.'_'.$valueCacheKey.'_'.$linkType.'_'.$groupCacheKey);
 //        die();
-        if (!($result = $cache->getValue('SchemaLists.equalList',$fieldName.'_'.$valueCacheKey.'_'.$linkType.'_'.$groupCacheKey))) {
+        if (!($result = $cache->getValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey))) {
             $field = SchemaField::getSchemaFieldByName($fieldName);
             $type = $field->type;
 
             if (is_array($value)) {
-                $value = array_map(function($val) {
-                    return '"' . $val . '"';
-                }, $value);
-                $sqlPart = 'tb1.value in (' . implode(',', $value) . ') ';
+                if (isset($value['from']) || isset($value['to'])) {
+                    $sqlFromPart = 'tb1.value > ' . $value['from'] . '';
+                    $sqlToPart = 'tb1.value < ' . $value['to'] . '';
+                    //$sqlPart = 'tb1.value > "' . $value['from'].'"';//. '" and tb1.value < "'.$value['to'].'"';
+
+                    if ($value['from'] != null && $value['to'] == null) {
+                        $sqlPart = $sqlFromPart;
+                    }
+
+                    if ($value['from'] == null && $value['to'] != null) {
+                        $sqlPart = $sqlToPart;
+                    }
+
+                    if ($value['from'] != null && $value['to'] != null) {
+                        $sqlPart = $sqlFromPart . ' and ' . $sqlToPart;
+                    }
+                } else {
+                    $value = array_map(function ($val) {
+                        return '"' . $val . '"';
+                    }, $value);
+                    $sqlPart = 'tb1.value in (' . implode(',', $value) . ') ';
+                }
+
             } else {
                 $sqlPart = 'tb1.value="' . $value . '"';
             }
 
-            if ($type !== 'String') {
-                throw new Exception('Нужно сделать обработку других типов данных');
-            }
+//            if ($type !== 'String') {
+//                throw new Exception('Нужно сделать обработку других типов данных');
+//            }
 
             $where = $sqlPart . ' and fieldId=' . $field->id . ' and linkType="' . $linkType . '"';
+
             if (!empty($groupIdList)) {
                 $where .= ' and groupId in(' . implode(',', $groupIdList) . ')';
             }
@@ -61,19 +95,20 @@ class SchemaLists
                 ->select('*')
                 ->from('SchemaData')
                 ->where($where)
-                ->leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
+                ->leftJoin('SchmType' . $type . ' tb1', 'SchemaData.id=tb1.fieldDataId')
                 ->queryAll();
 
 
-            $cache->setValue('SchemaLists.equalList',$fieldName.'_'.$valueCacheKey.'_'.$linkType.'_'.$groupCacheKey,serialize($data));
+            $cache->setValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey, serialize($data));
         } else {
             $data = unserialize($result);
         }
 
 
-
         return array_column($data, 'groupId');
+
     }
+
 
     /*
      * Сначала получаем список groupId по условию и следом вытаскиваем все данные по этим groupId
@@ -135,21 +170,21 @@ class SchemaLists
 
         Yii::import('cache.models.Cache');
         $cache = new Cache();
-        if (!($result = $cache->getValue('forFilterChoiceData',$fieldName))) {
+        if (!($result = $cache->getValue('forFilterChoiceData', $fieldName))) {
             $fieldmodel = SchemaField::getSchemaFieldByName($fieldName);
             $dataType = $fieldmodel->type;
-            if ($dataType == 'String') {
-                $data = Yii::app()->db->createCommand()->selectDistinct('value')->
-                from('SchemaData')->
-                where('fieldId="' . $fieldmodel->id . '"')->
-                leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
-                    ->queryAll();
-            }
-            $cache->setValue('forFilterChoiceData',$fieldName,serialize($data));
+
+
+            $data = Yii::app()->db->createCommand()->selectDistinct('value')->
+            from('SchemaData')->
+            where('fieldId="' . $fieldmodel->id . '"')->
+            leftJoin('SchmType' . $dataType . ' tb1', 'SchemaData.id=tb1.fieldDataId')
+                ->queryAll();
+
+            $cache->setValue('forFilterChoiceData', $fieldName, serialize($data));
         } else {
             $data = unserialize($result);
         }
-
 
 
         return array_column($data, 'value');

@@ -101,26 +101,61 @@ class SchemaData extends CActiveRecord
 
 	public function setData ($value,$type){
 
-
+        /*
+         * Тонкий момент. Если тип указать отличный от текущего, то
+         * по идее нужно брать модель значений из двух разных таблиц
+         * и сводить. И старую удалить еще.
+         */
 
         Yii::import ('schema.models.types.*');
+
+
+        //Проверяем соответствие типов
+        if($this->fieldType!=$type){
+            $className = 'SchmType'.$this->fieldType;
+
+            $oldValueSchema = $className::model()->findByAttributes(
+                ['fieldDataId'=>$this->id]
+            );
+
+        }
+
         $className = 'SchmType'.$type;
 
         $model = $className::model()->findByAttributes(
             ['fieldDataId'=>$this->id]
         );
 
+
         if (!$model){
             $model=   new $className();
             $model->fieldDataId = $this->id;
         }
         $this->valueId =$model->id;
+        $this->fieldType =$type;
         $model->value = $value;
 
          if ( $model->save()){
-             $this->valueId = $model->id;
+             if ($oldValueSchema){
+                 $oldValueSchema->delete();
+             }
              $this->save();
          }
+
+    }
+
+    public function getValue(){
+        switch ($this->fieldType) {
+            case 'String':
+                return SchmTypeString::model()->findByPk($this->valueId)->value;
+                break;
+            case 'Int':
+                return SchmTypeInt::model()->findByPk($this->valueId)->value;
+                break;
+            case 'Text':
+                return SchmTypeText::model()->findByPk($this->valueId)->value;
+                break;
+        }
 
     }
 

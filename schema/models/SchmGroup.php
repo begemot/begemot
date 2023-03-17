@@ -56,10 +56,12 @@ class SchmGroup extends CActiveRecord
             }
 
             foreach ($fieldsIdArray as $schemaId => $fieldName) {
+
+                $fieldType = SchemaField::getSchemaFieldByName($fieldName)->type;
                 $tmpArray = Yii::app()->db->createCommand()->select('*')->
                 from('SchemaData')->
                 where('`fieldId`=' . $schemaId . $wheresql)->
-                leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
+                leftJoin('SchmType'.$fieldType.' tb1', 'SchemaData.id=tb1.fieldDataId')
                     ->queryAll();
 
                 $dataBySchemaField[$schemaId] = array_combine(array_column($tmpArray, 'groupId'), array_column($tmpArray, 'value'));
@@ -270,88 +272,16 @@ class SchmGroup extends CActiveRecord
         return $result;
     }
 
-    public function getGroupIds()
-    {
+    public function getGroupIds(){
         Yii::import('schema.models.*');
         Yii::import('schema.components.*');
         $params = $this->params;
         $complectIds = [];
-        foreach ($params as $param) {
+        foreach ($params as $param){
             //$SchemaField = SchemaField::model()->findByPk($param->fieldId);
             $complectIds = SchemaLists::equalList($param->field->name, $param->value, 'catItem', $complectIds);
         }
         return $complectIds;
-    }
-
-    /**
-     * @param $linkedId id связанной сущности,
-     * @param $linkType тип связи или ее идентификатор
-     * @param $fieldIds массив полей схемы, которые нужно вытащить для группы
-     * @return array возвращает сгруппированные данные по groupId
-     */
-    public function getGroupData($linkedId, $linkType, $fieldIds=[],$limit = 0)
-    {
-        $schemaGroup = SchmGroup::model()->findByAttributes(['assignedId' => $linkedId]);
-        // Define the search criteria
-
-        $groupIds = $schemaGroup->getGroupIds(); // array of group ids
-        $groupIds = "'" . implode("','", $groupIds) . "'";
-
-
-
-        $fieldIdsSqlPart = '';
-
-        if(is_array($fieldIds) && count($fieldIds)>0){
-            $fieldIds = implode(',', $fieldIds);
-            $fieldIdsSqlPart = "AND `sd`.`fieldId` IN (:fieldIds)";
-
-        }
-        $limitSqlString = '';
-        if($limit!=0){
-            $limitSqlString = ' limit 1';
-        }
-
-        $sql = "SELECT `sd`.*, `sts`.`value`
-        FROM `SchemaData` sd
-        JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
-        WHERE sd.linkType = \":linkType\"
-          AND `sd`.`groupId` IN (:groupIds)
-          ".$fieldIdsSqlPart.$limitSqlString;
-
-        $command = Yii::app()->db->createCommand($sql);
-//            $command->bindParam();
-//            $command->bindParam();
-//            $command->bindParam();
-        $params = [
-            ':linkType' => $linkType,
-            ':groupIds' => $groupIds,
-            ':fieldIds' => $fieldIds
-
-        ];
-
-
-        $sql = $command->getText();
-
-        foreach ($params as $name => $value) {
-            $sql = str_replace($name, $value, $sql);
-        }
-
-
-        $command = Yii::app()->db->createCommand($sql);
-        //$command = Yii::app()->db->createCommand($sql);
-        $results = $command->queryAll();
-
-        $groupedArray = [];
-
-        foreach ($results as $element) {
-            $groupId = $element['groupId'];
-            if (!array_key_exists($groupId, $groupedArray)) {
-                $groupedArray[$groupId]['groupId'] = $groupId;
-            }
-            $groupedArray[$groupId][$element['fieldId']] = $element['value'];
-        }
-
-        return $groupedArray;
     }
 
 
