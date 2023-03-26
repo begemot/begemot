@@ -170,24 +170,27 @@ class SchemaLists
 
         Yii::import('cache.models.Cache');
         $cache = new Cache();
-        if (!($result = $cache->getValue('forFilterChoiceData', $fieldName))) {
+        if (!($result = $cache->getValue('forFilterChoiceData',$fieldName))) {
+
             $fieldmodel = SchemaField::getSchemaFieldByName($fieldName);
             $dataType = $fieldmodel->type;
 
 
-            $data = Yii::app()->db->createCommand()->selectDistinct('value')->
-            from('SchemaData')->
-            where('fieldId="' . $fieldmodel->id . '"')->
-            leftJoin('SchmType' . $dataType . ' tb1', 'SchemaData.id=tb1.fieldDataId')
-                ->queryAll();
 
-            $cache->setValue('forFilterChoiceData', $fieldName, serialize($data));
+                $typeTable = 'SchmType'.$dataType;
+                $sql = "SELECT  sd.*,sts.value FROM SchemaData sd INNER JOIN $typeTable sts ON sd.id = sts.fieldDataId WHERE sd.fieldId = :fieldId";
+                 $data = Yii::app()->db->createCommand($sql)->queryAll(true, array(':fieldId' => $fieldmodel->id));
+                $data = array_column($data,'value');
+                $data = array_unique($data);
+
+            $cache->setValue('forFilterChoiceData',$fieldName,serialize($data));
         } else {
             $data = unserialize($result);
         }
 
 
-        return array_column($data, 'value');
+
+        return $data;
 
         //Достаем field по его имени, что бы понять его тип
         //Достаем distinct всех данных этого типа
