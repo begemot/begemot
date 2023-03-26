@@ -103,47 +103,13 @@ class CatItemsToCatController extends Controller
         // Define the search criteria
         $linkType = 'catItem';
         $groupIds = $schemaGroup->getGroupIds(); // array of group ids
-        $groupIds = "'" . implode("','", $groupIds) . "'";
-        $fieldIds = array(3); // array of field ids
-        $fieldIds = implode(',', $fieldIds);
-        $sql = "SELECT `sd`.*, `sts`.`value`
-        FROM `SchemaData` sd
-        JOIN `SchmTypeString` sts ON sd.id = sts.`fieldDataId`
-        WHERE sd.linkType = \":linkType\"
-          AND `sd`.`groupId` IN (:groupIds)
-          AND `sd`.`fieldId` IN (:fieldIds)";
-
-        $command = Yii::app()->db->createCommand($sql);
-
-        $params = [
-            ':linkType' => $linkType,
-            ':groupIds' => $groupIds,
-            ':fieldIds' => $fieldIds
-
-        ];
 
 
-        $sql = $command->getText();
 
-        foreach ($params as $name => $value) {
-            $sql = str_replace($name, $value, $sql);
-        }
-
-
-        $command = Yii::app()->db->createCommand($sql);
-        //$command = Yii::app()->db->createCommand($sql);
-        $results = $command->queryAll();
-        //  print_r($results);
-        $groupIdsArray = [];
-        foreach ($results as $item) {
-            $groupIdsArray[] = $item['groupId'];
-        }
-
-// Print the result
         // print_r($groupIds);
         $model = new CatItem('search');
         $criteria = new CDbCriteria(array(
-            'condition' => 'id IN (' . implode(',', $groupIdsArray) . ')',
+            'condition' => 'id IN (' . implode(',', $groupIds) . ')',
             'order' => 'id DESC',
         ));
 

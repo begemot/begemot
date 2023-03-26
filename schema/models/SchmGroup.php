@@ -16,7 +16,7 @@ class SchmGroup extends CActiveRecord
     public function relations()
     {
         return array(
-            'params' => array(self::HAS_MANY, 'SchmGroupParams', 'groupId'),
+
         );
     }
 
@@ -134,9 +134,12 @@ class SchmGroup extends CActiveRecord
             $catCategory = new CatCategory();
             $catCategory->pid = $parentCategoryId;
             $catCategory->name = $this->groupName;
+            $catCategory->type = 'schema';
             if ($catCategory->save()) {
                 $this->assignedId = $catCategory->id;
                 $this->save();
+            } else {
+                throw new Exception('Ошибка сохранения CatCategory');
             }
 
         } else {
@@ -154,6 +157,7 @@ class SchmGroup extends CActiveRecord
         $paramLists = [];
 
         $arrayForIntersect = [];
+
         foreach ($params as $paramId => $paramValue) {
 
             //вытаскиваем тип fieldId
@@ -174,6 +178,7 @@ class SchmGroup extends CActiveRecord
 
             if (count($paramLists[$paramId]) == 0) {
                 //если хотя бы по одному параметру не нашли, значит точно группы такой нет
+
                 return self::createSchmGroup($group);
             }
 
@@ -241,10 +246,15 @@ class SchmGroup extends CActiveRecord
                 $schmGroupDataParam->groupId = $schemaGroup->id;
                 $schmGroupDataParam->fieldType = $schemaFieldType;
                 $schmGroupDataParam->fieldId = $schemaField->id;
-                $schmGroupDataParam->setData($paramValue,$schemaFieldType);
+
+                if ($schmGroupDataParam->save()){
+
+                    $schmGroupDataParam->setData($paramValue,$schemaFieldType);
+                }
 
 
             }
+
         }
 
 
@@ -300,15 +310,24 @@ class SchmGroup extends CActiveRecord
         Yii::import('schema.components.*');
         $params = $this->params;
         $complectIds = [];
-        print_r($params);
-        die();
+
         foreach ($params as $param) {
             //$SchemaField = SchemaField::model()->findByPk($param->fieldId);
-            $complectIds = SchemaLists::equalList($param->field->name, $param->value, 'catItem', $complectIds);
+            $field = SchemaField::model()->findByPk($param->fieldId);
+            $complectIds = SchemaLists::equalList($field->name, $param->value, 'catItem', $complectIds);
         }
         return $complectIds;
     }
 
+    public function getParams(){
+
+        $criteria = new CDbCriteria;
+        $criteria->select = '*';
+        $criteria->condition = 'linkType=:linkType AND groupId=:groupId';
+        $criteria->params = array(':linkType' => 'groupParam', ':groupId' => $this->id);
+
+        return $models = SchemaData::model()->findAll($criteria);
+    }
 
     /**
      * @return string the associated database table name

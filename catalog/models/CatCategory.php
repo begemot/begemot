@@ -69,7 +69,7 @@ class CatCategory extends CActiveRecord
         return array(
             array('name', 'required'),
             array('pid, dateCreate, dateUpdate, status', 'numerical', 'integerOnly' => true),
-            array('name, name_t', 'length', 'max' => 70),
+            array('name, name_t, type', 'length', 'max' => 70),
             array('layout, viewFile, itemViewFile, seo_title', 'length', 'max' => 255),
             array('text,level,seo_title,published', 'safe'),
             // The following rule is used by search().
