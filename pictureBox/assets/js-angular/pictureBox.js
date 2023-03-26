@@ -258,6 +258,7 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
             }
 
             $('#titleAltModal').on('hidden.bs.modal', function (e) {
+
                 if (scope.activeGallery != galleryControl.activeSubGallery) return;
                 console.log(galleryControl.titleModal)
 
@@ -269,6 +270,17 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
                 $('#titleAltModal').modal('hide');
             })
 
+            $('#resizeModal').on('shown', function () {
+                // code to be executed when the modal is shown
+                console.log('окно показалось');
+                $(this).css('margin-top', '-400px');
+            });
+
+            $('#resizeModal').on('hidden', function () {
+                // code to be executed when the modal is hidden
+                $(this).css('margin-top', '-800px');
+                console.log('окно скрылось');
+            });
 
             scope.showAllImagesModal = function (i) {
 

@@ -50,7 +50,7 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
     <upload gallery-id="<?= $id ?>" id="<?= $elementId ?>"></upload>
 
     <div class="modal fade bd-example-modal-lg" id="resizeModal"
-         style="width: 850px;margin-left:-425px; height: 800px;margin-top: -400px;">
+         style="width: 850px;margin-left:-425px; height: 800px;margin-top: -800px;">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
