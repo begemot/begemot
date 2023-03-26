@@ -136,7 +136,7 @@ class SchemaData extends CActiveRecord
         $model->value = $value;
 
          if ( $model->save()){
-             if ($oldValueSchema){
+             if (isset($oldValueSchema) && $oldValueSchema){
                  $oldValueSchema->delete();
              }
              $this->save();
