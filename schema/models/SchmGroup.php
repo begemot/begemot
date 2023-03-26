@@ -58,10 +58,11 @@ class SchmGroup extends CActiveRecord
             foreach ($fieldsIdArray as $schemaId => $fieldName) {
 
                 $fieldType = SchemaField::getSchemaFieldByName($fieldName)->type;
+                $typeTableName = 'SchmType' . $fieldType . ' tb1';
                 $tmpArray = Yii::app()->db->createCommand()->select('*')->
-                from('SchemaData')->
+                from($typeTableName)->
                 where('`fieldId`=' . $schemaId . $wheresql)->
-                leftJoin('SchmType' . $fieldType . ' tb1', 'SchemaData.id=tb1.fieldDataId')
+                leftJoin('SchemaData tb2', 'tb2.id=tb1.fieldDataId')
                     ->queryAll();
 
                 $dataBySchemaField[$schemaId] = array_combine(array_column($tmpArray, 'groupId'), array_column($tmpArray, 'value'));
@@ -154,16 +155,33 @@ class SchmGroup extends CActiveRecord
 
         $arrayForIntersect = [];
         foreach ($params as $paramId => $paramValue) {
-            $paramLists[$paramId] = SchmGroupParams::model()->findAllByAttributes(['valueMd5' => md5($paramValue), 'fieldId' => $paramId]);
+
+            //вытаскиваем тип fieldId
+
+            $schemaField = SchemaField::model()->findByPk($paramId);
+            $schemaFieldType = $schemaField->type;
+            $sql = "SELECT SchmType$schemaFieldType.value, SchemaData.groupId
+        FROM SchemaData 
+        INNER JOIN SchmType$schemaFieldType ON SchemaData.valueId = SchmTypeString.id 
+        WHERE SchemaData.linkType = 'groupParam' 
+        AND SchemaData.fieldId = $paramId AND SchmType$schemaFieldType.value='$paramValue'";
+
+            $command = Yii::app()->db->createCommand($sql);
+            $paramLists[$paramId] = $command->queryAll();
+
+
+             //$paramLists[$paramId] = SchmGroupParams::model()->with('data')->findAllByAttributes(['valueMd5' => md5($paramValue), 'fieldId' => $paramId]);
+
             if (count($paramLists[$paramId]) == 0) {
                 //если хотя бы по одному параметру не нашли, значит точно группы такой нет
                 return self::createSchmGroup($group);
             }
 
 //            формируем массивы для дальнейшей работы
+
             $paramArray = [];
             foreach ($paramLists[$paramId] as $paramModel) {
-                $paramArray[] = $paramModel->groupId;
+                $paramArray[] = $paramModel['groupId'];
             }
             $arrayForIntersect[$paramId] = $paramArray;
         }
@@ -215,12 +233,16 @@ class SchmGroup extends CActiveRecord
             //группу создали теперь создаем параметры к ней
             foreach ($params as $paramId => $paramValue) {
 
-                $schmGroupParam = new SchmGroupParams();
-                $schmGroupParam->groupId = $schemaGroup->id;
-                $schmGroupParam->fieldId = $paramId;
-                $schmGroupParam->valueMd5 = md5($paramValue);
-                $schmGroupParam->value = $paramValue;
-                $schmGroupParam->save();
+                $schemaField = SchemaField::model()->findByPk($paramId);
+                $schemaFieldType = $schemaField->type;
+
+                $schmGroupDataParam = new SchemaData();
+                $schmGroupDataParam->linkType = 'groupParam';
+                $schmGroupDataParam->groupId = $schemaGroup->id;
+                $schmGroupDataParam->fieldType = $schemaFieldType;
+                $schmGroupDataParam->fieldId = $schemaField->id;
+                $schmGroupDataParam->setData($paramValue,$schemaFieldType);
+
 
             }
         }
@@ -278,6 +300,8 @@ class SchmGroup extends CActiveRecord
         Yii::import('schema.components.*');
         $params = $this->params;
         $complectIds = [];
+        print_r($params);
+        die();
         foreach ($params as $param) {
             //$SchemaField = SchemaField::model()->findByPk($param->fieldId);
             $complectIds = SchemaLists::equalList($param->field->name, $param->value, 'catItem', $complectIds);

@@ -29,7 +29,7 @@ class SchmGroupParams extends CActiveRecord
 		return array(
 			array('fieldId, groupId', 'numerical', 'integerOnly'=>true),
 			array('valueMd5', 'length', 'max'=>32),
-            array('value', 'length', 'max'=>300),
+          //  array('value', 'length', 'max'=>300),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, fieldId, valueMd5, groupId', 'safe', 'on'=>'search'),
@@ -45,6 +45,7 @@ class SchmGroupParams extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
             'field' => array(self::BELONGS_TO, 'SchemaField', 'fieldId'),
+            'data' => [self::BELONGS_TO, 'SchemaData', 'dataId']
 		);
 	}
 
