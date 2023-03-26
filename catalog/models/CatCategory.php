@@ -385,16 +385,25 @@ class CatCategory extends CActiveRecord
             $menuItem = array();
 
             $menuItem['label'] = $item['name'];
-            $menuItem['url'] = array('catItemsToCat/admin', 'id' => $id);
+
+                $menuItem['url'] = array('catItemsToCat/admin', 'id' => $id);
+
             if ($item['pid'] == -1) {
                 $menuEnd[$id] = $menuItem;
 
                 foreach ($this->getAllCatChilds($id) as $item) {
 
                     $class = ($item['pid'] != $id) ? "sub-sub-item" : "sub-item";
+
+                    if($item['type']=='base'){
+                        $subMenuUrl = array('catItemsToCat/admin', 'id' => $item['id']);
+                    } else {
+                        $subMenuUrl= array('catItemsToCat/schemaAdmin', 'id' => $item['id']);
+                    }
+
                     $menuEnd += array($item['id'] => array(
                         'label' => $item['name'],
-                        'url' => array('catItemsToCat/admin', 'id' => $item['id']),
+                        'url' => $subMenuUrl,
                         'itemOptions' => array('class' => $class)
                     ));
                 }
