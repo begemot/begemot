@@ -275,7 +275,12 @@ class ApiController extends Controller
                         $filename =              explode('?',$filename);
                         $filename = array_shift($filename);
 //                        print_r($filename);
-                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
+//                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
+
+                        $imagick->resizeImage($width, $height, Imagick::FILTER_BLACKMAN, 0.8);
+                        $imagick->setImageBackgroundColor('white');
+                        $imagick->extentImage($width, $height, 0, 0);
+
 
                         $imagick->writeImage($filename);
                     }
