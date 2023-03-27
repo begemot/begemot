@@ -212,7 +212,13 @@ class SchmGroup extends CActiveRecord
             if (count($resultIntersect) > 1) {
                 throw new Exception('Почему-то два результата! Проверять! Не должно быть больше одного.');
             } else {
-                return SchmGroup::model()->findByPk(array_shift($resultIntersect));
+                $schemaGroup = SchmGroup::model()->findByPk(array_shift($resultIntersect));
+                if ($schemaGroup){
+                    return $schemaGroup;
+                } else {
+                    return false;
+                }
+
             }
         }
 
