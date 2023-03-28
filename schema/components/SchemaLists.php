@@ -114,13 +114,13 @@ class SchemaLists
      * Сначала получаем список groupId по условию и следом вытаскиваем все данные по этим groupId
      * линейным списком
      */
-    public static function allDataOfListIDs($fieldName, $value, $linkType, $groupIdList = [])
+    public static function allDataOfListIDs($linkType, $IDs)
     {
         ini_set('memory_limit', '-1');
-        $IDS = self::equalList($fieldName, $value, $linkType, $groupIdList);
+
 
 //        $ids = [1,2,3];
-        if ($IDS == []) {
+        if ($IDs == []) {
             $data = Yii::app()->db->createCommand()->select('*')->
             from('SchemaData')->
             where('linkType="' . $linkType . '"')->
@@ -129,7 +129,7 @@ class SchemaLists
         } else {
             $data = Yii::app()->db->createCommand()->select('*')->
             from('SchemaData')->
-            where('groupId in (' . implode($IDS, ',') . ') and linkType="' . $linkType . '"')->
+            where('groupId in (' . implode($IDs, ',') . ') and linkType="' . $linkType . '"')->
             leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
                 ->queryAll();
         }
@@ -148,9 +148,15 @@ class SchemaLists
 //        }
     }
 
-    public static function packedDataByFieldValue($fieldName, $value, $linkType)
+    public static function packedDataByFieldValue($fieldId_value_array, $linkType)
     {
-        $data = self::allDataOfListIDs($fieldName, $value, $linkType);
+        $ids = [];
+        foreach ($fieldId_value_array as $fieldName => $value){
+
+            $ids = self::equalList($fieldName, $value, $linkType, $ids);
+        }
+
+        $data = self::allDataOfListIDs($linkType,$ids);
 
         $pack = [];
         foreach ($data as $item) {
