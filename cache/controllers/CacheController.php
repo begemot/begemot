@@ -80,7 +80,7 @@ class CacheController extends Controller
 
         $criteria->compare('cache_group', $model->cache_group, true);
         $criteria->compare('cache_key', $model->cache_key, true);
-        $criteria->compare('value', $model->value, true);
+      //  $criteria->compare('value', $model->value, true);
 
 
        // $criteria->order = '`id` desc';

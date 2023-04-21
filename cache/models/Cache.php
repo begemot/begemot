@@ -43,6 +43,10 @@ class Cache extends CActiveRecord
 
     public function getValue($group, $key)
     {
+        Yii::import('settings.components.CSettings');
+        $settings = new CSettings('cache');
+        if(!$settings->settings['enable']) return false;
+
         $cache = Yii::app()->cache;
         $cacheKey = $this->getCacheKey($group, $key);
 
@@ -53,7 +57,7 @@ class Cache extends CActiveRecord
             // If the value isn't in the cache, retrieve it from the database
             $cacheRow = $this->find('cache_group=:group AND cache_key=:key', array(':group'=>$group, ':key'=>$key));
             if ($cacheRow !== null) {
-                $value = $cacheRow->value;
+                $value = unserialize($cacheRow->value);
                 // Store the value in the cache for next time
                 $cache->set($cacheKey, $value);
             }
@@ -73,7 +77,7 @@ class Cache extends CActiveRecord
             $cacheRow->cache_key = $key;
         }
 
-        $cacheRow->value = $value;
+        $cacheRow->value = serialize($value);
         if(!$cacheRow->save()){
 
 

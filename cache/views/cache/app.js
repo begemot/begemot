@@ -222,3 +222,50 @@ app.directive('dropdown', function ($timeout, $document) {
         }
     };
 });
+
+app.directive('settingToggleButton', function($http) {
+        return {
+            restrict: 'E',
+            scope: {
+                moduleName: '@',
+                booleanParamName: '@'
+            },
+            template: '<button type="button" class="btn btn-primary" ng-click="toggleSetting()">{{ buttonText }}</button>',
+            link: function(scope) {
+                scope.buttonText = 'Loading...';
+                scope.settingValue = null;
+
+                // get setting value
+                $http.get('/settings/settingsApi/getBoolean/moduleName/' + scope.moduleName + '/paramName/' + scope.booleanParamName)
+                    .then(function(response) {
+                        if (response.data.success) {
+                            scope.settingValue = response.data.value;
+                            scope.buttonText = scope.settingValue ? 'Кеш работает(выключить)' : 'Кеш отключен(включить)';
+                        } else {
+                            scope.buttonText = 'Error';
+                        }
+                    }, function(error) {
+                        scope.buttonText = 'Error';
+                    });
+
+                // toggle setting value
+                scope.toggleSetting = function() {
+                    var newValue = !scope.settingValue;
+                    var data = {
+                        value: newValue ? 1 : 0
+                    };
+                    $http.post('/settings/settingsApi/setBoolean/moduleName/' + scope.moduleName + '/paramName/' + scope.booleanParamName, data)
+                        .then(function(response) {
+                            if (response.data.success) {
+                                scope.settingValue = newValue;
+                                scope.buttonText = scope.settingValue ? 'Кеш работает(выключить)' : 'Кеш отключен(включить)';
+                            } else {
+                                scope.buttonText = 'Error';
+                            }
+                        }, function(error) {
+                            scope.buttonText = 'Error';
+                        });
+                };
+            }
+        };
+    });

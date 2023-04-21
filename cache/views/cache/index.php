@@ -30,6 +30,11 @@ $cs->registerScriptFile('/protected/modules/cache/views/cache/app.js');
         <div class="col-auto">
             <ajax-button title="Сбросить весь кеш" url="/cache/cache/resetAllCache" method="POST" data="{}" success="loadData()" error="1"></ajax-button>
         </div>
+        <div class="col-auto">
+             <setting-toggle-button module-name="cache" boolean-param-name="enable"></setting-toggle-button>
+        </div>
+
+
     </div>
 
     <table class="table table-dark table-bordered">
