@@ -12,7 +12,8 @@ class ModulesManager
         'RolesImport' => '',
         'user' => '',
         'srbac'=>'',
-        'pictureBox'=>''
+        'pictureBox'=>'',
+        'settings'=>''
 
     ];
 
