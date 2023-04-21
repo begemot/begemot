@@ -76,6 +76,22 @@ class CSchemaLink
         } else
             $model->setData($fieldId, $value, $this->schemaLinkDb->schemaId, $this->linkedDataId, $linkType);
 
+        $fieldsAndData = $this->getSchemasFieldsData();
+        if(isset($fieldsAndData[$fieldId])){
+            if($model->type = 'String'){
+                $fieldsAndData[$fieldId]['value'] =  $value;
+            } else {
+                $fieldsAndData[$fieldId][$model->type.'Value'] =  $value;
+            }
+            Yii::import('cache.models.*');
+            $cache = new Cache();
+            $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
+            $cacheKey = $this->linkType . '_' . $this->linkedDataId;
+
+            $cache->setValue($cacheGroup, $cacheKey,$fieldsAndData);
+        } else {
+            throw new Exception('нет такого $fieldId');
+        }
     }
 
     public function CSchemaLink($linkType, $linkedDataId, $schemaId = null)
@@ -225,36 +241,50 @@ class CSchemaLink
     public function getSchemasFieldsData()
     {
 
-        $linkType = $this->linkType;
-        $groupId = $this->linkedDataId;
+        Yii::import('cache.models.*');
+        $cache = new Cache();
+        $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
+        $cacheKey = $this->linkType . '_' . $this->linkedDataId;
 
-        $fields = self::getSchemasFields($groupId, $linkType);
-
-        $fieldsId = array_column($fields, 'id');
-
-        $query = $data = Yii::app()->db->createCommand()->select(
-            '*,tb1.value as textValue'
-        )->
-        from('SchemaData')->
-        where(
-            ['and',
-                'groupId=:groupId',
-                'linkType=:linkId',
-                ['in', 'fieldId', $fieldsId],
-            ]
-            , [
-                ':groupId' => $groupId,
-                ':linkId' => $linkType,
-            ]
-        );
-        $query = $query->leftJoin('SchmTypeText tb1', 'SchemaData.id=tb1.fieldDataId');
-        $query = $query->leftJoin('SchemaField tb3', 'SchemaData.fieldId=tb3.id');
-        $query = $query->join('SchmTypeString tb2', 'SchemaData.id=tb2.fieldDataId');
-        $fieldsAndData = $query->queryAll();
+        if (!$fieldsAndData = $cache->getValue($cacheGroup, $cacheKey)) {
 
 
-        $fieldsNames = array_column($fieldsAndData, 'name');
-        return array_combine($fieldsNames, $fieldsAndData);
+            $linkType = $this->linkType;
+            $groupId = $this->linkedDataId;
+
+            $fields = self::getSchemasFields($groupId, $linkType);
+
+            $fieldsId = array_column($fields, 'id');
+
+            $query = $data = Yii::app()->db->createCommand()->select(
+                '*,tb1.value as TextValue'
+            )->
+            from('SchemaData')->
+            where(
+                ['and',
+                    'groupId=:groupId',
+                    'linkType=:linkId',
+                    ['in', 'fieldId', $fieldsId],
+                ]
+                , [
+                    ':groupId' => $groupId,
+                    ':linkId' => $linkType,
+                ]
+            );
+            $query = $query->leftJoin('SchmTypeText tb1', 'SchemaData.id=tb1.fieldDataId');
+            $query = $query->leftJoin('SchemaField tb3', 'SchemaData.fieldId=tb3.id');
+            $query = $query->join('SchmTypeString tb2', 'SchemaData.id=tb2.fieldDataId');
+            $fieldsAndData = $query->queryAll();
+
+
+            $fieldsNames = array_column($fieldsAndData, 'name');
+
+            $fieldsAndData = array_combine($fieldsNames, $fieldsAndData);
+
+            $cache->setValue($cacheGroup, $cacheKey,$fieldsAndData);
+        }
+
+        return $fieldsAndData;
     }
 
     /**
@@ -275,53 +305,66 @@ class CSchemaLink
         $linkType = $this->linkType;
         $groupId = $this->linkedDataId;
 
-        Yii::import('schema.models.types.*');
+        Yii::import('cache.models.*');
+        $cache = new Cache();
+        $cacheKey = __CLASS__ . '_' . 'getData_' . $groupId . '_' . $linkType;
 
-        $dataArray = Yii::app()->db->createCommand()
-            ->select('*')
-            ->from('SchemaData')
-            ->where('groupId=:id and linkType=:linkType', array(':id' => $groupId, 'linkType' => $linkType))
-            ->queryAll();
+        if (!$schemaArray = $cache->getValue(__CLASS__ . '_' . 'getData_', $groupId . '_' . $linkType)) {
 
-        $fieldsIdArray = array_column($dataArray, 'fieldId', 'id');
 
-        $fieldsArray = Yii::app()->db->createCommand()
-            ->select('*')
-            ->from('SchemaField')
-            ->where(array('in', 'id', $fieldsIdArray))
-            ->queryAll();
+            Yii::import('schema.models.types.*');
 
-        $fieldsIdsArray = array_column($fieldsArray, 'id');
-        $fieldsArray = array_combine($fieldsIdsArray, $fieldsArray);
-        $schemaIdArray = array_column($fieldsArray, 'schemaId', 'id');
+            $dataArray = Yii::app()->db->createCommand()
+                ->select('*')
+                ->from('SchemaData')
+                ->where('groupId=:id and linkType=:linkType', array(':id' => $groupId, 'linkType' => $linkType))
+                ->queryAll();
 
-        $schemaArray = Yii::app()->db->createCommand()
-            ->select('*')
-            ->from('Schema')
-            ->where(array('in', 'id', $schemaIdArray))
-            ->queryAll();
-        $schemaArrayIds = array_column($schemaArray, 'id');
-        $schemaArray = array_combine($schemaArrayIds, $schemaArray);
 
-        foreach ($dataArray as $key => $data) {
-            $dataFieldId = $data['fieldId'];
+            $fieldsIdArray = array_column($dataArray, 'fieldId', 'id');
 
-            if (isset($fieldsArray[$dataFieldId])) {
-                $typeModel = SchmTypeString::model()->findByPk($data['valueId']);
+            $fieldsArray = Yii::app()->db->createCommand()
+                ->select('*')
+                ->from('SchemaField')
+                ->where(array('in', 'id', $fieldsIdArray))
+                ->queryAll();
 
-                if (!$typeModel) {
-                    continue;
-                }
+            $fieldsIdsArray = array_column($fieldsArray, 'id');
+            $fieldsArray = array_combine($fieldsIdsArray, $fieldsArray);
+            $schemaIdArray = array_column($fieldsArray, 'schemaId', 'id');
 
-                $fieldsArray[$dataFieldId]['value'] = $typeModel->value;
-                $schemaId = $fieldsArray[$dataFieldId]['schemaId'];
+            $schemaArray = Yii::app()->db->createCommand()
+                ->select('*')
+                ->from('Schema')
+                ->where(array('in', 'id', $schemaIdArray))
+                ->queryAll();
+            $schemaArrayIds = array_column($schemaArray, 'id');
+            $schemaArray = array_combine($schemaArrayIds, $schemaArray);
 
-                if (isset($schemaArray[$schemaId])) {
-                    $schemaArray[$schemaId]['data'][] = $fieldsArray[$dataFieldId];
+            foreach ($dataArray as $key => $data) {
+                $dataFieldId = $data['fieldId'];
+
+                if (isset($fieldsArray[$dataFieldId])) {
+                    $typeModel = SchmTypeString::model()->findByPk($data['valueId']);
+
+                    if (!$typeModel) {
+                        continue;
+                    }
+
+                    $fieldsArray[$dataFieldId]['value'] = $typeModel->value;
+                    $schemaId = $fieldsArray[$dataFieldId]['schemaId'];
+
+                    if (isset($schemaArray[$schemaId])) {
+                        $schemaArray[$schemaId]['data'][] = $fieldsArray[$dataFieldId];
+                    }
                 }
             }
-        }
 
+            $cache->setValue(__CLASS__ . '_' . 'getData_', $groupId . '_' . $linkType, $schemaArray);
+        } else {
+
+            $schemaArray = $schemaArray;
+        }
         return $schemaArray;
     }
 

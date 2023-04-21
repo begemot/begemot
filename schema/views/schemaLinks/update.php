@@ -7,7 +7,7 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/schema/assets/j
 
 Yii::import('schema.components.*');
 Yii::import('begemot.extensions.vault.FileVault');
-$link = new CSchemaLink('catItem', $model->id);
+$link = new CSchemaLink($model->linkType, $model->linkId);
 
 ?>
 

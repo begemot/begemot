@@ -95,7 +95,7 @@ class SchemaLinksController extends Controller
 		{
 			$model->attributes=$_POST['SchemaLinks'];
 			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+				$this->redirect(array('update','id'=>$model->id));
 		}
 
 		$this->render('update',array(

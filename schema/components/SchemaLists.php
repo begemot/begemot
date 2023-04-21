@@ -11,11 +11,53 @@ class SchemaLists
         return self::getList($fieldName, ['from' => $fromValue, 'to' => $toValue], $linkType, $groupIdList);
     }
 
-    public static function equalList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
+    public static function equalList(string $fieldName, $value, string $linkType, array $groupIdList = null): array
     {
+        if (!is_array($value)) {
+            $field = SchemaField::getSchemaFieldByName($fieldName);
+            $result = self::getCahedEqualList($linkType, $field->id, $value);
 
+            if (!$result) {
+                $result = self::getList($fieldName, $value, $linkType);
+                self::setCahedEqualList($linkType, $field->id, $value, $result);
+            }
 
-        return self::getList($fieldName, $value, $linkType, $groupIdList);
+            if ($groupIdList === null) {
+                return $result;
+            } elseif (count($groupIdList) > 0) {
+                return array_intersect($result, $groupIdList);
+            } elseif (count($groupIdList) == 0) {
+                return [];
+            }
+
+        } else {
+            $resultArray = [];
+            foreach ($value as $item){
+                $resultArray = array_merge($resultArray,self::equalList( $fieldName,$item ,  $linkType,  $groupIdList));
+
+            }
+            return $resultArray;
+        }
+
+    }
+
+    public static function setCahedEqualList($linkType, $fieldId, $value, $data)
+    {
+        Yii::import('cache.models.Cache');
+        $equalListCache = new Cache();
+        $cacheGroup = 'Schema.equalList.' . $linkType;
+        $cacheKey = $fieldId . '-' . $value;
+        $result = $equalListCache->setValue($cacheGroup, $cacheKey, $data);
+    }
+
+    public static function getCahedEqualList($linkType, $fieldId, $value)
+    {
+        Yii::import('cache.models.Cache');
+        $equalListCache = new Cache();
+        $cacheGroup = 'Schema.equalList.' . $linkType;
+        $cacheKey = $fieldId . '-' . $value;
+        return $equalListCache->getValue($cacheGroup, $cacheKey);
+
     }
 
     /**
@@ -31,78 +73,78 @@ class SchemaLists
     public static function getList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
     {
 
-        Yii::import('cache.models.Cache');
-        $cache = new Cache();
-        $groupCacheKey = '';
-        if (count($groupIdList) > 0) {
-            $groupCacheKey = implode('_', $groupIdList);
-        }
+//        Yii::import('cache.models.Cache');
+//        $cache = new Cache();
+//        $groupCacheKey = '';
+//        if (count($groupIdList) > 0) {
+//            $groupCacheKey = implode('_', $groupIdList);
+//        }
         $valueCacheKey = '';
-        if (is_array($value)) {
-            if (isset($value['from']) || isset($value['to'])) {
-                $valueCacheKey = 'getList_from_' . $value['from'] . '_to_' . $value['to'];
-            } else
-                $valueCacheKey = 'getList_' . implode('_', $value);
-        } else {
-            $valueCacheKey = 'getList_' . $value;
-        }
+//        if (is_array($value)) {
+//            if (isset($value['from']) || isset($value['to'])) {
+//                $valueCacheKey = 'getList_from_' . $value['from'] . '_to_' . $value['to'];
+//            } else
+//                $valueCacheKey = 'getList_' . implode('_', $value);
+//        } else {
+//            $valueCacheKey = 'getList_' . $value;
+//        }
 
 //        print_r($fieldName.'_'.$valueCacheKey.'_'.$linkType.'_'.$groupCacheKey);
 //        die();
-        if (!($result = $cache->getValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey))) {
-            $field = SchemaField::getSchemaFieldByName($fieldName);
-            $type = $field->type;
+//        if (!($result = $cache->getValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey))) {
+        $field = SchemaField::getSchemaFieldByName($fieldName);
+        $type = $field->type;
 
-            if (is_array($value)) {
-                if (isset($value['from']) || isset($value['to'])) {
-                    $sqlFromPart = 'tb1.value > ' . $value['from'] . '';
-                    $sqlToPart = 'tb1.value < ' . $value['to'] . '';
-                    //$sqlPart = 'tb1.value > "' . $value['from'].'"';//. '" and tb1.value < "'.$value['to'].'"';
+        if (is_array($value)) {
+            if (isset($value['from']) || isset($value['to'])) {
+                $sqlFromPart = 'tb1.value > ' . $value['from'] . '';
+                $sqlToPart = 'tb1.value < ' . $value['to'] . '';
+                //$sqlPart = 'tb1.value > "' . $value['from'].'"';//. '" and tb1.value < "'.$value['to'].'"';
 
-                    if ($value['from'] != null && $value['to'] == null) {
-                        $sqlPart = $sqlFromPart;
-                    }
-
-                    if ($value['from'] == null && $value['to'] != null) {
-                        $sqlPart = $sqlToPart;
-                    }
-
-                    if ($value['from'] != null && $value['to'] != null) {
-                        $sqlPart = $sqlFromPart . ' and ' . $sqlToPart;
-                    }
-                } else {
-                    $value = array_map(function ($val) {
-                        return '"' . $val . '"';
-                    }, $value);
-                    $sqlPart = 'tb1.value in (' . implode(',', $value) . ') ';
+                if ($value['from'] != null && $value['to'] == null) {
+                    $sqlPart = $sqlFromPart;
                 }
 
+                if ($value['from'] == null && $value['to'] != null) {
+                    $sqlPart = $sqlToPart;
+                }
+
+                if ($value['from'] != null && $value['to'] != null) {
+                    $sqlPart = $sqlFromPart . ' and ' . $sqlToPart;
+                }
             } else {
-                $sqlPart = 'tb1.value="' . $value . '"';
+                $value = array_map(function ($val) {
+                    return '"' . $val . '"';
+                }, $value);
+                $sqlPart = 'tb1.value in (' . implode(',', $value) . ') ';
             }
+
+        } else {
+            $sqlPart = 'tb1.value="' . $value . '"';
+        }
 
 //            if ($type !== 'String') {
 //                throw new Exception('Нужно сделать обработку других типов данных');
 //            }
 
-            $where = $sqlPart . ' and fieldId=' . $field->id . ' and linkType="' . $linkType . '"';
+        $where = $sqlPart . ' and fieldId=' . $field->id . ' and linkType="' . $linkType . '"';
 
-            if (!empty($groupIdList)) {
-                $where .= ' and groupId in(' . implode(',', $groupIdList) . ')';
-            }
-
-            $data = Yii::app()->db->createCommand()
-                ->select('*')
-                ->from('SchemaData')
-                ->where($where)
-                ->leftJoin('SchmType' . $type . ' tb1', 'SchemaData.id=tb1.fieldDataId')
-                ->queryAll();
-
-
-            $cache->setValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey, serialize($data));
-        } else {
-            $data = unserialize($result);
+        if (!empty($groupIdList)) {
+            $where .= ' and groupId in(' . implode(',', $groupIdList) . ')';
         }
+
+        $data = Yii::app()->db->createCommand()
+            ->select('groupId')
+            ->from('SchemaData')
+            ->where($where)
+            ->leftJoin('SchmType' . $type . ' tb1', 'SchemaData.id=tb1.fieldDataId')
+            ->queryAll();
+
+
+//            $cache->setValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey, $data);
+//        } else {
+//            $data = $result;
+//        }
 
 
         return array_column($data, 'groupId');
@@ -150,13 +192,13 @@ class SchemaLists
 
     public static function packedDataByFieldValue($fieldId_value_array, $linkType)
     {
-        $ids = [];
-        foreach ($fieldId_value_array as $fieldName => $value){
+        $ids = null;
+        foreach ($fieldId_value_array as $fieldName => $value) {
 
             $ids = self::equalList($fieldName, $value, $linkType, $ids);
         }
 
-        $data = self::allDataOfListIDs($linkType,$ids);
+        $data = self::allDataOfListIDs($linkType, $ids);
 
         $pack = [];
         foreach ($data as $item) {
@@ -176,24 +218,22 @@ class SchemaLists
 
         Yii::import('cache.models.Cache');
         $cache = new Cache();
-        if (!($result = $cache->getValue('forFilterChoiceData',$fieldName))) {
+        if (!($result = $cache->getValue('forFilterChoiceData', $fieldName))) {
 
             $fieldmodel = SchemaField::getSchemaFieldByName($fieldName);
             $dataType = $fieldmodel->type;
 
 
+            $typeTable = 'SchmType' . $dataType;
+            $sql = "SELECT  sd.*,sts.value FROM SchemaData sd INNER JOIN $typeTable sts ON sd.id = sts.fieldDataId WHERE sd.fieldId = :fieldId";
+            $data = Yii::app()->db->createCommand($sql)->queryAll(true, array(':fieldId' => $fieldmodel->id));
+            $data = array_column($data, 'value');
+            $data = array_unique($data);
 
-                $typeTable = 'SchmType'.$dataType;
-                $sql = "SELECT  sd.*,sts.value FROM SchemaData sd INNER JOIN $typeTable sts ON sd.id = sts.fieldDataId WHERE sd.fieldId = :fieldId";
-                 $data = Yii::app()->db->createCommand($sql)->queryAll(true, array(':fieldId' => $fieldmodel->id));
-                $data = array_column($data,'value');
-                $data = array_unique($data);
-
-            $cache->setValue('forFilterChoiceData',$fieldName,serialize($data));
+            $cache->setValue('forFilterChoiceData', $fieldName, $data);
         } else {
-            $data = unserialize($result);
+            $data = $result;
         }
-
 
 
         return $data;
