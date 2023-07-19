@@ -65,8 +65,9 @@ class ModulesManager
     {
 
         Yii::import('begemot.extensions.vault.FileVault');
-
-        $vaultPath = Yii::getPathOfAlias('webroot.files.modules_data');
+        $dir = __DIR__;
+        $vaultPath = $baseWebDir = $dir.'/../../../../files/modules_data';
+        //$vaultPath = Yii::getPathOfAlias('webroot.files.modules_data');
         if (!file_exists($vaultPath))
             mkdir($vaultPath, 0777, true);
 
@@ -75,7 +76,7 @@ class ModulesManager
         $modulesDataVault->pushCollection($data);
     }
 
-    public function getModulesList()
+    public static function getModulesList()
     {
 //        $modulesPath = Yii::getPathOfAlias('application.modules');
        // die($modulesPath);

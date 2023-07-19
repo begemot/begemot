@@ -77,6 +77,7 @@ class CSchemaLink
             $model->setData($fieldId, $value, $this->schemaLinkDb->schemaId, $this->linkedDataId, $linkType);
 
         $fieldsAndData = $this->getSchemasFieldsData();
+
         if(isset($fieldsAndData[$fieldId])){
             if($model->type = 'String'){
                 $fieldsAndData[$fieldId]['value'] =  $value;
@@ -90,11 +91,11 @@ class CSchemaLink
 
             $cache->setValue($cacheGroup, $cacheKey,$fieldsAndData);
         } else {
-            throw new Exception('нет такого $fieldId');
+            throw new Exception('нет такого $fieldId: '.$fieldId);
         }
     }
 
-    public function CSchemaLink($linkType, $linkedDataId, $schemaId = null)
+    public function __construct ($linkType, $linkedDataId, $schemaId = null)
     {
         $this->linkType = $linkType;
         $this->linkedDataId = $linkedDataId;
@@ -131,8 +132,11 @@ class CSchemaLink
     public function get($fieldName)
     {
         if (is_null($this->fieldsAndDataArray)) {
+
             $this->fieldsAndDataArray = $this->getSchemasFieldsData();
         }
+
+
 
         if (isset($this->fieldsAndDataArray[$fieldName]['value'])) {
             return $this->fieldsAndDataArray[$fieldName]['value'];
@@ -251,6 +255,7 @@ class CSchemaLink
 
             $linkType = $this->linkType;
             $groupId = $this->linkedDataId;
+
 
             $fields = self::getSchemasFields($groupId, $linkType);
 

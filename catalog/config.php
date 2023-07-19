@@ -23,7 +23,7 @@ return [
         'urlManager'=>[
             'rules' => [
                 //модуль catalog
-                '/catalog' => '/catalog/site/',
+                'catalog' => 'catalog/site/',
                 'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
                 'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
