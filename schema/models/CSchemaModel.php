@@ -5,7 +5,8 @@
  * Для работы используем CSchemaLink, как более низкий уровень. Этот класс считаем более высоким уровнем абстракции,
  * что бы можно было работать с набором данных сцены как с отдельной сущностью на манер ActiveRecord модели
  */
-
+Yii::import('schema.models.SchemaLinks');
+Yii::import('schema.components.CSchemaLink');
 class CSchemaModel
 {
 
@@ -18,6 +19,7 @@ class CSchemaModel
 
     public function __construct($id)
     {
+
         if (is_null($this->schemaId) || is_null($this->linkType)){
             throw new Exception();
         }
@@ -32,6 +34,17 @@ class CSchemaModel
 
     public function get ($fieldId){
        return  $this->schemaLink->get($fieldId);
+    }
+
+    public static function findAll(){
+        Yii::import('schema.models.SchemaLinks');
+//      echo self::$test;
+        //  return SchemaLinks::model()->findAllByAttributes([]);
+
+    }
+
+    public function getGroupId(){
+        return $this->groupId;
     }
 
 }

@@ -5,20 +5,20 @@ Yii::import('schema.models.types.*');
 
 class SchemaLists
 {
-    public static function fromTolList(string $fieldName, string $linkType, array $groupIdList = [], $fromValue = null, $toValue = null): array
+    public static function fromTolList(string $fieldName,$schemaId, string $linkType, array $groupIdList = [], $fromValue = null, $toValue = null): array
     {
 
-        return self::getList($fieldName, ['from' => $fromValue, 'to' => $toValue], $linkType, $groupIdList);
+        return self::getList($fieldName,$schemaId, ['from' => $fromValue, 'to' => $toValue], $linkType, $groupIdList);
     }
 
-    public static function equalList(string $fieldName, $value, string $linkType, array $groupIdList = null): array
+    public static function equalList(string $fieldName,$schemaId, $value, string $linkType, array $groupIdList = null): array
     {
         if (!is_array($value)) {
-            $field = SchemaField::getSchemaFieldByName($fieldName);
+            $field = SchemaField::getSchemaFieldByName($fieldName,$schemaId);
             $result = self::getCahedEqualList($linkType, $field->id, $value);
 
             if (!$result) {
-                $result = self::getList($fieldName, $value, $linkType);
+                $result = self::getList($fieldName,$schemaId, $value, $linkType);
                 self::setCahedEqualList($linkType, $field->id, $value, $result);
             }
 
@@ -33,7 +33,7 @@ class SchemaLists
         } else {
             $resultArray = [];
             foreach ($value as $item){
-                $resultArray = array_merge($resultArray,self::equalList( $fieldName,$item ,  $linkType,  $groupIdList));
+                $resultArray = array_merge($resultArray,self::equalList( $fieldName,$schemaId,$item ,  $linkType,  $groupIdList));
 
             }
             return $resultArray;
@@ -70,7 +70,7 @@ class SchemaLists
      * Возвращает массив groupId связанных сущностей, например $linkType=CatItem,
      * у которых совпадают значения поля  fieldId с $value
      */
-    public static function getList(string $fieldName, $value, string $linkType, array $groupIdList = []): array
+    public static function getList(string $fieldName,$schemaId, $value, string $linkType, array $groupIdList = []): array
     {
 
 //        Yii::import('cache.models.Cache');
@@ -92,7 +92,7 @@ class SchemaLists
 //        print_r($fieldName.'_'.$valueCacheKey.'_'.$linkType.'_'.$groupCacheKey);
 //        die();
 //        if (!($result = $cache->getValue('SchemaLists.equalList', $fieldName . '_' . $valueCacheKey . '_' . $linkType . '_' . $groupCacheKey))) {
-        $field = SchemaField::getSchemaFieldByName($fieldName);
+        $field = SchemaField::getSchemaFieldByName($fieldName,$schemaId);
         $type = $field->type;
 
         if (is_array($value)) {
@@ -160,7 +160,6 @@ class SchemaLists
     {
         ini_set('memory_limit', '-1');
 
-
 //        $ids = [1,2,3];
         if ($IDs == []) {
             $data = Yii::app()->db->createCommand()->select('*')->
@@ -169,9 +168,10 @@ class SchemaLists
             leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
                 ->queryAll();
         } else {
+
             $data = Yii::app()->db->createCommand()->select('*')->
             from('SchemaData')->
-            where('groupId in (' . implode($IDs, ',') . ') and linkType="' . $linkType . '"')->
+            where('groupId in (' . implode( ',',$IDs) . ') and linkType="' . $linkType . '"')->
             leftJoin('SchmTypeString tb1', 'SchemaData.id=tb1.fieldDataId')
                 ->queryAll();
         }
@@ -190,12 +190,12 @@ class SchemaLists
 //        }
     }
 
-    public static function packedDataByFieldValue($fieldId_value_array, $linkType)
+    public static function packedDataByFieldValue($fieldId_value_array, $linkType,$schemaId)
     {
         $ids = null;
         foreach ($fieldId_value_array as $fieldName => $value) {
 
-            $ids = self::equalList($fieldName, $value, $linkType, $ids);
+            $ids = self::equalList($fieldName,$schemaId, $value, $linkType, $ids);
         }
 
         $data = self::allDataOfListIDs($linkType, $ids);
@@ -213,14 +213,14 @@ class SchemaLists
         return $pack;
     }
 
-    public static function forFilterChoiceData($fieldName)
+    public static function forFilterChoiceData($fieldName,$schemaId = null)
     {
 
         Yii::import('cache.models.Cache');
         $cache = new Cache();
         if (!($result = $cache->getValue('forFilterChoiceData', $fieldName))) {
 
-            $fieldmodel = SchemaField::getSchemaFieldByName($fieldName);
+            $fieldmodel = SchemaField::getSchemaFieldByName($fieldName,$schemaId);
             $dataType = $fieldmodel->type;
 
 

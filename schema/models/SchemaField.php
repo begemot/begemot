@@ -25,7 +25,7 @@ class SchemaField extends CActiveRecord
             $model = self::model()->findAllByAttributes(['name' => $name]);
 
             if (is_array($model) && count($model)>1){
-                throw new Exception('Полей с таким именем больше одного у разных Schema. Надо что-то делать');
+                throw new Exception('Полей с таким именем больше одного у разных Schema. Нужно указать id схемы при вызове');
             } else{
                 if (isset($model[0])){
                     $model=$model[0];
