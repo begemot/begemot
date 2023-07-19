@@ -31,7 +31,13 @@ class RolesImportModule extends CWebModule
 	{
 		if(parent::beforeControllerAction($controller, $action))
 		{
-            Yii::app()->getComponent('bootstrap');
+            $component=Yii::createComponent(array(
+
+                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+            ));
+            Yii::app()->setComponent('bootstrap',$component);
+
             $controller->layout = 'begemot.views.layouts.column2';
 			return true;
 		}

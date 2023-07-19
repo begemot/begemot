@@ -28,7 +28,7 @@ class CallbackController extends Controller
                 'expression'=>'Yii::app()->user->canDo("")'
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin'),
+				'actions'=>array('admin','delete'),
                 'expression'=>'Yii::app()->user->canDo("")'
 			),
 			array('deny',  // deny all users
@@ -48,7 +48,11 @@ class CallbackController extends Controller
 		));
 	}
 
-
+    public function actionDelete($id)
+    {
+        $model = $this->loadModel($id);
+        $model->delete();
+    }
 
 
 	/**
@@ -56,7 +60,17 @@ class CallbackController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Callback');
+		$dataProvider=new CActiveDataProvider('Callback',array(
+			'criteria'=>array(
+
+				'order'=>'id DESC',
+
+			),
+
+			'pagination'=>array(
+				'pageSize'=>9999,
+			),
+		));
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));

@@ -1,0 +1,57 @@
+/*fb8500*/
+
+.line {
+    display: flex;
+    font-size: 20px;
+    color: #023047;
+}
+
+.line:hover {
+    color: #ffb703;
+    cursor: pointer;
+}
+
+.line a:hover {
+    color: #ffb703;
+    cursor: pointer;
+}
+
+.line.disabled {
+    color: rgba(6, 6, 6, 0.22) !important;
+    cursor: default;
+}
+
+.dragOver {
+    color: #219ebc;
+}
+
+.dragOver.leftBlock {
+    background-color: #1f6377;
+}
+
+.dragOver.rightBlock {
+    background-color: #1f6377;
+}
+
+
+.leftBlock {
+    border-left: solid #8ecae6 1px;
+}
+
+.leftBlock .updateDeleteButtonBlock {
+    display: flex;
+    margin-left: 10px;
+}
+
+.leftBlock .updateDeleteButtonBlock i {
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.leftBlock .updateDeleteButtonBlock i:hover {
+    color: orangered;
+}
+
+.rightBlock {
+    width: 300px;
+}

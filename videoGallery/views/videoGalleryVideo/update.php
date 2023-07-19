@@ -9,7 +9,7 @@ $this->breadcrumbs = array(
 $this->menu = require(dirname(__FILE__).'/../commonMenu.php');
 ?>
 
-<h1><?php echo 'Update' . ' ' . GxHtml::encode($model->label()) . ' ' . GxHtml::encode(GxHtml::valueEx($model)); ?></h1>
+<h1><?php echo 'Update' . ' ' . GxHtml::encode($model->label()) . ' '; ?></h1>
 
 <?php
 $this->renderPartial('_form', array(

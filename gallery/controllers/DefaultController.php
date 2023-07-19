@@ -32,7 +32,7 @@ class DefaultController extends Controller
 
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete','orderUp','orderDown','manageGallery','create','update','index','view'),
-                'expression'=>'Yii::app()->user->canDo("")'
+                'expression'=>'Yii::app()->user->canDo("GalleryEditor")'
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),

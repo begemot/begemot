@@ -14,7 +14,7 @@
                             </div>
                         </div>
                     </article>
-                    <article class="grid_9" >  
+                    <article class="grid_9" >
                         <?php  
                             $images = $item->getItemPictures();
                            

@@ -20,7 +20,12 @@ class VarsModule extends CWebModule
     {
 
         self::checkDataFile();
-        Yii::app()->getComponent('bootstrap');
+        $component=Yii::createComponent(array(
+
+            'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+        ));
+        Yii::app()->setComponent('bootstrap',$component);
 
         return true;
     }
@@ -45,7 +50,7 @@ class VarsModule extends CWebModule
         file_put_contents($dataFile, '<?php return ' . var_export($data, true) . '?>');
     }
 
-    public static function getVar($varName)
+    public static function getVar($varName,$silent=false)
     {
 
         self::checkDataFile();
@@ -67,7 +72,8 @@ class VarsModule extends CWebModule
         if (isset(self::$arrayForSite[$varName])) {
             $resultVarData = self::$arrayForSite[$varName];
         } else {
-            $resultVarData = 'Переменная - ' . $varName;
+            if (!$silent)
+                $resultVarData = 'Переменная - ' . $varName;
         }
 
         return $resultVarData;

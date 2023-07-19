@@ -2,9 +2,18 @@
 
 class CatalogModule extends CWebModule
 {
+    const PROMO_CONFIG_FILE_ALIAS = 'webroot.protected.config.catalog.promoImagesConfigFile';
+    const CAT_ITEM_CONFIG_FILE_ALIAS = 'webroot.protected.config.catalog.categoryItemPictureSettings';
     static public $catalogLayout = 'application.views.layouts.catalogLayout';
+    static public $catalogCategoryViewFile = 'rCategoryView';
     static public $catalogCategoryViewLayout = 'application.views.layouts.catalogCategoryViewLayout';
     static public $catalogItemViewLayout = 'application.views.layouts.catalogItemViewLayout';
+
+
+    public $pagination = false;
+    public $baseLayout = null;
+    public $itemLayout = null;
+    public $capcha = false;
 
     public $tidyleadImage = false;
     public $tidyConfig = array(
@@ -20,6 +29,8 @@ class CatalogModule extends CWebModule
 
     public function init()
     {
+
+        CatalogModule::$catalogLayout = $this->baseLayout;
         // this method is called when the module is being created
         // you may place code here to customize the module or the application
 
@@ -29,13 +40,41 @@ class CatalogModule extends CWebModule
             'catalog.components.*',
         ));
 
+        $this->registerScripts();
 
+    }
+
+    /**
+     * Registers the necessary CSS files.
+     */
+    private function registerScripts()
+    {
+            $assetsURL=$this->getAssetsURL();
+            Yii::app()->clientScript->registerCssFile($assetsURL.'/css/styles.css');
+    }
+
+    /**
+    * Publishes the module assets path.
+    * @return string the base URL that contains all published asset files.
+    */
+    private function getAssetsURL()
+    {
+            $assetsPath=Yii::getPathOfAlias('catalog.assets');
+
+            // Republish the assets if debug mode is enabled.
+
+            return Yii::app()->assetManager->publish($assetsPath);
     }
 
     public function beforeControllerAction($controller, $action)
     {
         if ($controller->id != 'site') {
-            Yii::app()->getComponent('bootstrap');
+            $component=Yii::createComponent(array(
+
+                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+            ));
+            Yii::app()->setComponent('bootstrap',$component);
         }
 
         return true;
@@ -55,6 +94,11 @@ class CatalogModule extends CWebModule
                 }
             }
         }
+
+    }
+
+    static public function getMenu(){
+        return require dirname(__FILE__).'/views/catItem/commonMenu.php';
 
     }
 

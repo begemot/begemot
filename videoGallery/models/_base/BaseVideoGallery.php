@@ -38,7 +38,7 @@ abstract class BaseVideoGallery extends GxActiveRecord {
 
 	public function rules() {
 		return array(
-			array('name  ', 'required'),
+			array('name', 'required'),
                   
                     	array('text, order, seo_title', 'safe'),
 			array('order', 'numerical', 'integerOnly'=>true),

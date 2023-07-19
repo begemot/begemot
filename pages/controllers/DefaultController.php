@@ -16,8 +16,8 @@ class DefaultController extends Controller
 		return array(
 
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('index','newFile','delete','update'),
-                'expression'=>'Yii::app()->user->canDo("")'
+				'actions'=>array('index','newFile','delete','update','tidyItemText'),
+                'expression'=>'Yii::app()->user->canDo("HTML")'
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -30,7 +30,7 @@ class DefaultController extends Controller
             $dataPath = $this->getDataDir();
 
             $fileHelper = new CFileHelper();
-            $files = $fileHelper->findFiles('./files/pages',array('exclude'=>array('data')));
+            $files = $fileHelper->findFiles('./files/pages',array('exclude'=>array('data','filesId.php','pagesList.php')));
             $filesArray=array();
             foreach($files as $id=>$filePath){
                 $fileItem=array();
@@ -106,7 +106,7 @@ class DefaultController extends Controller
                         
                     }
             }
-            $this->render('update',array('model'=>$model));
+            $this->render('update',array('model'=>$model,'file'=>$file));
 	}
 
     private function getDataDir(){
@@ -120,4 +120,55 @@ class DefaultController extends Controller
 
         return $dataPath;
     }
+
+    public function actionTidyItemText($file)
+    {
+
+        $filesIndexPath =  Yii::getPathOfAlias('webroot').'/files/pages/pagesList.php';
+        if (file_exists($filesIndexPath)){
+            $pagesFilesList = require $filesIndexPath;
+        } else {
+            $pagesFilesList = array();
+            crPhpArr($pagesFilesList,$filesIndexPath);
+        }
+
+        if (isset($pagesFilesList[$file])){
+            $fileId = $pagesFilesList[$file];
+        } else {
+            $idHtmlFile = Yii::getPathOfAlias('webroot').'/files/pages/filesId.php';
+            $fileId = getFileId($idHtmlFile);
+            $pagesFilesList[$file] = $fileId;
+
+            crPhpArr($pagesFilesList,$filesIndexPath);
+
+        }
+
+        $htmlFile = Yii::getPathOfAlias('webroot').'/'.str_replace('*', '/', $file).'.php';
+
+        $text = file_get_contents($htmlFile);
+
+        Yii::import('application.modules.pictureBox.components.PBox');
+
+        $pbox = new PBox('htmlPage', $fileId);
+
+        $images = $pbox->pictures;
+//        print_r($pbox->pictures);
+        //return;
+
+
+        Yii::import('application.modules.begemot.components.tidy.TidyBuilder');
+
+       // $this->module->tidyleadImage != 0 ? $leadImage = 1 : $leadImage = 0;
+
+        $tidy = new TidyBuilder ($text, $this->module->tidyConfig, $images);
+
+        $resultText = $tidy->renderText();
+
+        file_put_contents($htmlFile,$resultText);
+//        print_r($resultText);
+        $this->redirect(array('/pages/default/update/file/'.$file));
+//        $this->redirect(array('/pages', 'id' => $model->id,));
+    }
+
+
 }

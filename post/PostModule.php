@@ -2,9 +2,10 @@
 
 class PostModule extends CWebModule {
 
-    static public $postLayout = 'application.views.layouts.postLayout';
-    static public $postViewLayout = 'application.views.layouts.postViewLayout';
+    public $postLayout = '//layouts/postLayout';
+    public $postViewLayout = '//layouts/postLayout';
     public $tidyleadImage = false;
+    public $limit = 1;
     public $tidyConfig = array(
         'Three'=>array(
 
@@ -31,7 +32,12 @@ class PostModule extends CWebModule {
 
     public function beforeControllerAction($controller, $action) {
         if ($controller->id != 'site') {
-            Yii::app()->getComponent('bootstrap');
+            $component=Yii::createComponent(array(
+
+                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+            ));
+            Yii::app()->setComponent('bootstrap',$component);
         }
         return true;
     }

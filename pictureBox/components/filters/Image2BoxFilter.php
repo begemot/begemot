@@ -10,7 +10,7 @@ class Image2BoxFilter extends BaseFilter{
 
         /* Fit the image into $width x $height box
           The third parameter fits the image into a "bounding box" */
-        $im->thumbnailImage($width, $height, true);
+        $im->adaptiveResizeImage($width, $height, true);
 
         /* Create a canvas with the desired color */
         $canvas = new Imagick();

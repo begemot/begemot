@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------*/
 .pictureBox {
   width: 701px;
-  margin: 50px auto;
+
   border: 0px dashed #999;
 }
 .pictureBox .content {

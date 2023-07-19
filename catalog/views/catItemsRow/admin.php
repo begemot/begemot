@@ -25,7 +25,6 @@ $this->menu = require dirname(__FILE__).'/../catItem/commonMenu.php';
 		'name',
 		array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
-                        'updateButtonUrl'=>'"/catItem/update/id/".$data->id',
 		),
 	),
 )); ?>

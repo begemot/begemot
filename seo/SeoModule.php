@@ -21,7 +21,13 @@ class SeoModule extends CWebModule {
     public function beforeControllerAction($controller, $action) {
 
 
-            Yii::app()->getComponent('bootstrap');
+        $component=Yii::createComponent(array(
+
+            'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+        ));
+        Yii::app()->setComponent('bootstrap',$component);
+
             $controller->layout = $this->layout;
 
         return true;

@@ -7,7 +7,6 @@ $this->breadcrumbs=array(
 	'Manage',
 );
 
-$this->menu = require dirname(__FILE__).'/commonMenu.php';
 
 ?>
 
@@ -19,6 +18,7 @@ $this->menu = require dirname(__FILE__).'/commonMenu.php';
  $this->widget('bootstrap.widgets.TbGridView',array(
 	'id'=>'test-grid',
 	'dataProvider'=>$dataProvider,//$model->search($id),
+
 	'filter'=>$model,
         'type'=>'striped bordered condensed',
 	'columns'=>array(

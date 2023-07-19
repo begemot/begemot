@@ -7,7 +7,7 @@ class BaseFilter{
     
     static public $resultExt = 'jpg';
     
-    public function BaseFilter($_fileName,$_newFileName,$_param){
+    public function __construct($_fileName,$_newFileName,$_param){
         
         $this->fileName = $_fileName;
         $this->newFileName = $_newFileName;
@@ -18,6 +18,19 @@ class BaseFilter{
         
 
     }
-    
+    public function checkImageformat($file){
+        try {
+            $image_info = @getimagesize($this->fileName);
+        } catch (Exception $e) {
+            return false;
+        }
+
+
+
+        if ($image_info == false){
+            return false;
+        }
+        return true;
+    }
 }
 ?>

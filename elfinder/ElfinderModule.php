@@ -19,8 +19,12 @@ class ElfinderModule extends CWebModule
 	{
 		if(parent::beforeControllerAction($controller, $action))
 		{
-			// this method is called before any module controller action is performed
-			// you may place customized code here
+            $component=Yii::createComponent(array(
+
+                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+
+            ));
+            Yii::app()->setComponent('bootstrap',$component);
 			return true;
 		}
 		else

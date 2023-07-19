@@ -17,7 +17,7 @@ class TitleController extends Controller
 
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('index','newPage','delete','update'),
-                'expression'=>'Yii::app()->user->canDo("")'
+                'expression'=>'Yii::app()->user->canDo("Meta")'
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),

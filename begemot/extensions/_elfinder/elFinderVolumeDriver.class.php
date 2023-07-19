@@ -466,7 +466,7 @@ abstract class elFinderVolumeDriver {
 		if ($path) {
 			if (!file_exists($path)) {
 				if (@mkdir($path)) {
-					chmod($path, $this->options['tmbPathMode']);
+					@chmod($path, $this->options['tmbPathMode']);
 				} else {
 					$path = '';
 				}

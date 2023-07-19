@@ -732,7 +732,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 				return false;
 			}
 			
-			chmod($dir, 0777);
+			@chmod($dir, 0777);
 			
 			// copy in quarantine
 			if (!copy($path, $archive)) {

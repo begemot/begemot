@@ -23,7 +23,7 @@ class PageUrlRule extends CBaseUrlRule
             // Если соответствуют, выставляем $_GET['manufacturer'] и/или $_GET['model']
             // и возвращаем строку с маршрутом 'car/index'.
 
-            
+
             $filename = Yii::getPathOfAlias('webroot.files.pages').'/'.$matches[1].'.php';
             if (file_exists($filename)){
                 return 'site/page/view/'.$matches[1];

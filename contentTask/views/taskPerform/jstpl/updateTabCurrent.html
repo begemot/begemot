@@ -1,0 +1,64 @@
+<div class="tabbable tabs-left">
+    <ul class="nav nav-tabs">
+        <li ng-class="{active:item.name==dataActiveTab}" ng-repeat="(index,item) in currentData"><a
+                href="#{{item.name}}" data-toggle="tab">{{item.name}}</a></li>
+
+    </ul>
+    <div class="tab-content">
+        <h4>Данные в работе</h4>
+        <div class="tab-pane" ng-class="{active:item.name==dataActiveTab}" id="{{item.name}}"
+             ng-repeat="(index,item) in currentData">
+
+            <div class="row">
+                <div class="tabHeader">
+                    <span>Поле "{{item.name}}"</span>
+                </div>
+                <div class="span1" style="text-align: right">
+                    <a href="" ng-class="{'label label-info':editors[item.name]=='simple'}"
+                       ng-click="editorView(item.name,'simple')">Поле</a> <br>
+                    <a href="" ng-class="{'label label-info':editors[item.name]=='textarea'}"
+                       ng-click="editorView(item.name,'textarea')">Область</a>
+                    <a href="" ng-class="{'label label-info':editors[item.name]=='editor'}"
+                       ng-click="editorView(item.name,'editor')">Рдактор</a>
+
+
+                </div>
+                <div class="span6">
+                    <input type="text" ng-if="editors[item.name]=='simple'"
+                           ng-model="item.data">
+                    <textarea ng-if="editors[item.name]=='textarea'"
+                              id="{{item.name}}"
+                              cols="30" rows="10" ng-model="item.data"></textarea>
+
+                    <textarea ng-if="editors[item.name]=='editor'" data-ck-editor
+
+                              id="{{item.name}}" cols="30" rows="10" ng-model="item.data"></textarea>
+                </div>
+
+            </div>
+            <h4>Уникальность текста</h4>
+            <div class="row" style="margin-left: 0px;" ng-show="item.uid!=null">
+        
+                <div class=" span6 ">
+
+                    <ul>
+                        <li>Символов:{{item.checkResult.count_chars_with_space}}</li>
+                        <li>Без пробелов:{{item.checkResult.count_chars_without_space}}</li>
+                        <li>Уникальность:{{item.checkResult.text_unique}}</li>
+                        <li>Вода:{{item.checkResult.water_percent}}</li>
+                        <li>Спам:{{item.checkResult.spam_percent}}</li>
+                        <li>id:{{item.checkResult.uid}}</li>
+                        <li><a target="_blank" href="https://text.ru/antiplagiat/{{item.checkResult.uid}}">text.ru</a></li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="btn-group" style="margin-left: 0;">
+                <button ng-show="item.uid==null" class="btn" ng-click="sendCheckRequest(item.name)">Запросить проверку</button>
+                <button ng-show="item.uid!=null" class="btn" ng-click="sendCheckRequest(item.name,'force')">Повторно отправить</button>
+                <button ng-show="item.uid!=null" class="btn" ng-click="updateCheckRequest(index,item.checkResult.uid)">Проверить готовность и обновить</button>
+            </div>
+        </div>
+
+    </div>
+</div>

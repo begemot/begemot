@@ -19,19 +19,20 @@ class CatItemsToItems extends CActiveRecord
 		return parent::model($className);
 	}
         
-        public function behaviors(){
-                return array(
-                        'CBOrderModelBehavior' => array(
-                                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
+        // public function behaviors(){
+        //         return array(
+        //                 'CBOrderModelBehavior' => array(
+        //                         'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
                                
-                        )
-                );
-        }   
+        //                 )
+        //         );
+        // }   
         
         public function relations()
         {
             return array(
                 'item'=>array(self::BELONGS_TO, 'CatItem', 'itemId'),
+                'toItem'=>array(self::BELONGS_TO, 'CatItem', 'toItemId'),
             );
         }
         
@@ -52,7 +53,7 @@ class CatItemsToItems extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('toItemId, itemId', 'required'),
-			array('toItemId, itemId', 'numerical', 'integerOnly'=>true),
+			array('toItemId, itemId, order', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('toItemId, itemId', 'safe', 'on'=>'search'),

@@ -2,7 +2,7 @@
 /* @var $this LoginFormController */
 /* @var $model LoginForm */
 /* @var $form CActiveForm */
-$this->menu = require dirname(__FILE__).'/../commonMenu.php';
+$this->menu = require dirname(__FILE__) . '/../commonMenu.php';
 ?>
 
 

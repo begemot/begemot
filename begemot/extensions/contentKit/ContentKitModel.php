@@ -53,7 +53,7 @@ class ContentKitModel extends CActiveRecord {
 
     public function beforeSave(){
 
-        parent::beforeSave();
+
 
         $table = Yii::app()->getDb()->getSchema()->getTable($this->owner->tableName());
         $columnNames = $table->getColumnNames();
@@ -105,6 +105,9 @@ class ContentKitModel extends CActiveRecord {
            $this->pub_date = time();
 
         }
+
+        parent::beforeSave();
+
         return true;
     }
 

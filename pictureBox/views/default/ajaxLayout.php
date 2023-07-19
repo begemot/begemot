@@ -25,12 +25,12 @@ function pictureHtml($data, $imageNumber) {
 
     foreach ($images as $imageKey => $image) {
         $imageCounter++;
-       
+
         if ($imageNumber == $imageCounter) {
-            
+
             $output.= '
                          <img src="' . $image['admin'] . '?tmp=' . rand(0, 100) . '" alt=""  width="298" height="198"/>
-                        <p><a href="' . $image['original'] . '?tmp=' . rand(0, 100) . '">Оригинал</a><!--&nbsp;<span>
+                        <p><a href="' . $image['original'] . '?tmp=' . rand(0, 100) . '">Оригинал1</a><!--&nbsp;<span>
                             (<a href="">Удалить изображение</a>)</span>!--></p>
 
                 <!--<div style="display:block;width:310px;height:200px;overflow:hidden;float:right;border:1px solid #898989;margin-top:30px;">
@@ -88,7 +88,7 @@ function imagesLinks($data, $imageNumber, $config, $id, $elementId) {
     $activeImage = null;
     //print_t($images);
 
- 
+
     if (count($images) > 0) {
 
         foreach ($images as $imageKey => $image) {
@@ -101,7 +101,7 @@ function imagesLinks($data, $imageNumber, $config, $id, $elementId) {
                 break;
             }
         }
-        
+
         $PartsPath = pathinfo($image['original']);
 
 
@@ -110,7 +110,7 @@ function imagesLinks($data, $imageNumber, $config, $id, $elementId) {
         $linksHtml = '<ol class="nav">';
 
         $deleteAllHtml = '<br /><a class="del" onClick="$.ajax({url:\'/pictureBox/default/ajaxDeleteImage/id/' . $id . '/elementId/' . $elementId . '/pictureId/' . $activeImage . '\',success: function(){;loadPage(PB_' . $config['divId'] . '.pictureBoxPage-1,PB_' . $config['divId'] . ',\'' . $config['divId'] . '\')}})" href="javascript:;">Удалить изображение</a>';
-        
+
         foreach ($config['imageFilters'] as $keyFilter => $filter) {
 
             //Ищем фильтр с width height
@@ -152,12 +152,12 @@ function imagesLinks($data, $imageNumber, $config, $id, $elementId) {
                    $linksHtml.= $delMakeHtml;
             }
 
-         
+
         }
 
         $title = isset($image['title'])?$image['title']:'';
         $alt = isset($image['alt'])?$image['alt']:'';
-        
+
         $altTitlehtml = '<form>
         title:<input style="width:600px;" name="title" type="text"  value="'.$title.'"/><br/>
         alt:<input style="width:600px;" name="alt" type="text" value="'.$alt.'" />
@@ -236,10 +236,13 @@ function moveHtml($data, $imageNumber, $id, $elementId, $config) {
 }
 
 ?>
+
+
+
 <div class="pictureBox">
     <?php echo paginationHtml($id, $elementId, $data['images'], $imageNumber, $config); ?>
     <div class="content">
-        <?php echo pictureHtml($data, $imageNumber); ?> 
+        <?php echo pictureHtml($data, $imageNumber); ?>
 
 
         <?php echo imagesLinks($data, $imageNumber, $config, $id, $elementId); ?>
@@ -250,59 +253,53 @@ function moveHtml($data, $imageNumber, $id, $elementId, $config) {
     </div>
 
     <?php
-    
+
     $filters = array();
      foreach ($config['nativeFilters'] as $filterName => $accepted) {
                 if ($accepted) {
                     $filters[$filterName] = 1;
-                   
+
                 }
             }
-             
+
     $formData = array(
         'id'=>$id,
         'elementId'=>$elementId,
         'filters'=>$filters,
-        'config'=>  serialize($config) 
+        'config'=>  serialize($config)
     );
-    
-    $this->widget('begemot.extensions.uploadify.CUploadifyWidget',
-                array(
-                    'filePath'=>Yii::getPathOfAlias('webroot').'/files',
-                    'uploader'=>'/pictureBox/default/upload',
-                    'formDataJson'=>CJSON::encode($formData),
-                )
-            );    
-    ?>
-    
-<!--    <form id="uploadForm" action="/pictureBox/default/upload" method="post" enctype="multipart/form-data">
-        <input name="MAX_FILE_SIZE" value="1000000" type="hidden"/>
-        <input name="id" value="<?php echo $id; ?>" type="hidden"/>
-        <input name="elementId" value="<?php echo $elementId; ?>" type="hidden"/>
-        <input name="fileToUpload[]" id="fileToUpload" class="MultiFile" type="file"/>
 
-        <input value="" type="submit" class="upload"/>
+//    $this->widget('begemot.extensions.uploadify.CUploadifyWidget',
+//                array(
+//                    'filePath'=>Yii::getPathOfAlias('webroot').'/files',
+//                    'uploader'=>'/pictureBox/default/upload',
+//                    'formDataJson'=>CJSON::encode($formData),
+//                )
+//            );
+    ?>
+
+
         <?php
-        if (isset($config['nativeFilters'])) {
-            foreach ($config['nativeFilters'] as $filterName => $accepted) {
-                if ($accepted) {
-                    echo '<input name="filters[' . $filterName . ']" type="hidden" value="1"/><br />';
-                }
-            }
-        }
+    //        if (isset($config['nativeFilters'])) {
+    //            foreach ($config['nativeFilters'] as $filterName => $accepted) {
+    //                if ($accepted) {
+    //                    echo '< name="filters[' . $filterName . ']" type="hidden" value="1"/><br />';
+    //                }
+    //            }
+    //        }
         ?>
-    </form>-->
+
 
 
 </div>
 
 <script>
     //var state = {};
-    PB_<?php echo $config['divId']; ?>.pictureBoxPage = <?php echo $imageNumber; ?>;    
-     
+    PB_<?php echo $config['divId']; ?>.pictureBoxPage = <?php echo $imageNumber; ?>;
+
 </script>    
 
-<div id="uploadOutput"></div> 
+
 
 
 

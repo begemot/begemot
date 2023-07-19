@@ -50,6 +50,17 @@ class Posts extends ContentKitModel {
 
     }
 
+    public function searchInModel($queryWord)
+    {
+        $queryWord = addcslashes($queryWord, '%_'); // escape LIKE's special characters
+        $criteria = new CDbCriteria( array(
+            'condition' => "text LIKE :match AND published = 1",
+            'params'    => array(':match' => "%$queryWord%") 
+        ) );
+        $items = Posts::model()->findAll( $criteria ); 
+        return $items;
+    }
+
     /**
      * @return array relational rules.
      */

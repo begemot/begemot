@@ -12,85 +12,55 @@ class DefaultController extends Controller
 
     public function actionTest()
     {
-        $id = 'catalogItem';
-        $elemId = 100;
-        $pictureId = 2;
-        $config = require Yii::getPathOfAlias('application') . '/config/catalog/categoryItemPictureSettings.php';
+//        Yii::import('begemot.extensions.bootstrap.widgets.TbMenu');
+        $this->layout = 'begemot.views.layouts.column1';
 
-        $this->renderImageAgain($id, $elemId, $pictureId, $config);
+//        $id = 'catalogItem';
+//        $elemId = 100;
+//        $pictureId = 2;
+//        $config = require Yii::getPathOfAlias('application') . '/config/catalog/categoryItemPictureSettings.php';
+//
+//        $this->renderImageAgain($id, $elemId, $pictureId, $config);
+        $this->render('test');
     }
 
-    //Функция пересборки изображений 
+    //Функция пересборки изображений
     public function renderImageAgain($id, $elemId, $pictureId, $config)
     {
+        $PBox = new PBox($id, $elemId);
 
-        $filterManager = new FiltersManager(Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/100/2.jpg', $config);
+        $originalImage = $PBox->getImage($pictureId, 'original');
+        $path_info = pathinfo($originalImage);
+        $ext = $path_info['extension'];
+
+        $filterManager = new FiltersManager(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elemId . '/' . $pictureId . '.' . $ext, $config);
         $filters = $filterManager->getFilteredImages();
 
+    }
+
+    //экшн пересборки изображения
+    public function actionRenderImageAgain($id, $elemId, $pictureId, $config)
+    {
+
+        $this->renderImageAgain($id, $elemId, $pictureId, unserialize($config));
     }
 
     public function actionAjaxFlipImages($id, $elementId, $pictureid1, $pictureid2)
     {
 
-
-        $dataFilename = Yii::getPathOfAlias('webroot') . '/' . 'files/pictureBox/' . $id . '/' . $elementId . '/data.php';
-
-        $data = require $dataFilename;
-        $images = $data['images'];
-
-        $config = $this->getConfigFromSession($id, $elementId);
-        $filters = $config['imageFilters'];
-
-        $dir = Yii::getPathOfAlias('webroot');
-
-        $file1 = $dir . $images[$pictureid1]['original'];
-        $file2 = $dir . $images[$pictureid2]['original'];
-
-        $this->flipFiles($file1, $file2);
-
-        //Перекидываем title и alt
-        $title1 = (isset($images[$pictureid1]['title']) ? $images[$pictureid1]['title'] : '');
-        $alt1 = (isset($images[$pictureid1]['alt']) ? $images[$pictureid1]['alt'] : '');
-
-        $images[$pictureid1]['title'] = isset($images[$pictureid2]['title']) ? $images[$pictureid2]['title'] : '';
-        $images[$pictureid1]['alt'] = isset($images[$pictureid2]['alt']) ? $images[$pictureid2]['alt'] : '';
-
-        $images[$pictureid2]['title'] = $title1;
-        $images[$pictureid2]['alt'] = $alt1;
+        $PBox = new PBox($id, $elementId);
+        $PBox->swapImages($pictureid1, $pictureid2);
 
 
-        foreach ($filters as $filterName => $filterUselessData) {
+    }
 
-            if (isset($images[$pictureid1][$filterName])) {
 
-                $ext = end(explode('.', $images[$pictureid1]['original']));
-                $file1 = $dir . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid1 . '_' . $filterName . '.' . $ext;
-                $file2 = $dir . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid2 . '_' . $filterName . '.' . $ext;
-
-                if (isset($images[$pictureid2][$filterName])) {
-                    $tmp = $images[$pictureid2][$filterName];
-                    $images[$pictureid2][$filterName] = '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid2 . '_' . $filterName . '.' . $ext;
-                    $images[$pictureid1][$filterName] = '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid1 . '_' . $filterName . '.' . $ext;
-                } else {
-                    $images[$pictureid2][$filterName] = '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid2 . '_' . $filterName . '.' . $ext;
-                    unset($images[$pictureid1][$filterName]);
-                }
-            } else if (isset($images[$pictureid2]['original'])) {
-                $ext = end(explode('.', $images[$pictureid2]['original']));
-                $file1 = $dir . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid2 . '_' . $filterName . '.' . $ext;
-                $file2 = $dir . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid1 . '_' . $filterName . '.' . $ext;
-
-                $images[$pictureid1][$filterName] = '/files/pictureBox/' . $id . '/' . $elementId . '/' . $pictureid1 . '_' . $filterName . '.' . $ext;
-                unset($images[$pictureid2][$filterName]);
-            } else {
-                continue;
-            }
-
-            $this->flipFiles($file1, $file2);
-        }
-        $data['images'] = $images;
-        PictureBox::crPhpArr($data, $dataFilename);
-
+    public function actionNewSortOrder($galleryId, $id)
+    {
+        $PBox = new PBox($galleryId, $id);
+        $PBox->sortArray = $_REQUEST['sort'];
+        $PBox->saveToFile();
+        return true;
     }
 
     public function actionUpload()
@@ -101,8 +71,12 @@ class DefaultController extends Controller
         $id = $_POST['id'];
         $elementId = $_POST['elementId'];
 
+        if (isset ($_POST['mode']) && $_POST['mode'] == 'killEmAll') {
+            $this->actionAjaxDeleteAllImages($id, $elementId);
+        }
+
         $config = unserialize($_POST['config']);
-        file_put_contents(Yii::getPathOfAlias('webroot') . '/log.log3', var_export($config, true));
+        // file_put_contents(Yii::getPathOfAlias('webroot') . '/log.log3', var_export($config, true));
 
         $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox';
 
@@ -126,11 +100,13 @@ class DefaultController extends Controller
             if ($model->validate()) {
 
                 Yii::import('application.modules.pictureBox.components.picturebox');
+
+
                 $file = $model->uploadifyFile;
                 $temp = explode('.', $file);
                 $imageExt = end($temp);
 
-                $newImageId = $this->addImage($dir, $model->uploadifyFile->name, $imageExt);
+                $newImageId = $this->addImage($dir, $model->uploadifyFile->name, $imageExt, $id, $elementId);
 
                 move_uploaded_file($model->uploadifyFile->tempName, $dir . "/" . $newImageId . '.' . $imageExt);
 
@@ -150,8 +126,115 @@ class DefaultController extends Controller
                 foreach ($filters as $filterName => $filteredImageFile) {
                     $this->addFilteredImage($newImageId, $filterName, '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, $dir);
                 }
+
+                $this->updateSortData($id, $elementId);
             }
         }
+    }
+
+    public function actionUploadArray()
+    {
+        $images = json_decode($_POST['images']);
+        $return = '';
+
+        $hashesMd5 = array();
+        $hashesSha1 = array();
+
+
+        if ($images) {
+
+            $id = 'catalogItem';
+            $elementId = $_POST['id'];;
+
+            $catalogItemConfig = require Yii::getPathOfAlias('application') . '/config/catalog/categoryItemPictureSettings.php';
+
+            $config = array_merge_recursive(PictureBox::getDefaultConfig(), $catalogItemConfig);
+
+            file_put_contents(Yii::getPathOfAlias('webroot') . '/log.log3', var_export($config, true));
+
+            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox';
+
+            if (!file_exists($dir))
+                mkdir($dir, 0777);
+
+            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/';
+
+            if (!file_exists($dir))
+                mkdir($dir, 0777);
+            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/';
+
+            if (!file_exists($dir))
+                mkdir($dir, 0777);
+
+            if (file_exists($dir . '/data.php')) {
+                $data = require $dir . '/data.php';
+
+                foreach ($data['images'] as $item) {
+
+                    if (isset($item['md5'])) {
+                        $hashesMd5[] = $item['md5'];
+                    }
+
+                    if (isset($item['sha1'])) {
+
+                        $hashesSha1[] = $item['sha1'];
+
+                    }
+
+                }
+            }
+
+
+            foreach ($images as $image) {
+
+                $hashMd5 = hash_file('md5', $image);
+                $hashSha1 = hash_file('sha1', $image);
+                if (!in_array($hashMd5, $hashesMd5) & !in_array($hashSha1, $hashesSha1)) {
+
+
+                    Yii::import('application.modules.pictureBox.components.picturebox');
+
+                    $file = $image;
+                    $temp = explode('.', $file);
+                    $imageExt = end($temp);
+
+                    $newImageId = $this->addImage($dir, $image, $imageExt, $id, $elementId, $hashMd5, $hashSha1);
+
+                    copy($image, $dir . "/" . $newImageId . '.' . $imageExt);
+                    //chmod($dir . "/" . $newImageId . '.' . $imageExt, 0777);
+
+
+                    $resultFiltersStack = array();
+
+                    foreach ($config['nativeFilters'] as $filterName => $toggle) {
+                        if ($toggle && isset($config['imageFilters'][$filterName])) {
+                            $resultFiltersStack[$filterName] = $config['imageFilters'][$filterName];
+                        }
+                    }
+
+                    $config['imageFilters'] = $resultFiltersStack;
+
+                    $filterManager = new FiltersManager($dir . "/" . $newImageId . '.' . $imageExt, $config);
+                    $filters = $filterManager->getFilteredImages();
+
+                    foreach ($filters as $filterName => $filteredImageFile) {
+                        $this->addFilteredImage($newImageId, $filterName, '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, $dir);
+                        //chmod(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, 0777);
+                    }
+
+                    $hashesMd5[] = $hashMd5;
+                    $hashesSha1[] = $hashSha1;
+                }
+
+            }
+
+        } else {
+            throw new Exception("Нету изображений", 1);
+
+        }
+        $this->updateSortData($id, $elementId);
+        echo $return;
+        return $return;
     }
 
     public function actionAjaxLayout($id, $elementId, $imageNumber = 1)
@@ -160,48 +243,25 @@ class DefaultController extends Controller
 
         $this->layout = 'pictureBox.views.layouts.ajax';
 
+        $PBox = new PBox($id, $elementId);
 
-        $pictureBoxDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox';
-        if (!file_exists($pictureBoxDir)) {
-            mkdir($pictureBoxDir, 0777);
-        }
-
-        $idDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id;
-
-        if (!file_exists($idDir)) {
-            mkdir($idDir, 0777);
-        }
-
-        $elementIdDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
-
-        if (!file_exists($elementIdDir)) {
-
-            mkdir($elementIdDir, 0777);
-        }
-
-
-        $dataFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php';
-
-        if (file_exists($dataFile)) {
-
-            $data = require($dataFile);
-        } else {
-            PictureBox::crPhpArr(array('images' => array()), $dataFile);
-            $data = array('images' => array());
-        }
+        $data['images'] = $PBox->getSortedImageList('admin');
 
         $config = $this->getConfigFromSession($id, $elementId);
 
-        $this->render('ajaxLayout', array('elementId' => $elementId, 'id' => $id, 'imageNumber' => $imageNumber, 'data' => $data, 'config' => $config));
+        $viewFile = 'ajaxLayout';
+
+        if (isset($_REQUEST['theme'])) {
+            $viewFile = $_REQUEST['theme'];
+        }
+
+        $this->render($viewFile, array('elementId' => $elementId, 'id' => $id, 'imageNumber' => $imageNumber, 'data' => $data, 'config' => $config));
     }
 
     //возвращает новое имя добавленного изображения с
     //с которым его надо сохранить
-    private function addImage($dir, $fileName, $fileExt)
+    private function addImage($dir, $fileName, $fileExt, $id, $elementId, $md5 = '', $sha1 = '')
     {
-
-        $id = $_POST['id'];
-        $elementId = $_POST['elementId'];
 
         $imageId = $this->getNewImageId($dir);
 
@@ -217,8 +277,16 @@ class DefaultController extends Controller
         $originalFile = '/files/pictureBox/' . $id . '/' . $elementId . '/' . $imageId . '.' . $fileExt;
 
         $data['images'][$imageId] = array(
-            'original' => $originalFile,
+            'original' => $originalFile
         );
+
+        if ($md5 != "") {
+            $data['images'][$imageId]['md5'] = $md5;
+        }
+
+        if ($sha1 != "") {
+            $data['images'][$imageId]['sha1'] = $sha1;
+        }
 
         PictureBox::crPhpArr($data, $dir . '/data.php');
 
@@ -255,6 +323,58 @@ class DefaultController extends Controller
         }
     }
 
+    public function actionAjaxGetFavArray($elementId, $id, $pictureId = null)
+    {
+        $this->layout = 'pictureBox.views.layouts.ajax';
+        if (Yii::app()->request->isAjaxRequest) {
+            $pBox = new PBox($id,$elementId);
+//            $favFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
+//            if (file_exists($favFile)) {
+//
+//                $favArray = require($favFile);
+//
+//                if ($favArray == null) $favArray = [];
+//
+//            } else {
+//                $favArray = [];
+//            }
+
+            $favArray = $pBox->getFavData();
+            echo json_encode($favArray);
+        }
+    }
+
+    public function actionAjaxGetAltArray($elementId, $id, $pictureId = null)
+    {
+        $this->layout = 'pictureBox.views.layouts.ajax';
+        if (Yii::app()->request->isAjaxRequest) {
+
+            $dataFile = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php';
+            $dataArray = require($dataFile);
+
+
+            $resultArray = [];
+            if (isset($dataArray['images'])) {
+                $dataArray = $dataArray['images'];
+
+
+                foreach ($dataArray as $imageKey => $imageArray) {
+                    $altArray = [];
+                    if (isset($imageArray['title'])) {
+                        $altArray['title'] = $imageArray['title'];
+                    }
+
+                    if (isset($imageArray['alt'])) {
+                        $altArray['alt'] = $imageArray['alt'];
+                    }
+                    $resultArray[$imageKey] = $altArray;
+                }
+
+            }
+            echo json_encode($resultArray);
+        }
+    }
+
     public function actionAjaxSetTitle()
     {
         $this->layout = 'pictureBox.views.layouts.ajax';
@@ -265,30 +385,38 @@ class DefaultController extends Controller
             $pictureId = $_REQUEST['pictureId'];
             $filesList = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php';
 
+
             if (file_exists($filesList)) {
+
                 $data = require($filesList);
                 $images = $data['images'];
 
                 $imagesCounter = 0;
-                foreach ($images as $imageKey => $image) {
-                    $imagesCounter++;
-                    if ($imagesCounter == $pictureId) {
 
-                        if (isset($_REQUEST['title']))
-                            $image['title'] = $_REQUEST['title'];
 
-                        if (isset($_REQUEST['alt']))
-                            $image['alt'] = $_REQUEST['alt'];
+                if (isset($_REQUEST['title']))
+                    $data['images'][$pictureId]['title'] = $_REQUEST['title'];
 
-                        $data['images'][$imageKey] = $image;
-                        PictureBox::crPhpArr($data, $filesList);
-                        break;
-                    }
-                }
+                if (isset($_REQUEST['alt']))
+                    $data['images'][$pictureId]['alt'] = $_REQUEST['alt'];
+
+
+                PictureBox::crPhpArr($data, $filesList);
+
+
             } else {
 
                 return false;
             }
+        }
+    }
+
+    public function actionAjaxDeleteAllImages($id, $elementId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+            $PBox = new PBox($id, $elementId);
+            $PBox->deleteAll();
+            return true;
         }
     }
 
@@ -310,6 +438,18 @@ class DefaultController extends Controller
                 unset($data['images'][$pictureId]);
                 PictureBox::crPhpArr($data, $dataFile);
             }
+
+            $this->updateSortData($id, $elementId);
+        }
+    }
+
+    public function actionAjaxShowHideImage($id, $elementId, $pictureId)
+    {
+
+        $this->layout = 'pictureBox.views.layouts.ajax';
+        if (Yii::app()->request->isAjaxRequest) {
+            $pbox = new PBox($id, $elementId);
+            echo $pbox->changeImageShown($pictureId);
         }
 
     }
@@ -327,12 +467,33 @@ class DefaultController extends Controller
                 //die($fullFilePath);
                 if (file_exists($fullFilePath)) {
                     unlink($fullFilePath);
-                    unset($data['images'][$pictureId][$filterName]);
-                    PictureBox::crPhpArr($data, Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
                 }
+                unset($data['images'][$pictureId][$filterName]);
+                PictureBox::crPhpArr($data, Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
+
             }
+            $this->updateSortData($id, $elementId);
         }
     }
+
+    public function actionAjaxFilterOriginalImage($id, $elementId, $pictureId, $filterName)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+
+            $data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
+            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
+            $config = $this->getConfigFromSession($id, $elementId);
+
+            $temp = explode('.', $data['images'][$pictureId]['original']);
+            $imageExt = end($temp);
+
+            echo $originalImagePath = $dir . "/" . $pictureId . '.' . $imageExt;
+
+            $filter = new ExpandFilter($originalImagePath, $originalImagePath, []);
+            $filter->make();
+        }
+    }
+
 
     /**
      *
@@ -343,16 +504,31 @@ class DefaultController extends Controller
      * @param type $pictureId Идентификатор изображения
      * @param type $filterName Имя фильтра. Изначально устанавливается в конфиге
      */
-    public function actionAjaxMakeFilteredImage($id, $elementId, $pictureId, $filterName, $x = null, $y = null, $width = null, $height = null)
+
+    public function actionAjaxMakeFilteredImage($id, $elementId, $pictureId, $filterName, $x = null, $y = null, $width = null, $height = null,$subGallery='default')
+
     {
         if (Yii::app()->request->isAjaxRequest) {
-            $data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
-            $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
-            $config = $this->getConfigFromSession($id, $elementId);
-
-            $imageExt = end(explode('.', $data['images'][$pictureId]['original']));
 
 
+            //$data = require(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/data.php');
+            $pBox = new PBox($id,$elementId,$subGallery);
+            //$data = $pBox->dataFile;
+            $images = $pBox->pictures;
+           // $dir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId;
+            $dir = $pBox->dataFile;
+
+            $config = $pBox->getImagesRenderRules();
+//            $config = $this->getConfigFromSession($id, $elementId);
+
+            $temp = explode('.', $images[$pictureId]['original']);
+            $imageExt = end($temp);
+
+
+            echo '<pre>';
+            print_r($pBox);
+            echo '<pre>';
+            die();
             if (isset($config['imageFilters'][$filterName])) {
 
                 $originalImagePath = $dir . "/" . $pictureId . '.' . $imageExt;
@@ -372,6 +548,7 @@ class DefaultController extends Controller
                 $filterManager = new FiltersManager($originalImagePath, $filter);
 
                 $filters = $filterManager->getFilteredImages();
+
 
                 foreach ($filters as $filterName => $filteredImageFile) {
                     $this->addFilteredImage($pictureId, $filterName, '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, $dir);
@@ -397,11 +574,14 @@ class DefaultController extends Controller
      */
     public function actionAjaxAddFav($id, $elementId, $pictureId)
     {
-        $favData = $this->getFavData($id, $elementId);
+        $pBox = new PBox($id, $elementId);
+        $pBox->addPictureToFav($pictureId);
 
-        $data = $this->getPictureBoxData($id, $elementId);
-        $favData[$pictureId] = $data['images'][$pictureId];
-        $this->putFavData($id, $elementId, $favData);
+//        $favData = $this->getFavData($id, $elementId);
+//
+//        $data = $this->getPictureBoxData($id, $elementId);
+//        $favData[$pictureId] = $data['images'][$pictureId];
+//        $this->putFavData($id, $elementId, $favData);
 
     }
 
@@ -415,12 +595,12 @@ class DefaultController extends Controller
      */
     public function actionAjaxDelFav($id, $elementId, $pictureId)
     {
+        $pBox = new PBox($id, $elementId);
 
-        $favData = $this->getFavData($id, $elementId);
-        if (isset($favData[$pictureId]))
-            unset($favData[$pictureId]);
+        if (isset($pBox->favPictures[$pictureId]))
+            unset($pBox->favPictures[$pictureId]);
 
-        $this->putFavData($id, $elementId, $favData);
+        $pBox->saveToFile();
     }
 
     /**
@@ -432,24 +612,12 @@ class DefaultController extends Controller
     static function getFavData($id, $elementId)
     {
 
-        $favFilename = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
+        $pBox = new PBox($id, $elementId);
 
-        if (!file_exists($favFilename)) {
-            $favData = array();
-            PictureBox::crPhpArr($favData, $favFilename);
-        } else {
-            $favData = require $favFilename;
-        }
-
-        return $favData;
+        return $pBox->getFavData();
     }
 
-    static function putFavData($id, $elementId, $favData)
-    {
 
-        $favFilename = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/favData.php';
-        PictureBox::crPhpArr($favData, $favFilename);
-    }
 
     /**
      * Достаем данные из ячейки хранилища
@@ -497,13 +665,17 @@ class DefaultController extends Controller
      */
     function deleteImageFiles($id, $elementId, $pictureId, $data)
     {
+        if (isset($data['images'][$pictureId]['original'])){
 
-        $deleteFilesList = Yii::getPathOfAlias('webroot') . '/' . $data['images'][$pictureId]['original'];
+            $deleteFilesList = Yii::getPathOfAlias('webroot') . '/' . $data['images'][$pictureId]['original'];
+            if (file_exists($deleteFilesList))
+                unlink($deleteFilesList);
+        }
 
         $images = $data['images'][$pictureId];
 
-        foreach ($images as $image) {
-
+        foreach ($images as $key => $image) {
+            if ($key == 'params') continue;
             $fileFullName = Yii::getPathOfAlias('webroot') . '/' . $image;
 
             if (file_exists($fileFullName) && !is_dir($fileFullName)) {
@@ -524,7 +696,10 @@ class DefaultController extends Controller
     {
 
 
-        session_start();
+        if(!isset($_SESSION))
+        {
+            session_start();
+        }
 
         if (isset($_SESSION['pictureBox'][$id . '_' . $elementId])) {
             return $_SESSION['pictureBox'][$id . '_' . $elementId];
@@ -533,27 +708,48 @@ class DefaultController extends Controller
         }
     }
 
+    static function updateSortData($id, $elementId)
+    {
+        $pBox = new PBox($id,$elementId);
+        $pBox->updateSortData();
+        //TODO::
+    }
+
     private function flipFiles($file1, $file2)
     {
-        if (file_exists($file1)) {
-            rename($file1, $file1 . '_tmp');
-        } else {
+        echo 'Меняем файлы:<br>';
+        echo $file1 . '<br>';
+        echo $file2 . '<br>';
 
+        if (!file_exists($file1) && !file_exists($file2)) {
+            echo 'Оба файла не существует. Нечего менять местами' . '<br>';
             return;
-            throw new Exception(__FILE__ . ' функция flipFiles. Отсутствует первый файл для переименования.');
         }
 
-        if (file_exists($file2)) {
-            rename($file2, $file1);
+        if (file_exists($file1)) {
+            echo 'Первый файл существует. Переименовываем его во временный ' . $file1 . '_tmp' . '<br>';
+            rename($file1, $file1 . '_tmp');
+
+
+            if (file_exists($file2)) {
+                rename($file2, $file1);
+                rename($file1 . '_tmp', $file2);
+            } else {
+                rename($file1 . '_tmp', $file2);
+            }
+
         } else {
-            throw new Exception(__FILE__ . ' функция flipFiles. Отсутствует второй файл для переименования.');
+            echo 'Первый файл НЕ существует.' . '<br>';
+            if (file_exists($file2)) {
+                echo 'Второй файл существует, поэтому просто.' . '<br>';
+                rename($file2, $file1);
+                return;
+            }
+
+
         }
 
-        if (file_exists($file1 . '_tmp')) {
-            rename($file1 . '_tmp', $file2);
-        } else {
-            throw new Exception(__FILE__ . ' функция flipFiles. Отсутствует второй файл для переименования.');
-        }
+
     }
 
 }

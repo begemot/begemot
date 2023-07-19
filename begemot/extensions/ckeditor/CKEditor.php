@@ -230,7 +230,7 @@ class CKEditor extends CInputWidget{
         list($name,$id) = $this->resolveNameID();
 
         $options['language'] = $this->language;
-
+        $options['autoParagraph '] = false;
     // to make the content look like if it were in your target page
         if ($this->contentCSS !== '') {
             $options['contentsCss'] = $this->contentCSS;
@@ -284,7 +284,7 @@ class CKEditor extends CInputWidget{
         $cs = Yii::app()->getClientScript();
 
         $cs->registerScriptFile($assets.'/ckeditor.js');
-        $cs->registerScriptFile($assets.'/ckfinder/ckfinder.js');
+//        $cs->registerScriptFile($assets.'/ckfinder/ckfinder.js');
 
         $this->htmlOptions['id'] = $id;
 //        $this->htmlOptions['fmt'] = 'fck';
@@ -300,8 +300,11 @@ class CKEditor extends CInputWidget{
         }
 
         $js =<<<EOP
-CKFinder.SetupCKEditor(null, '/elfinder/default/cke');
-CKEDITOR.replace('{$name}',{$options});
+
+
+CKEDITOR.replace('{$name}');
+
+
 EOP;
         $cs->registerScript('Yii.'.get_class($this).'#'.$id, $js, CClientScript::POS_LOAD);
 

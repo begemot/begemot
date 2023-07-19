@@ -1,0 +1,102 @@
+ul.tiles {
+    display: block;
+    list-style-type: none;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+}
+
+ul.tiles li {
+
+    margin: 3px 3px 3px 0;
+    padding: 1px;
+    float: left;
+    cursor: pointer;
+    font-size: 4em;
+    text-align: center;
+    width:300px;
+    height:200px;
+}
+
+img.tile-img {
+    /*position:absolute;*/
+    z-index: 1;
+
+
+
+}
+
+img.delete-btn {
+    position:relative;
+    z-index: 999;
+    top:-30px;
+    right:-16px;
+    opacity: 0.5;
+    width:18px;
+    height:18px;
+    float:right;
+}
+
+img.delete-btn:hover, img.fav-btn:hover,img.title-btn:hover,img.all-images-btn:hover,img.eye-btn:hover{
+    opacity: 1;
+}
+
+img.fav-btn{
+    position:relative;
+    z-index: 1000;
+    top:-193px;
+    right:7px;
+    opacity: 0.9;
+    float:right;
+    width:24px;
+    height:22px;
+}
+
+.mydropzone {
+    float: left;
+    width:100%;
+}
+.mydropzone span{
+    z-index: -100;
+}
+img.title-btn {
+    position:relative;
+    z-index: 999;
+    top:-193px;
+    right:-8px;
+    opacity: 0.5;
+    float:left;
+    width:92px;
+    height:21px;
+}
+
+img.all-images-btn{
+    position:relative;
+    z-index: 1000;
+    top:-193px;
+    right:-7px;
+    opacity: 0.5;
+    float:left;
+}
+
+
+img.eye-btn {
+    width:39px;
+    position:relative;
+    z-index: 999;
+    top:-33px;
+    right:179px;
+    opacity: 0.8;
+
+    float:left;
+}
+.gallListActive{
+    font-weight: bolder;
+
+}
+.gallListActive::before{
+    content:'Активен:'
+}
+

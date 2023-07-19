@@ -1,5 +1,4 @@
 <?php
-
 return array(
     'items' => array(
         'Catalog' => array(
@@ -19,5 +18,4 @@ return array(
         ),
     ),
     'relations'=>array()
-
 );

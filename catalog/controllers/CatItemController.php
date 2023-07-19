@@ -1,5 +1,7 @@
 <?php
 
+Yii::import('webroot.protected.jobs.*');
+
 class CatItemController extends Controller
 {
     /**
@@ -15,7 +17,7 @@ class CatItemController extends Controller
     {
         return array(
             'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
+            'ajaxOnly + delete', // we only allow deletion via POST request
         );
     }
 
@@ -29,7 +31,15 @@ class CatItemController extends Controller
         return array(
 
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('delete', 'create', 'update', 'index', 'view', 'deleteItemToCat', 'tidyItemText'),
+
+
+                'actions' => array(
+                    'delete', 'createColor', 'deleteColor', 'setColor',
+                    'setColorTo', 'unsetColorTo','ajaxCreate',
+                    'deleteModifFromItem',
+                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'),
+
+
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
             ),
             array('deny',  // deny all users
@@ -63,16 +73,72 @@ class CatItemController extends Controller
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['CatItem'])) {
 
-            $model->attributes = $_POST['CatItem'];
-            if ($model->save())
-                $this->redirect(array('update', 'id' => $model->id));
+//        if (isset($_POST['CatItem'])) {
+
+            $model->name = "Новая позиция";
+            if ($model->save()) {
+
+              $this->redirect(array('catItem/update', 'id' => $model->id));
+
+
+            } else {
+                throw new Exception(json_encode($model->getErrors()), 1);
+
+
+            }
+
+//        }
+
+//        if (!isset($_POST['returnId'])) {
+//            $this->render('create', array(
+//                'model' => $model,
+//            ));
+//        }
+
+    }
+    public function actionAjaxCreate()
+    {
+        $model = new CatItem;
+        $model->attributes = $_POST['CatItem'];
+        if ($model->save()) {
+
+                echo $model->id;
+
+        } else {
+            echo 'ошибка сохранения';
+        }
+    }
+    public function actionGetItemsFromCategory($catId, $curCatId)
+    {
+        $model = CatItemsToCat::model()->with('item')->findAll(array('condition' => 't.catId=' . $catId, 'order' => 't.order ASC'));
+
+        $currentPosition = 1;
+        $flag = true;
+        $array = array('html' => '', 'ids' => array(), 'currentPos' => '');
+        foreach ($model as $cat) {
+            if ($curCatId != $cat->item->id) {
+                $array['html'] .= "<option value='" . $cat->item->id . "'>" . $cat->item->name . "- (" . $cat->item->id . ")</option>";
+                $array['ids'][] = $cat->item->id;
+
+                if ($flag) {
+                    $currentPosition++;
+                }
+
+            } else {
+                $flag = false;
+            }
+
+
         }
 
-        $this->render('create', array(
-            'model' => $model,
-        ));
+        $array['currentPos'] = $currentPosition;
+
+        if (ob_get_contents())
+            ob_end_clean();
+
+        echo json_encode($array);
+
     }
 
     /**
@@ -82,9 +148,22 @@ class CatItemController extends Controller
      */
     public function actionUpdate($id, $tab = 'data')
     {
+
         $model = $this->loadModel($id);
 
         CatalogModule::checkEditAccess($model->authorId);
+
+
+        if(Yii::app()->request->isAjaxRequest){
+
+            if (isset($_GET['changePrice'])){
+                $model->price = $_GET['changePrice'];
+                $model->save();
+            }
+            return;
+        }
+
+        $message = '';
 
 
         if (isset($_GET['setMainCat'])) {
@@ -92,11 +171,82 @@ class CatItemController extends Controller
             $model->save();
         }
 
-        if (isset($_POST['saveItemsToItems']) && isset($_POST['options'])) {
-            CatItemsToItems::model()->deleteAll(array("condition" => 'itemId=' . $id));
 
 
-            if (count($_POST['options'])) {
+        // change positions
+        if (isset($_POST['changePosition'])) {
+
+
+            $category = $_POST['categoryId'];
+            $item = $_POST['item'];
+            $currentItem = $_POST['currentItem'];
+
+            if (!empty($_POST['itemId'])) {
+                $item = $_POST['itemId'];
+            }
+
+
+            if (isset($_POST['pasteOnFirstPosition'])) {
+                $itemModel = $itemModel = CatItemsToCat::model()->with('item')->find(array('condition' => 't.catId=' . $category, 'order' => 't.order ASC'));
+            } else if (isset($_POST['pasteOnLastPosition'])) {
+                $itemModel = $itemModel = CatItemsToCat::model()->with('item')->find(array('condition' => 't.catId=' . $category, 'order' => 't.order DESC'));
+            } else {
+                $itemModel = CatItemsToCat::model()->with('item')->find(array('condition' => 't.catId=' . $category . " AND t.itemId=" . $item));
+            }
+
+
+            $currentItemModel = CatItemsToCat::model()->with('item')->find(array('condition' => 't.catId=' . $category . " AND t.itemId=" . $currentItem));
+
+            if ($currentItemModel->catId != 0 && $itemModel->catId != 0) {
+
+                $itemsToChange = CatItemsToCat::model()->with('item')->findAll(array('condition' => 't.order >=' . $itemModel->order, 'order' => 't.order ASC'));
+
+
+                if (isset($_POST['pasteOnLastPosition'])) {
+                    $order = $itemModel->order - 1;
+                } else {
+                    $order = $itemModel->order + 1;
+                }
+
+
+                foreach ($itemsToChange as $item) {
+                    $item->order = $order;
+                    $item->save();
+
+                    if (isset($_POST['pasteOnLastPosition'])) {
+                        $order--;
+                    } else {
+                        $order++;
+                    }
+
+                }
+
+                $currentItemModel->order = $itemModel->order;
+                $currentItemModel->save();
+
+                $message = "Сохранено";
+            }
+        }
+        // --change positions
+
+
+        if (isset($_POST['saveModif'])) {
+            if (isset($_POST['modif'])) {
+                foreach ($_POST['modif'] as $itemId) {
+                    $item = CatItem::model()->findByPk($itemId);
+                    $item->modOfThis = $id;
+                    $item->save();
+                    $this->redirect('/catalog/catItem/update/id/' . $id . '/tab/modifications');
+
+                }
+            }
+
+        }
+
+        if (isset($_POST['saveItemsToItems'])) {
+            CatItemsToItems::model()->deleteAll(array("condition" => 'itemId=' . $id . " OR toItemId=" . $id));
+
+            if (isset($_POST['options'])) {
                 foreach ($_POST['options'] as $itemId) {
                     $item = new CatItemsToItems();
 
@@ -104,13 +254,58 @@ class CatItemController extends Controller
                     $item->toItemId = $itemId;
 
                     $item->save();
+
                 }
 
             }
 
-        } else if (isset($_POST['saveItemsToItems']) && !isset($_POST['options'])) {
-            CatItemsToItems::model()->deleteAll(array("condition" => 'itemId=' . $id));
+            if (isset($_POST['items'])) {
+                foreach ($_POST['items'] as $itemId) {
+                    $item = new CatItemsToItems();
+
+                    $item->itemId = $itemId;
+                    $item->toItemId = $id;
+
+                    $item->save();
+                }
+
+            }
         }
+
+
+        $fileListOfDirectory = array();
+        $synched = false;
+        if (isset(Yii::app()->modules['parsers'])) {
+
+
+            Yii::import('application.modules.parsers.models.ParsersLinking');
+            Yii::import('application.modules.parsers.models.ParsersStock');
+
+            $synched = ParsersLinking::model()->with('item')->find(array('condition' => "t.toId='" . $model->id . "'"));
+
+
+            $fileListOfDirectory = array();
+            if (!$synched) {
+
+                $fileListOfDirectory = array();
+
+
+                if (is_dir(Yii::app()->basePath . '/jobs')) {
+                    foreach (glob(Yii::app()->basePath . '/jobs/*ParserJob.php') as $path) {
+
+                        $className = basename($path);
+                        $className = str_replace('.php', '', $className);
+                        $class = new $className;
+
+                        array_push($fileListOfDirectory, array('name' => $class->getName(), 'className' => $className));
+                    }
+                }
+
+            }
+
+
+        }
+
 
         if (isset($_POST['CatItem'])) {
 
@@ -131,13 +326,14 @@ class CatItemController extends Controller
                 $itemToCat->item->catId = $itemToCat->catId;
                 $itemToCat->item->save();
             }
-
+            $this->redirect(array('update', 'id' => $model->id, 'tab' => $tab));
         }
 
         $this->render('update', array(
             'model' => $model,
             'tab' => $tab,
         ));
+
     }
 
     /**
@@ -153,8 +349,35 @@ class CatItemController extends Controller
 
         $model->delete();
 
+
+        CatItemsToItems::model()->deleteAll("itemId = '$id' OR toItemId = '$id'");
+        $this->delete_files(Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/' . $id . "/");
+
         // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-        if (!isset($_GET['ajax']))
+
+        //Удаляем привязки к категориям
+        $CatItemsRelations = CatItemsToCat::model()->findAll('itemId = ' . $id);
+
+        foreach ($CatItemsRelations as $catItemToCat) {
+            $catItemToCat->delete();
+        }
+
+
+        //Удаляем привязки к категориям
+        $ParsersLinkingRelations = ParsersLinking::model()->findAll('toId = ' . $id);
+
+        foreach ($ParsersLinkingRelations as $parsersLinking) {
+
+
+            $parsersStock = $parsersLinking->linking;
+            $parsersStock->linked = 0;
+            $parsersStock->save();
+
+            $parsersLinking->delete();
+        }
+
+
+        if (!Yii::app()->request->isAjaxRequest)
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
     }
 
@@ -164,18 +387,71 @@ class CatItemController extends Controller
     public function actionIndex()
     {
 
-        $dataProvider = new CActiveDataProvider('CatItem', array('criteria' => array('order' => '`id` desc')));
+//        $dataProvider = new CActiveDataProvider('CatItem',
+//            array(
+//                'criteria' => array('order' => '`id` desc'),
+//                'pagination' => array(
+//                    'pageSize' => 1000,
+//                ),
+//            ));
 
-        $dataProvider = new CatItem('search');
+        $model = new CatItem('search');
+
+
         if (isset($_GET['CatItem']))
-            $dataProvider->Attributes = $_GET['CatItem'];
+            $model->Attributes = $_GET['CatItem'];
+
+
         $this->render('index', array(
-            'dataProvider' => $dataProvider,
+            'model' => $model,
 
         ));
 
     }
 
+    public function actionTogglePublished($id)
+    {
+        $model = CatItem::model()->findByPk($id);
+
+        $model->published = ($model->published) ? 0 : 1;
+
+        if ($model->save()) {
+            echo "saved";
+        } else {
+            throw new Exception("Error Processing Request", 1);
+        }
+    }
+
+
+    public function actionToggleTop($id)
+    {
+        $model = CatItem::model()->findByPk($id);
+
+        $model->top = ($model->top) ? 0 : 1;
+
+        if ($model->save()) {
+            echo "saved";
+        } else {
+            throw new Exception("Error Processing Request", 1);
+        }
+    }
+
+
+    public function actionDeleteModifFromItem($itemId)
+    {
+
+        if (Yii::app()->request->isAjaxRequest) {
+
+            $item = CatItem::model()->findByPk($itemId);
+            print_r($item->modOfThis);
+            $item->modOfThis = null;
+
+            if (!$item->save()) {
+                echo 'Ошибка!';
+            }
+
+        }
+    }
 
     public function actionDeleteItemToCat($catId, $itemId)
     {
@@ -202,7 +478,6 @@ class CatItemController extends Controller
                     $catItem->catId = $model->catId;
 
                 }
-
 
                 $catItem->save();
 
@@ -235,6 +510,59 @@ class CatItemController extends Controller
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'cat-item-form') {
             echo CActiveForm::validate($model);
             Yii::app()->end();
+        }
+    }
+
+    public function actionDeleteColor($colorId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+
+            $color = CatColor::model()->findByPk($colorId);
+            $color->delete();
+            CatColorToCatItem::model()->deleteAllByAttributes(['colorId' => $colorId]);
+
+            return true;
+        }
+    }
+
+    public function actionSetColor($colorId, $colorCode)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+            $color = CatColor::model()->findByPk($colorId);
+            $color->colorCode = $colorCode;
+            $color->save();
+
+            return true;
+        }
+    }
+
+    public function actionCreateColor($colorName, $colorCode, $catItemId)
+    {
+
+        CatColor::createColor($colorName, $colorCode, $catItemId);
+
+        $this->redirect('/catalog/catItem/update/id/'.$catItemId.'/tab/colors');
+    }
+
+    public function actionSetColorTo($colorId, $catItemId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+            $color = new CatColorToCatItem();
+            $color->catItemId = $catItemId;
+            $color->colorId = $colorId;
+            $color->save();
+
+            return true;
+        }
+    }
+
+    public function actionUnsetColorTo($colorId, $catItemId)
+    {
+        if (Yii::app()->request->isAjaxRequest) {
+            $color = CatColorToCatItem::model()->findByAttributes(['colorId' => $colorId, 'catItemId' => $catItemId]);
+            $color->delete();
+
+            return true;
         }
     }
 

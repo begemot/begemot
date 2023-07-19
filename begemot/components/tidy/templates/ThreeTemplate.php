@@ -25,6 +25,7 @@ class ThreeTemplate extends BaseTemplate
 
     public function renderTemplate()
     {
+
         if ($this->templateFile === null) {
             $html='<div class="tidyTemplate">';
 

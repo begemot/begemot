@@ -1,0 +1,29 @@
+.oneSmallDropzone {
+    width: 17px;
+    height: 14px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.hideIt {
+    display: none;
+}
+
+.startBtn {
+    cursor: pointer;
+}
+
+.oneSmallContainer {
+    width: 90px;
+    height: 21px;
+    /*border: 1px solid red;*/
+    overflow: hidden;
+}
+
+.imageContainer {
+    width: 50px;
+    display: inline-block;
+    margin: 0;
+    overflow: hidden;
+    height:21px;
+}

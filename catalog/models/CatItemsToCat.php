@@ -10,6 +10,9 @@
  */
 class CatItemsToCat extends CActiveRecord
 {
+
+   public $item_name;
+   public $maxprice;
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -19,22 +22,23 @@ class CatItemsToCat extends CActiveRecord
 	{
 		return parent::model($className);
 	}
-        
-        public function behaviors(){
-                return array(
-                        'CBOrderModelBehavior' => array(
-                                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
-                        )
-                );
-        }   
-        
-        public function relations()
-        {
+
+    public function behaviors(){
             return array(
-                'item'=>array(self::BELONGS_TO, 'CatItem', 'itemId'),
+                    'CBOrderModelBehavior' => array(
+                            'class' => 'begemot.extensions.contentKit.behavior.CBOrderModelBehavior',
+                    )
             );
-        }
-        
+    }
+
+    public function relations()
+    {
+        return array(
+            'item'=>array(self::BELONGS_TO, 'CatItem', 'itemId'),
+            'cat'=>array(self::BELONGS_TO, 'CatCategory', 'catId'),
+        );
+    }
+
 	/**
 	 * @return string the associated database table name
 	 */
@@ -55,21 +59,39 @@ class CatItemsToCat extends CActiveRecord
 			array('catId, itemId', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('catId, itemId', 'safe', 'on'=>'search'),
+			array('catId, itemId, item_name', 'safe', 'on'=>'search'),
 		);
 	}
-        
-        public function beforeSave(){
-            if ($this->isNewRecord){
-                $result = count( $this->model()->findAll(array('condition'=>'catId ='.$this->catId.' and itemId='.$this->itemId)));
 
-                if ($result!=0) 
-                    return false;
-                else{
-                    $this->order = $this->getLastOrderValue();
-                    return true;
-                }
-            } return true;
-        }
+	public function search($id=null)
+	{
+		$criteria=new CDbCriteria;
+      $criteria->with = 'item';
+      $criteria->condition = '`t`.`catId`='.$id.'';
+      $criteria->compare('itemId',$this->itemId,true);
+      $criteria->compare('catId',$this->catId,true);
+      $criteria->compare('item.name',$this->item_name, true);
+      $criteria->order = 't.order';
+		return new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+		));
+	}
+
+    public function beforeSave(){
+        if ($this->isNewRecord){
+            $result = count( $this->model()->findAll(array('condition'=>'catId ='.$this->catId.' and itemId='.$this->itemId)));
+
+            if ($result!=0)
+                return false;
+            else{
+
+                $orderMax = Yii::app()->db->createCommand()->select('max(`order`)')->where('`catId`="'.$this->catId.'"')->from('catItemsToCat')->queryScalar();
+
+                $this->order = $orderMax+1;
+                return true;
+            }
+        } return true;
+    }
+
 
 }

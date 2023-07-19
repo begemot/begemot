@@ -24,11 +24,7 @@ class BegemotModule extends CWebModule
 		// you may place code here to customize the module or the application
 
 		// import the module-level models and components
-		$this->setImport(array(
-			'begemot.models.*',
-			'begemot.components.*',
-		));
-                 Yii::app()->getComponent('bootstrap');
+
 	}
 
 	public function beforeControllerAction($controller, $action)
@@ -42,4 +38,20 @@ class BegemotModule extends CWebModule
 		else
 			return false;
 	}
+
+
+    static public function crPhpArr($array, $file) {
+
+
+        $code = "<?php
+  return
+ " . var_export($array, true) . ";
+?>";
+        file_put_contents($file, $code);
+
+
+    }
+
+
+
 }

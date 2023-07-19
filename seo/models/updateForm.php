@@ -66,7 +66,7 @@ class updateForm extends CFormModel
             $data['seoTitle']=$this->seoTitle;
             
             file_put_contents($dataFilePath, '<?php return '.var_export($data,true).'; ?>'); 
-            chmod($this->file, 0777);
+            @chmod($this->file, 0777);
         }
 
 }

@@ -12,6 +12,8 @@
  * 1 task per request. If task was completed successfull it wil be deleted 
  * from queue from systemFile.
  *
+ *
+ *
  * @author scott2to
  */
 class CLongTaskQueue {

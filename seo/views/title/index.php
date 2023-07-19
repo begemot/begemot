@@ -2,7 +2,7 @@
 /* @var $this DefaultController */
 
 
-$this->menu = require dirname(__FILE__).'/../commonMenu.php';
+$this->menu = require dirname(__FILE__) . '/../commonMenu.php';
 ?>
 
 <h1>meta-теги</h1>

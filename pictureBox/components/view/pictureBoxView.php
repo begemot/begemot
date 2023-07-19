@@ -19,7 +19,7 @@
 </div>
 
 <div class="modal-body">
-    <img id="ladybug_ant" style="float:left;" src="/files/pictureBox/catalogItem/477/0.jpg?tmp=100"/>
+    <img id="ladybug_ant" style="float:left;" src=""/>
 </div>
 
 <div class="modal-footer">
@@ -44,6 +44,37 @@ $assetsDir = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('applica
 
 Yii::app()->clientScript->registerCssFile($assetsDir.'/css/pictureBox.css');
 Yii::app()->clientScript->registerCssFile($assetsDir.'/js/jquery.imgareaselect/css/imgareaselect-default.css');
+
+
+
+    $dropZoneAssetDir =Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('begemot.extensions.dropzone.assets'));
+
+    Yii::app()->clientScript->registerCssFile($dropZoneAssetDir.'/dropzone.css');
+    Yii::app()->clientScript->registerScriptFile($dropZoneAssetDir.'/dropzone.js',1);
+
+$dropzoneInit = "
+$(document).ready(
+    function (){
+        var myDropzone".($config['divId'])." = new Dropzone('div#dropzone_".($config['divId'])."',
+            {
+                url: '/pictureBox/default/upload',
+                acceptedFiles:'image/*',
+                paramName :'Filedata',
+                params: {
+                id:'".$id."',
+                elementId: '".$elementId."',
+                config:'".serialize($_SESSION['pictureBox'][$id.'_'.$elementId])."'
+                }
+            });
+
+
+    }
+);
+";
+
+Yii::app()->clientScript->registerScript('dropzone-'.$config['divId'],$dropzoneInit,4);
+
+
 
 $script = "
 
@@ -80,7 +111,7 @@ function setResizeImage(src,width,height,data){
             resizeData.originalSize = true;
             $('#ladybug_ant').css('width','auto');
         }
-        console.log( resizeData.originalSize);
+
 	}
 
 
@@ -107,6 +138,7 @@ $('#ladybug_ant').imgAreaSelect({
     onSelectEnd: selectParamSave  });
 
 }
+
 var selectParamSave = function(img, selection){
 
     resizeData.selection = selection;
@@ -128,10 +160,10 @@ function sendResizeRequest(){
             resizeData.selection.height = Math.round(resizeData.selection.height/scaleX);
 
     }
-    alert(resizeData.selection.x1+' '+resizeData.selection.y1+' '+resizeData.selection.width+' '+resizeData.selection.height+' ');
+    //alert(resizeData.selection.x1+' '+resizeData.selection.y1+' '+resizeData.selection.width+' '+resizeData.selection.height+' ');
     $.ajax(
         {
-            url: '/pictureBox/default/ajaxMakeFilteredImage/id/catalogItem/elementId/'+resizeData.catId+'/pictureId/'+resizeData.activeImage+'/filterName/'+resizeData.filterName+'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height,
+            url: '/pictureBox/default/ajaxMakeFilteredImage/id/'+PB_".$config['divId'].".id +'/elementId/'+resizeData.catId+'/pictureId/'+resizeData.activeImage+'/filterName/'+resizeData.filterName+'/x/'+resizeData.selection.x1+'/y/'+resizeData.selection.y1+'/width/'+resizeData.selection.width+'/height/'+resizeData.selection.height,
             success: alert('Размер изображения изменен!')
             });
 }
@@ -187,7 +219,7 @@ $('#myModal').on('hide', function() {
 ";
 Yii::app()->clientScript->registerScript('image-resize',$script,4);
 
-Yii::app()->clientScript->registerScriptFile( $assetsDir.'/js/jquery.imgareaselect/scripts/jquery.imgareaselect.pack.js', 0);
+Yii::app()->clientScript->registerScriptFile( $assetsDir.'/js/jquery.imgareaselect/scripts/jquery.imgareaselect.js', 0);
 
 
 $script = '
@@ -200,9 +232,8 @@ $script = '
             }
             
             function setTitleAlt(state,divId){
-                 var title = $("#"+divId+" input[name=title]").attr("value");
-                 var alt = $("#"+divId+" input[name=alt]").attr("value");
-                 
+                 var title = $("#"+divId+" input[name=title]").val();
+                 var alt = $("#"+divId+" input[name=alt]").val();
                  var data = {};
                  data.title = title;
                  data.alt = alt;
@@ -229,6 +260,7 @@ $script = '
 
             function refreshPictureBox(divId,state){
 
+
                 $.ajax({
                     url:"/pictureBox/default/ajaxLayout",
                     data:state,
@@ -239,6 +271,9 @@ $script = '
                         $("#"+divId).html(html);
 
                         
+                    },
+                    error:function(param,param1,param2){
+                        alert(param.responseText);
                     }
                 });
             }
@@ -252,8 +287,10 @@ $thisPictureBoxScript = '
                 PB_'.$config['divId'].'.id = "'.$id.'";
                 PB_'.$config['divId'].'.elementId = '.$elementId.';
 
+
+
                 refreshPictureBox("'.$config['divId'].'",PB_'.$config['divId'].');
-               
+       
                 
     ';
 Yii::app()->clientScript->registerScript('pictureBox-js-'.$config['divId'], $thisPictureBoxScript, 2);
@@ -261,10 +298,11 @@ Yii::app()->clientScript->registerScript('pictureBox-js-'.$config['divId'], $thi
 
 ?>
 
-<div id="<?php echo $config['divId']?>" style="height:400px;width:100%;">
-    
+<div id="<?php echo $config['divId']?>" style="width:100%;">
+
 </div>
 
+<div id="dropzone_<?php echo $config['divId']?>" class="mydropzone" style="text-align: center;color:green;font-size:30px;"><span>Нажми, или перетащи сюда файлы!</span></div>
 
 
 

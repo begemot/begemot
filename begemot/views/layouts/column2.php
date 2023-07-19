@@ -1,14 +1,14 @@
 <?php $this->beginContent('begemot.views.layouts.main'); ?>
 
-<div class="row">
+<div class="row-fluid">
   <div class="span3">
       	<?php
 
         $this->widget('bootstrap.widgets.TbMenu', array(
            'type'=>'list',
            'items'=>$this->menu,
-       )); 
-	
+       ));
+
 	?>
       
   </div>

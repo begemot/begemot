@@ -18,6 +18,7 @@ class SiteGalleryController extends Controller
 
     public function actionViewGallery($id)
     {
+        
         $filedata = Yii::getPathOfAlias('webroot') . '/files/pictureBox/gallery/' . $id . '/data.php';
         if (file_exists($filedata)) {
             $images = require($filedata);

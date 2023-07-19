@@ -2,36 +2,40 @@
 
 class SiteController extends Controller
 {
-    
-    public $layout='begemot.views.layouts.column2';
+
+//    public $layout = 'begemot.views.layouts.column2';
 
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
      */
-    public function actionView($id) {
-              $this->layout = PostModule::$postViewLayout;
+    public function actionView($id)
+    {
+        $this->layout =$this->module->postViewLayout;
+
         $this->render('view', array(
             'model' => $this->loadModel($id),
         ));
     }
+
     /*
      *  Выводит статьи из всех, кроме перечисленных. По умолчанию 0 и 6
      *  передаем строку через с id разделов которые не надо выводить"_"
      */
-     public function actionStopTags($stop='0_6') {
+    public function actionStopTags($stop = '0_6')
+    {
 
         $this->layout = PostModule::$postLayout;
 
-        $idArray = explode('_',$stop);
+        $idArray = explode('_', $stop);
 
-        $condition = 'tag_id <> '.implode(" and tag_id<>",$idArray);
+        $condition = 'tag_id <> ' . implode(" and tag_id<>", $idArray);
 
         $criteria = new CDbCriteria(array(
             'select' => '*',
             'distinct' => true,
-            'order'=>'create_time,id',
-            'condition'=>$condition
+            'order' => 'create_time,id',
+            'condition' => $condition
         ));
 
 
@@ -48,73 +52,92 @@ class SiteController extends Controller
         $this->render('index', array(
             'models' => $models,
             'pages' => $pages,
-            'tag_id'=>null,
+            'tag_id' => null,
         ));
     }
-    
-    public function actionTagIndex($id=null) {
 
-        $this->layout = PostModule::$postLayout;
-        if ($id!=null){
+
+    public function actionAllPosts()
+    {
+         $this->layout =$this->module->postLayout;
+//            PostModule::$postLayout;
+        $allPosts = Posts::model()->findAll();
+        $this->render('allPosts', array(
+            'models' => $allPosts));
+    }
+
+
+    public function actionTagIndex($id = null)
+    {
+
+        $this->layout ='//layouts/postLayout';
+//            PostModule::$postLayout;
+        if ($id != null) {
 
             $tag = PostsTags::model()->findByPk($id);
             $this->pageTitle = $tag->title_seo;
 
-            if (isset($_GET['page'])){
-               $this->pageTitle .= ' - страница '.$_GET['page'];
+            if (isset($_GET['page'])) {
+                $this->pageTitle .= ' - страница ' . $_GET['page'];
             }
 
             $criteria = new CDbCriteria(array(
-                    'select' => '*',
-                    'distinct' => true,
-                    'order'=>'create_time,id',
-                    'condition'=>'tag_id = '.$id
-                ));
 
-        } else{
+                'select' => '*',
+                'distinct' => true,
+                'order' => "id DESC",
+                'condition' => 'tag_id = ' . $id
+            ));
+
+
+        } else {
             $criteria = new CDbCriteria(array(
-                    'select' => '*',
-                    'distinct' => true,
-                    'order'=>'create_time,id',
-                    'condition'=>'tag_id <>0'
-                ));
+
+                'select' => '*',
+                'distinct' => true,
+                'order' => "id DESC",
+                'condition' => 'tag_id <>0'
+            ));
+
         }
 
         $count = Posts::model()->count($criteria);
 
-        $pages = new CPagination($count);
-        // элементов на страницу
-        $pages->pageSize = 10;
-        $pages->applyLimit($criteria);
+        $pages = null;
+        if ($this->module->limit) {
+            $pages = new CPagination($count);
+            $pages->pageSize = 10;
+            $pages->applyLimit($criteria);
+        }
 
         $models = Posts::model()->published()->findAll($criteria);
 
-        if ($id!=null){
+        if ($id != null) {
             $tagModel = PostsTags::model()->findByPk($id);
-        } else{
+        } else {
             $tagModel = PostsTags::model()->findByPk(0);
         }
 
-        $tags = PostsTags::model()->findAll(array('order'=>'`id`'));
+        $tags = PostsTags::model()->findAll(array('order' => '`id`'));
 
         $dataProvider = new CActiveDataProvider('Posts');
         $this->render('index', array(
             'models' => $models,
             'pages' => $pages,
-            'tagModel'=>$tagModel,
-            'tag_id'=>$id,
-            'tags'=>$tags
+            'tagModel' => $tagModel,
+            'tag_id' => $id,
+            'tags' => $tags
         ));
     }
 
     /**
      * Manages all models.
      */
-    public function actionAdmin($tag_id=null) {
+    public function actionAdmin($tag_id = null)
+    {
 
 
-        
-         $this->layout ='begemot.views.layouts.column2';
+        $this->layout = 'begemot.views.layouts.column2';
         $model = new Posts('search');
         $model->unsetAttributes();  // clear any default values
         if (isset($_GET['Posts']))
@@ -122,7 +145,7 @@ class SiteController extends Controller
 
         $this->render('admin', array(
             'model' => $model,
-            'tag_id'=>$tag_id,
+            'tag_id' => $tag_id,
         ));
     }
 
@@ -131,7 +154,8 @@ class SiteController extends Controller
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
      */
-    public function loadModel($id) {
+    public function loadModel($id)
+    {
         $model = Posts::model()->findByPk($id);
         if ($model === null)
             throw new CHttpException(404, 'The requested page does not exist.');
@@ -142,15 +166,16 @@ class SiteController extends Controller
      * Performs the AJAX validation.
      * @param CModel the model to be validated
      */
-    protected function performAjaxValidation($model) {
+    protected function performAjaxValidation($model)
+    {
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'posts-form') {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
     }
 
-    public function actionTidy(){
-
+    public function actionTidy()
+    {
 
 
         $post = '
@@ -172,28 +197,28 @@ class SiteController extends Controller
 
         $images = array(
             0 =>
-            array (
-                'original' => '/files/pictureBox/catalogItem/101/0.jpg',
-                'admin' => '/files/pictureBox/catalogItem/101/0_admin.jpg',
-                'main' => '/files/pictureBox/catalogItem/101/0_main.jpg',
-                'innerSmall' => '/files/pictureBox/catalogItem/101/0_innerSmall.jpg',
-                'slider' => '/files/pictureBox/catalogItem/101/0_slider.jpg',
-                'two' => '/files/pictureBox/catalogItem/101/0_two.jpg',
-                'title' => 'Удобство пассажирских перевозок',
-                'alt' => 'Электромобиль VOLTECO ALPHA L11S - находка туристического бизнеса',
-            ),
+                array(
+                    'original' => '/files/pictureBox/catalogItem/101/0.jpg',
+                    'admin' => '/files/pictureBox/catalogItem/101/0_admin.jpg',
+                    'main' => '/files/pictureBox/catalogItem/101/0_main.jpg',
+                    'innerSmall' => '/files/pictureBox/catalogItem/101/0_innerSmall.jpg',
+                    'slider' => '/files/pictureBox/catalogItem/101/0_slider.jpg',
+                    'two' => '/files/pictureBox/catalogItem/101/0_two.jpg',
+                    'title' => 'Удобство пассажирских перевозок',
+                    'alt' => 'Электромобиль VOLTECO ALPHA L11S - находка туристического бизнеса',
+                ),
             1 =>
-            array (
-                'original' => '/files/pictureBox/catalogItem/101/1.jpg',
-                'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
-                'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
-                'innerSmall' => '/files/pictureBox/catalogItem/101/1_innerSmall.jpg',
-                'slider' => '/files/pictureBox/catalogItem/101/1_slider.jpg',
-                'two' => '/files/pictureBox/catalogItem/101/1_two.jpg',
-                'title' => 'Открытый дизайн и эргономика кресел',
-                'alt' => 'Электромобиль VOLTECO ALPHA L11S - современный стиль',
-            ),
-            2 => array (
+                array(
+                    'original' => '/files/pictureBox/catalogItem/101/1.jpg',
+                    'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
+                    'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
+                    'innerSmall' => '/files/pictureBox/catalogItem/101/1_innerSmall.jpg',
+                    'slider' => '/files/pictureBox/catalogItem/101/1_slider.jpg',
+                    'two' => '/files/pictureBox/catalogItem/101/1_two.jpg',
+                    'title' => 'Открытый дизайн и эргономика кресел',
+                    'alt' => 'Электромобиль VOLTECO ALPHA L11S - современный стиль',
+                ),
+            2 => array(
                 'original' => '/files/pictureBox/catalogItem/101/1.jpg',
                 'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
                 'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
@@ -204,28 +229,28 @@ class SiteController extends Controller
                 'alt' => 'Электромобиль VOLTECO ALPHA L11S - современный стиль',
             ),
             3 =>
-            array (
-                'original' => '/files/pictureBox/catalogItem/101/0.jpg',
-                'admin' => '/files/pictureBox/catalogItem/101/0_admin.jpg',
-                'main' => '/files/pictureBox/catalogItem/101/0_main.jpg',
-                'innerSmall' => '/files/pictureBox/catalogItem/101/0_innerSmall.jpg',
-                'slider' => '/files/pictureBox/catalogItem/101/0_slider.jpg',
-                'two' => '/files/pictureBox/catalogItem/101/0_two.jpg',
-                'title' => 'Удобство пассажирских перевозок',
-                'alt' => 'Электромобиль VOLTECO ALPHA L11S - находка туристического бизнеса',
-            ),
+                array(
+                    'original' => '/files/pictureBox/catalogItem/101/0.jpg',
+                    'admin' => '/files/pictureBox/catalogItem/101/0_admin.jpg',
+                    'main' => '/files/pictureBox/catalogItem/101/0_main.jpg',
+                    'innerSmall' => '/files/pictureBox/catalogItem/101/0_innerSmall.jpg',
+                    'slider' => '/files/pictureBox/catalogItem/101/0_slider.jpg',
+                    'two' => '/files/pictureBox/catalogItem/101/0_two.jpg',
+                    'title' => 'Удобство пассажирских перевозок',
+                    'alt' => 'Электромобиль VOLTECO ALPHA L11S - находка туристического бизнеса',
+                ),
             4 =>
-            array (
-                'original' => '/files/pictureBox/catalogItem/101/1.jpg',
-                'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
-                'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
-                'innerSmall' => '/files/pictureBox/catalogItem/101/1_innerSmall.jpg',
-                'slider' => '/files/pictureBox/catalogItem/101/1_slider.jpg',
-                'two' => '/files/pictureBox/catalogItem/101/1_two.jpg',
-                'title' => 'Открытый дизайн и эргономика кресел',
-                'alt' => 'Электромобиль VOLTECO ALPHA L11S - современный стиль',
-            ),
-            5 => array (
+                array(
+                    'original' => '/files/pictureBox/catalogItem/101/1.jpg',
+                    'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
+                    'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
+                    'innerSmall' => '/files/pictureBox/catalogItem/101/1_innerSmall.jpg',
+                    'slider' => '/files/pictureBox/catalogItem/101/1_slider.jpg',
+                    'two' => '/files/pictureBox/catalogItem/101/1_two.jpg',
+                    'title' => 'Открытый дизайн и эргономика кресел',
+                    'alt' => 'Электромобиль VOLTECO ALPHA L11S - современный стиль',
+                ),
+            5 => array(
                 'original' => '/files/pictureBox/catalogItem/101/1.jpg',
                 'admin' => '/files/pictureBox/catalogItem/101/1_admin.jpg',
                 'main' => '/files/pictureBox/catalogItem/101/1_main.jpg',
@@ -239,7 +264,7 @@ class SiteController extends Controller
 
         Yii::import('application.modules.begemot.components.tidy.TidyBuilder');
 
-        $tidy = new TidyBuilder ( $post, $this->module->tidyConfig, $images);
+        $tidy = new TidyBuilder ($post, $this->module->tidyConfig, $images);
 
         $tidy->renderText();
 

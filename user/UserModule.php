@@ -129,8 +129,14 @@ class UserModule extends CWebModule
 
 
         if (!method_exists(Yii::app(),'commandPath')){
-            Yii::app()->getComponent('bootstrap');
-            Yii::app()->theme = 'bootstrap';
+//            $component=Yii::createComponent(array(
+//
+//                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+//
+//            ));
+//            Yii::app()->setComponent('bootstrap',$component);
+            // Нету смысла в этой строчке
+            //Yii::app()->theme = 'bootstrap';
         }
     }
 	
@@ -146,7 +152,7 @@ class UserModule extends CWebModule
 	{
 
 
-                Yii::app()->getComponent('bootstrap');
+              //  Yii::app()->getComponent('bootstrap');
                // $controller->layout = $this->layout;
 
 			return true;
@@ -234,6 +240,20 @@ class UserModule extends CWebModule
 	    $message = str_replace("\n.", "\n..", $message);
 	    return mail($email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
 	}
+
+	public function sendMailSmtp($to,$subject,$message){
+        $mail=Yii::app()->Smtpmail;
+        $mail->SetFrom(Yii::app()->Smtpmail->Username, 'От ' . Yii::app()->name);
+        $mail->Subject = $subject;
+        $mail->MsgHTML($message);
+        $mail->AddAddress($to, "");
+        if(!$mail->Send()) {
+            echo "Mailer Error: " . $mail->ErrorInfo;
+        }else {
+            echo "Message sent!";
+        }
+        $mail->ClearAddresses(); //clear addresses for next email sending
+    }
 	
 	/**
 	 * Return safe user data.

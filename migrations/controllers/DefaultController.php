@@ -2,96 +2,113 @@
 
 class DefaultController extends Controller
 {
-    	public $layout='begemot.views.layouts.column2';
-	/**
-	 * @return array action filters
-	 */
-	public function filters()
-	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-		);
-	}
-	/**
-	 * Specifies the access control rules.
-	 * This method is used by the 'accessControl' filter.
-	 * @return array access control rules
-	 */
-	public function accessRules()
-	{
-		return array(
+    public $layout = 'begemot.views.layouts.bs5clearLayout';
 
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','orderUp','orderDown','manageGallery','create','update','index','view'),
-                'expression'=>'Yii::app()->user->canDo("")'
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
-		);
-	}
+    /**
+     * @return array action filters
+     */
+    public function filters()
+    {
+        return array(
+            'accessControl', // perform access control for CRUD operations
+        );
+    }
 
-	public function actionIndex()
-	{	
-		$return = '';
+    /**
+     * Specifies the access control rules.
+     * This method is used by the 'accessControl' filter.
+     * @return array access control rules
+     */
+    public function accessRules()
+    {
+        return array(
 
-		$filenames =CFileHelper::findFiles(Yii::app()->getModule('migrations')->getBasePath() . "/database-migrations");
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions' => array('index', 'newMigration', 'manage', 'getMigrationsList', 'newMigrationFile','upMigration','downMigration'),
+                'expression' => 'Yii::app()->user->canDo("")'
+            ),
+            array('deny',  // deny all users
+                'users' => array('*'),
+            ),
+        );
+    }
 
-		$models = array();
-		foreach ($filenames as $filename)
-		{
-		  //remove off the path
-		  $file = end( explode( '/', $filename ) );
-		  // remove the extension, strlen('.php') = 4
-		  $file = substr( $file, 0, strlen($file) - 4);
-		  $models[]= $file;
-		}
+    public function actionUpMigration($fileName,$module){
+        Yii::import('application.modules.'.$module.'.migrations.'.$fileName);
+        $instance = new $fileName();
+        $instance->up();
+    }
 
-		if(isset($_GET['file']) && isset($_GET['go'])){
+    public function actionDownMigration($fileName,$module){
+        Yii::import('application.modules.'.$module.'.migrations.'.$fileName);
+        $instance = new $fileName();
+        $instance->down();
+    }
 
-			if($_GET['file'] == "all"){
-				$modelsForApply = array_reverse($models);
-				foreach ($modelsForApply as $model) {
-					$model = new $model;
+    public function actionNewMigrationFile($fileName, $module)
+    {
+        $time = time();
 
-					$results = $model->$_GET['go']();
-				}
-				
+        $migrationsPath = Yii::getPathOfAlias('application.modules.' . $module . '.migrations');
 
-				if($results == false && $_GET['file'] != "all"){
-					$return = $_GET['file'] . " не поддерживает данной функции";
-				}
-				else{
-					$return =  "Выполнено";
-				}
-			}
-			else if(file_exists(Yii::app()->getModule('migrations')->getBasePath() . "/database-migrations/" . $_GET['file'] . ".php")){
-				$model = new $_GET['file'];
+        if (!file_exists($migrationsPath)) {
+            mkdir($migrationsPath, 0777, true);
+        }
 
-				$results = $model->$_GET['go']();
+        $maigrationTemplate = Yii::getPathOfAlias('migrations.components.migrationTemplate') . '.php';
 
-				if($results == false){
-					$return = $_GET['file'] . " не поддерживает данной функции";
-				}
-				else{
-					$return =  "Выполнено";
-				}
+        $file = file_get_contents($maigrationTemplate);
+        $newClassName = 'm' . time() . '_' . $fileName;
+        echo $newFileName = $migrationsPath . '/' . 'm' . time() . '_' . $fileName . '.php';
 
-				
-			}
-			else $return =  "Файл не был найден";
-			
-		}
+        $file = str_replace('<class_name>', $newClassName, $file);
 
-		
+        file_put_contents($newFileName, $file);
 
 
-		$this->render('admin',array(
-			'models'=>$models,
-			'return' => $return,
-			'time' => time()
-		));
-                       
-	}
+    }
+
+    public function actionIndex()
+    {
+        $this->render('migrationsManage');
+    }
+
+    public function actionGetMigrationsList($moduleName)
+    {
+
+        $migrationsDir = Yii::getPathOfAlias('application.modules.' . $moduleName . '.migrations');
+//        echo $migrationsDir;
+//        die();
+        if (!file_exists($migrationsDir)) {
+            mkdir($migrationsDir, 0777);
+            echo json_encode([]);
+        } else {
+            Yii::import('application.modules.' . $moduleName . '.migrations.*');
+            $dirs = glob($migrationsDir . '/*');
+            $resultList = [];
+
+
+            foreach ($dirs as $file) {
+
+                require_once($file);
+                $resData = [];
+
+                $migrationFileName = basename($file);
+                $className = explode('.', $migrationFileName)[0];
+
+                $resData['className'] = $className;
+
+                $migrationInstance = new $className;
+
+                $resData['description'] = $migrationInstance->getDescription();
+                $resData['confirmed'] = $migrationInstance->isConfirmed();
+
+                $resultList[] = $resData;
+            }
+
+            echo json_encode($resultList);
+        }
+
+    }
 
 }

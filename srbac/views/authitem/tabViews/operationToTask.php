@@ -73,7 +73,7 @@ $url = $urlManager->createUrl($parent."srbac/authitem/getCleverOpers");
 ?>
 <?php
 $script = "jQuery('#clever').click(function(){
-  var checked = $('#clever').attr('checked');
+  var checked = $('#clever').prop('checked');
   var name = $('#Assignments_itemname').attr('value');
   $.ajax({
    type: 'POST',

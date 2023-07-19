@@ -1,7 +1,14 @@
 
 <h1>Миграция базы данных</h1>
-<?=$time?>
-<div class="center-block"><?=$return?></div>
+
+<form class="form-search" action="/migrations/default/newMigration" method="GET">
+	<label class="control-label" for="inputEmail">Имя файла миграции:</label>
+	<input name="filename" type="text" class="input-medium search-query">
+	<button type="submit" class="btn">Создать заготовку файла миграции</button>
+</form>
+
+<div class="center-block"><?php echo $return?>(Переключатели меняются не сразу, а в течении нескольких секунд)</div>
+
 <table>
 	<thead>
 		<tr>
@@ -19,17 +26,19 @@
 			<td><?=$model->getDescription();?></td>
 			<td><?=$model->isConfirmed()?></td>
 			<td>
-				<?php if (is_bool($model->isConfirmed(true)) && !$model->isConfirmed(true)): ?>
-					<a href='?file=<?=get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
-				<?php elseif(is_bool($model->isConfirmed(true)) && $model->isConfirmed(false)): ?>
-					<a href='?file=<?=get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
+
+				<?php if ($model->isConfirmed(true) == false): ?>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
+				<?php elseif($model->isConfirmed(true) == true): ?>
+                    <a href='/migrations.html?file=<?php echo get_class($model)?>&go=down'><button type="button" class="btn btn-danger btn-sm">Откатить</button> </a>
 				<?php else: ?>
-					<a href='?file=<?=get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
-					<a href='?file=<?=get_class($model)?>&go=down' class="btn btn-warning btn-mini">Откатить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=up' class="btn btn-primary btn-mini">Применить</a>
+					<a href='/migrations.html?file=<?php echo get_class($model)?>&go=down'><button type="button" class="btn btn-danger btn-sm"></button> >Откатить</a>
+
 				<?php endif ?>
 			</td>
 		</tr>
-			
+
 	<?php endforeach ?>
 	</tbody>
 </table>

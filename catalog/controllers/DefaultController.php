@@ -7,7 +7,15 @@ class DefaultController extends Controller {
     public function actionIndex() {
         $this->render('index');
     }
+    public function actionTest() {
 
+        $queueId = 'parser';
+        $queue = new CLongTaskQueue($queueId);
+
+        $activeTask = '';
+
+
+    }
     public function actionRenderImages($action = 'none') {
 
         Yii::import('begemot.extensions.CLongTaskQueue');
@@ -111,6 +119,23 @@ class DefaultController extends Controller {
                     $data['images'][$imageId] = $resultImageArray;
                     Yii::import('application.modules.pictureBox.components.PictureBox');
                     PictureBox::crPhpArr($data, $fullDir . '/data.php');
+                }
+
+                $favDataFile = $fullDir.'/favData.php';
+
+                if (file_exists($favDataFile)){
+                    $favData = require($favDataFile);
+                    if (is_array($favData)) {
+
+                        $favKeys = array_keys($favData);
+
+                        $newFavData = array();
+
+                        foreach ($favKeys as $favKey){
+                            $newFavData[$favKey] = $data['images'][$favKey];
+                        }
+                        PictureBox::crPhpArr($newFavData, $favDataFile);
+                    }
                 }
 
                 if ($queue->activeTaskCompleted()){
