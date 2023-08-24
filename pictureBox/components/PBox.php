@@ -12,6 +12,7 @@
  */
 
 Yii::import('pictureBox.components.PictureBox');
+Yii::import('pictureBox.components.FiltersManager');
 Yii::import('begemot.extensions.vault.FileVault');
 
 class PBox
