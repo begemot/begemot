@@ -196,6 +196,9 @@ class SchemaLists
         foreach ($fieldId_value_array as $fieldName => $value) {
 
             $ids = self::equalList($fieldName,$schemaId, $value, $linkType, $ids);
+            if (is_array($ids) && count($ids)==0) {
+                return false;
+            }
         }
 
         $data = self::allDataOfListIDs($linkType, $ids);
