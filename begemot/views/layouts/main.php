@@ -28,7 +28,7 @@ if (file_exists($localMenuFile)){
 ?>
 
 
-<?php $this->widget('bootstrap.widgets.TbNavbar', array(
+<?php $this->widget('begemot.extensions.bootstrap.widgets.TbNavbar', array(
     'type'=>'inverse', // null or 'inverse'
     'brand'=>'Begemot',
     'brandUrl'=>'/begemot',
@@ -36,7 +36,8 @@ if (file_exists($localMenuFile)){
     'fluid' => true,
     'items'=>array(
         array(
-            'class'=>'bootstrap.widgets.TbMenu',
+
+            'class'=>'begemot.extensions.bootstrap.widgets.TbMenu',
 
             'items'=>$begemotMenuArray,
 

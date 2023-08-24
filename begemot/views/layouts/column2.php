@@ -4,7 +4,7 @@
   <div class="span3">
       	<?php
 
-        $this->widget('bootstrap.widgets.TbMenu', array(
+        $this->widget('begemot.extensions.bootstrap.widgets.TbMenu', array(
            'type'=>'list',
            'items'=>$this->menu,
        ));

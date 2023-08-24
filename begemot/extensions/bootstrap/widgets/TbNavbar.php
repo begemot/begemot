@@ -8,7 +8,7 @@
  * @since 0.9.7
  */
 
-Yii::import('bootstrap.widgets.TbCollapse');
+Yii::import('begemot.extensions.bootstrap.widgets.TbCollapse');
 
 /**
  * Bootstrap navigation bar widget.

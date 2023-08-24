@@ -95,7 +95,7 @@ abstract class TbBaseMenu extends CMenu
 
 					if (isset($item['items']) && !empty($item['items']))
 					{
-						$this->controller->widget('bootstrap.widgets.TbDropdown', array(
+						$this->controller->widget('begemot.extensions.bootstrap.widgets.TbDropdown', array(
 							'encodeLabel'=>$this->encodeLabel,
 							'htmlOptions'=>isset($item['submenuOptions']) ? $item['submenuOptions'] : $this->submenuHtmlOptions,
 							'items'=>$item['items'],
