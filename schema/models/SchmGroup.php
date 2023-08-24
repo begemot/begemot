@@ -30,7 +30,7 @@ class SchmGroup extends CActiveRecord
      *
      * @param array $complectIds groupId которые разбиваем по этим параметрам
      */
-    public static function groupClusterize($fieldsIdArray, $complectIds = [])
+    public static function groupClusterize($fieldsIdArray, $complectIds = [],$linkType)
     {
 
         Yii::import('cache.models.Cache');
@@ -59,27 +59,27 @@ class SchmGroup extends CActiveRecord
             $fieldType = SchemaField::getSchemaFieldByName($fieldName)->type;
 
             $cacheGroup = 'allValuesAndGroupIdsByFieldId';
-            $cacheKey = $fieldType.'.fieldId_'.$schemaId;
+            $cacheKey = $fieldType . '.fieldId_' . $schemaId;
 
-            $tmpArray = $cache->getValue($cacheGroup,$cacheKey);
+            $tmpArray = $cache->getValue($cacheGroup, $cacheKey);
 
-            if (!$tmpArray){
+            if (!$tmpArray) {
 
                 $typeTableName = 'SchmType' . $fieldType . ' tb1';
                 $tmpArray = Yii::app()->db->createCommand()->select('groupId,value')->
                 from($typeTableName)->
-                where('`fieldId`=' . $schemaId )->
+                where('`fieldId`=' . $schemaId.' and linkType="catItem"')->
                 leftJoin('SchemaData tb2', 'tb2.id=tb1.fieldDataId')
                     ->queryAll();
 
-                $cache->setValue($cacheGroup,$cacheKey,$tmpArray);
+                $cache->setValue($cacheGroup, $cacheKey, $tmpArray);
             }
 
 
             $dataBySchemaField[$schemaId] = array_combine(array_column($tmpArray, 'groupId'), array_column($tmpArray, 'value'));
 
 
-            $dataBySchemaField[$schemaId] = array_intersect_key($dataBySchemaField[$schemaId] , array_flip($complectIds));
+            $dataBySchemaField[$schemaId] = array_intersect_key($dataBySchemaField[$schemaId], array_flip($complectIds));
             $dataBySchemaField[$schemaId] = self::arrayClusterize($dataBySchemaField[$schemaId]);
         }
 
@@ -88,7 +88,6 @@ class SchmGroup extends CActiveRecord
 
         //пересекаем начальные группы другими группами
         foreach ($dataBySchemaField as $fieldId => $groupData) {
-
 
 
             if (count($groups) == 0) {
@@ -144,10 +143,10 @@ class SchmGroup extends CActiveRecord
 
     public function getAssinedCatalogCategory($parentCategoryId = -1)
     {
-
+        Yii::import('catalog.models.CatCategory');
         if ($this->assignedId == 0) {
 
-            Yii::import('catalog.models.CatCategory');
+
             $catCategory = new CatCategory();
             $catCategory->pid = $parentCategoryId;
             $catCategory->name = $this->groupName;
@@ -185,7 +184,7 @@ class SchmGroup extends CActiveRecord
 
         $foundedGroup = self::extractTreeData($groupsCachedTree, $params);
 
-        if ($foundedGroup ) {
+        if ($foundedGroup) {
             return SchmGroup::model()->findByPk($foundedGroup);
         } else {
             foreach ($params as $paramId => $paramValue) {
@@ -315,7 +314,7 @@ class SchmGroup extends CActiveRecord
                 $schmGroupDataParam->groupId = $schemaGroup->id;
                 $schmGroupDataParam->fieldType = $schemaFieldType;
                 $schmGroupDataParam->fieldId = $schemaField->id;
-
+                $schmGroupDataParam->schemaId = $schemaField->schemaId;
                 if ($schmGroupDataParam->save()) {
 
                     $schmGroupDataParam->setData($paramValue, $schemaFieldType);
@@ -383,7 +382,7 @@ class SchmGroup extends CActiveRecord
         foreach ($params as $param) {
             //$SchemaField = SchemaField::model()->findByPk($param->fieldId);
             $field = SchemaField::model()->findByPk($param->fieldId);
-            $complectIds = SchemaLists::equalList($field->name, $param->value, 'catItem', $complectIds);
+            $complectIds = SchemaLists::equalList($field->name, $field->schemaId, $param->value, 'catItem', $complectIds);
         }
         return $complectIds;
     }
