@@ -119,13 +119,13 @@ class Cache extends CActiveRecord
 
     public function resetAllCache()
     {
-
-        $cacheRows = $this->findAll();
+        ini_set('memory_limit', '2048M');
+        $cacheRows = self::model()->findAll();
         foreach ($cacheRows as $cacheRow) {
             $cacheKey = $this->getCacheKey($cacheRow->cache_group, $cacheRow->cache_key);
-            Yii::app()->cache->delete($cacheKey);
             $cacheRow->delete();
         }
+       Yii::app()->cache->flush();
     }
 
 
