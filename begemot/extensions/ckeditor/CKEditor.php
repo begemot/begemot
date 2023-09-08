@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -22,7 +22,7 @@ class CKEditor extends CInputWidget{
         'no','pl','pt','pt-br','ro','ru','sk','sl','sr','sr-latn','sv','th','tr',
         'uk','vi','zh','zh-cn'
     );
-    
+
     private $options=array();
 //advanced - пользователь сам определяет тулбар
     private $allowedEditorTemplates=array('full','basic','advanced');
@@ -37,7 +37,7 @@ class CKEditor extends CInputWidget{
     private $height = '700px';
 
     private $fontFamilies=array(
-        'Arial'=>'Arial, Helvetica, sans-serif', 
+        'Arial'=>'Arial, Helvetica, sans-serif',
         'Comic Sans MS'=>'Comic Sans MS, cursive',
         'Courier New'=>'Courier New, Courier, monospace',
         'Georgia'=>'Georgia, serif',
@@ -68,12 +68,13 @@ class CKEditor extends CInputWidget{
     );
 
     private $toolbar=array();
-    
+
     public $skin='kama';
     private $theme='default';
 
 
     public function  __construct($owner=null) {
+
         parent::__construct($owner);
         $this->setLanguage(Yii::app()->language);
     }
@@ -84,7 +85,7 @@ class CKEditor extends CInputWidget{
             $this->language = $lang;
         }
           else {
-             $suffix = empty($lang) ? 'en' : ($p !== false) ? strtolower(substr($lang, 0, $p)) : strtolower($lang);
+             $suffix = empty($lang) ? 'en' : 'ru';
              if (in_array($suffix, $this->allowedLanguages)) $this->language = $suffix;
           }
         if(isset($this->allowedLanguages[$this->language]))
@@ -246,7 +247,7 @@ class CKEditor extends CInputWidget{
             default:
                 $options['toolbar']=$this->toolbar;
         }
-        
+
         $fontFamilies='';
         foreach($this->fontFamilies as $k=>$v){
             $fontFamilies.=$k.'/'.$v.';';
@@ -258,7 +259,7 @@ class CKEditor extends CInputWidget{
             $fontSizes.=$k.'/'.$v.';';
         }
         $options['fontSize_sizes']=$fontSizes;
-        
+
         $options['extraPlugins'] = implode(',', $this->plugins);
 
         $options['skin']=$this->skin;
@@ -272,6 +273,7 @@ class CKEditor extends CInputWidget{
    }
 
     public function run(){
+     
         parent::run();
 
         list($name, $id) = $this->resolveNameID();
