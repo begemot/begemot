@@ -21,10 +21,10 @@ class CatCategoryController extends Controller
     public function behaviors()
     {
         return array(
-            'CBOrderControllerBehavior' => array(
-                'class' => 'begemot.extensions.order.BBehavior.CBOrderControllerBehavior',
-                'groupName' => 'pid'
-            )
+//            'CBOrderControllerBehavior' => array(
+//                'class' => 'begemot.extensions.order.BBehavior.CBOrderControllerBehavior',
+//                'groupName' => 'pid'
+//            )
         );
 
     }
