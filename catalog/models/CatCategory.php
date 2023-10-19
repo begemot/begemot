@@ -168,25 +168,25 @@ class CatCategory extends CActiveRecord
         $this->pubCategories = $pubCatsArray;
 
     }
-    //TODO: новый алгоритм работы с категориями эту функцию умножает на ноль
-    public function getcategoriesTree(){
-        $getcategoriesTree = [];
-
-        if (!is_array($this->categories)){
-            $this->loadCategories();
-        }else {
-            $getcategoriesTree = $this->categories;
-            foreach ($getcategoriesTree as $key=>$cat){
-                if (isset($getcategoriesTree[$cat['pid']])){
-                    $getcategoriesTree[$cat['pid']]['childs'][] = $getcategoriesTree[$key];
-                    unset ($getcategoriesTree[$key]);
-                }
-            }
-            return $getcategoriesTree;
-        }
-
-
-    }
+//    //TODO: новый алгоритм работы с категориями эту функцию умножает на ноль
+//    public function getcategoriesTree(){
+//        $getcategoriesTree = [];
+//
+//        if (!is_array($this->categories)){
+//            $this->loadCategories();
+//        }else {
+//            $getcategoriesTree = $this->categories;
+//            foreach ($getcategoriesTree as $key=>$cat){
+//                if (isset($getcategoriesTree[$cat['pid']])){
+//                    $getcategoriesTree[$cat['pid']]['childs'][] = $getcategoriesTree[$key];
+//                    unset ($getcategoriesTree[$key]);
+//                }
+//            }
+//            return $getcategoriesTree;
+//        }
+//
+//
+//    }
 
     public function beforeSave()
     {
@@ -376,10 +376,13 @@ class CatCategory extends CActiveRecord
     {
 
         $categories = $this->getCatArray();
-      
+        foreach ($categories as &$item){
+            $item['name'] =str_repeat('--',$item['level']).$item['name'];
+        }
+ 
         $menu = $categories;
 
-        $menuEnd = array();
+        $menuEnd = [];
         foreach ($menu as $id => &$item) {
 
             $menuItem = array();
@@ -387,27 +390,27 @@ class CatCategory extends CActiveRecord
             $menuItem['label'] = $item['name'];
 
                 $menuItem['url'] = array('catItemsToCat/admin', 'id' => $id);
-
-            if ($item['pid'] == -1) {
-                $menuEnd[$id] = $menuItem;
-
-                foreach ($this->getAllCatChilds($id) as $item) {
-
-                    $class = ($item['pid'] != $id) ? "sub-sub-item" : "sub-item";
-
-                    if($item['type']=='base'){
-                        $subMenuUrl = array('catItemsToCat/admin', 'id' => $item['id']);
-                    } else {
-                        $subMenuUrl= array('catItemsToCat/schemaAdmin', 'id' => $item['id']);
-                    }
-
-                    $menuEnd += array($item['id'] => array(
-                        'label' => $item['name'],
-                        'url' => $subMenuUrl,
-                        'itemOptions' => array('class' => $class)
-                    ));
-                }
-            }
+            $menuEnd[]=$menuItem;
+//            if ($item['pid'] == -1) {
+//                $menuEnd[$id] = $menuItem;
+//
+//                foreach ($this->getAllCatChilds($id) as $item) {
+//
+//                    $class = ($item['pid'] != $id) ? "sub-sub-item" : "sub-item";
+//
+//                    if ($item['type'] == 'base') {
+//                        $subMenuUrl = array('catItemsToCat/admin', 'id' => $item['id']);
+//                    } else {
+//                        $subMenuUrl = array('catItemsToCat/schemaAdmin', 'id' => $item['id']);
+//                    }
+//
+//                    $menuEnd += array($item['id'] => array(
+//                        'label' => $item['name'],
+//                        'url' => $subMenuUrl,
+//                        'itemOptions' => array('class' => $class)
+//                    ));
+//                }
+//            }
 
         }
 

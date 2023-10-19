@@ -153,7 +153,9 @@ if ($tab == 'data')
     </form>
 
     <?php if (!$model->isNewRecord): ?>
-        <div class="success" style='color: green'><?php echo $message ?></div>
+        <div class="success" style='color: green'>
+<!--            --><?php //echo $message ?>
+        </div>
         <?php $categories = CatItemsToCat::model()->with('item')->findAll(array('condition' => 'itemId=' . $model->id)); ?>
         <?php if (is_array($categories) && count($categories) > 0) : ?>
             <form method='post'>

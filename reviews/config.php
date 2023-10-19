@@ -1,5 +1,8 @@
 <?php
 return [
+    'import'=>[
+        'application.modules.reviews.models.*'
+    ],
     'modules' => [
         'reviews',
     ],
