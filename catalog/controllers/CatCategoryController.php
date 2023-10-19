@@ -513,23 +513,19 @@ class CatCategoryController extends Controller
     public function actionAdmin($pid = -1)
     {
 
-        $model = new CatCategory('search');
-        $model->unsetAttributes(); // clear any default values
-        if (isset($_GET['CatCategory']))
-            $model->attributes = $_GET['CatCategory'];
-
-        $this->render('admin', array(
-            'model' => $model,
-            'pid' => $pid
-        ));
-    }
-
-    public function actionCatManage()
-    {
-
-
+//        $model = new CatCategory('search');
+//        $model->unsetAttributes(); // clear any default values
+//        if (isset($_GET['CatCategory']))
+//            $model->attributes = $_GET['CatCategory'];
+//
+//        $this->render('admin', array(
+//            'model' => $model,
+//            'pid' => $pid
+//        ));
         $this->render('catManage');
     }
+
+
 
     /**
      * Returns the data model based on the primary key given in the GET variable.
