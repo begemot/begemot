@@ -64,7 +64,11 @@ class ModulesManager
     public static function saveModulesData($data)
     {
 
-        Yii::import('begemot.extensions.vault.FileVault');
+        $dir = dirname(__FILE__);
+        $vaultClassPath = $dir.'/../../begemot/extensions/vault/FileVault.php';
+
+        require_once $vaultClassPath;
+
         $dir = __DIR__;
         $vaultPath = $baseWebDir = $dir.'/../../../../files/modules_data';
         //$vaultPath = Yii::getPathOfAlias('webroot.files.modules_data');
@@ -74,6 +78,7 @@ class ModulesManager
         $modulesDataVault = new FileVault($vaultPath);
 
         $modulesDataVault->pushCollection($data);
+
     }
 
     public static function getModulesList()

@@ -48,11 +48,11 @@ $this->widget('bootstrap.widgets.TbGridView', array(
             'htmlOptions' => array('width' => 120),
             // see below.
 
-            'imagePathExpression' => '$data->item->getItemMainPicture("admin")',
+            'imagePathExpression' => '$data->getItemMainPicture()',
 
             // Text used when cell is empty.
             // Optional.
-            'emptyText' => '—',
+            'emptyText' => 'no image',
             // HTML options for image tag. Optional.
             'imageOptions' => array(
                 'alt' => 'no',
@@ -64,29 +64,29 @@ $this->widget('bootstrap.widgets.TbGridView', array(
         [
             'header' => '<input  onClick="setCheckboxCall();"  class="gridCheckboxCheckAll" type="checkbox" />',
             'type' => 'raw',
-            'value' => '"<input data-id=".$data->item->id." class=\"gridCheckbox\" type=\"checkbox\" />"',
+            'value' => '"<input data-id=".$data->getItemId()." class=\"gridCheckbox\" type=\"checkbox\" />"',
         ],
-        array(
-            'header' => 'Парсится',
-            'type' => 'raw',
-            'value' => '$data->item->combinedWithParser()',
-        ),
-        array('name' => 'item_name', 'value' => '$data->item->name'),
+//        array(
+//            'header' => 'Парсится',
+//            'type' => 'raw',
+//            'value' => '$data->item->combinedWithParser()',
+//        ),
+        array('name' => 'item_name', 'value' => '$data->getItemName()'),
 
 
         array(
             'header' => 'Переключатель публикации',
             'type'=>'raw',
-            'value'=>'$data->item->isPublished()',
+            'value'=>'$data->isPublished()',
         ),
         array(
             'header' => 'Top',
             'type'=>'raw',
-            'value'=>'$data->item->isTop()',
+            'value'=>'$data->isTop()',
         ),
         array(
             'class' => 'bootstrap.widgets.TbButtonColumn',
-            'viewButtonUrl' => 'Yii::app()->controller->createUrl("/catalog/site/itemView",array("item"=>$data->itemId, "name_t"=>$data->item->name_t, "catId" => $data->item->catId))',
+            'viewButtonUrl' => 'Yii::app()->controller->createUrl("/catalog/site/itemView",array("item"=>$data->itemId, "name_t"=>$data->getName_t(), "catId" => $data->catId))',
             'updateButtonUrl' => 'Yii::app()->controller->createUrl("catItem/update",array("id"=>$data->itemId))',
             // 'updateButtonUrl'=>'"catItem/update/id/".$data->itemId',
         ),

@@ -54,7 +54,7 @@ class CatOrderItem extends CActiveRecord
 			'id' => 'ID',
 			'orderId' => 'Order',
 			'itemId' => 'Item',
-			'count' => 'Количество',
+			'count' => 'РљРѕР»РёС‡РµСЃС‚РІРѕ',
 		);
 	}
 

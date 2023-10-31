@@ -40,7 +40,7 @@ class CatCategoryController extends Controller
 
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
 
-                'actions' => array('admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage'),
+                'actions' => array('admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage','echoJsonCategories'),
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
 
@@ -122,150 +122,13 @@ class CatCategoryController extends Controller
         $targetdId = $params['target']['id'];
         $moveType = $params['type'];
 
-        $model = CatCategory::model();
+        CatCategory::moveTo($draggedId,$targetdId,$moveType);
 
 
-        //Нужно проверить на перетаскивание на самого себя
-        if ($draggedId==$targetdId){
-            $this->echoJsonCategories();
-            return;
-        }
-
-
-//$tmp = $model->getcategoriesTree();
-        $model->loadCategories();
-        $catsOrderList = $model->categories;
-
-        $minOrder = $catsOrderList[$draggedId]['order'];
-
-        $maxOrder = $model->getMaxOrderOfSubTree($draggedId);
-
-        //сколько разделов перемещаем
-        $elementsForMoveCount = $maxOrder - $minOrder + 1;// ordermax-ordermin+1
-
-        //Проверяем на перемещение на потомков самого себя
-        foreach ($catsOrderList as $id => $item) {
-            if ($item['order'] >= $minOrder && $item['order'] <= $maxOrder) {
-                if ($item['id']==$targetdId){
-                    //цель на которую перетащили является потомком того что перетаскивают
-                    $this->echoJsonCategories();
-                    return;
-                }
-            }
-        }
-
-        //Выключаем разделы которые перемещаем
-        foreach ($catsOrderList as $id => $item) {
-            if ($item['order'] >= $minOrder && $item['order'] <= $maxOrder) {
-                CatCategory::model()->updateByPk($id, ['status' => CatCategory::deleted]);
-            }
-        }
-
-
-        //присваеваем новый порядок от 1 до n выключенным разделам
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-        $tmpOrder = 0;
-        foreach ($tmpCats as $tmpCat) {
-            $tmpOrder++;
-            $tmpCat->order = $tmpOrder;
-            $tmpCat->save();
-        }
-
-
-        //корректируем order не удаленных разделов
-        $cats = CatCategory::model()->findAll([
-            'condition' => '`order`>' . $maxOrder.' and '.'`status`=' . CatCategory::normal
-        ]);
-
-        foreach ($cats as $cat) {
-            $cat->order = $cat->order - $elementsForMoveCount;
-            $cat->save();
-        }
-
-        $targetCat = CatCategory::model()->findByPK($targetdId);
-        $draggedCat = CatCategory::model()->findByPK($draggedId);
-
-
-        if ($moveType=='middle') {
-            $draggedCat->pid = $targetCat->id;
-            $draggedCat->save();
-            $dLevel = $draggedCat->level - $targetCat->level;
-        } elseif ($moveType=='right' || $moveType=='left' ){
-            $draggedCat->pid = $targetCat->pid;
-            $draggedCat->save();
-            $dLevel = $draggedCat->level - $targetCat->level+1;
-        }
-
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-        foreach ($tmpCats as $tmpCat) {
-            $tmpCat->level = $tmpCat->level - $dLevel;
-            $tmpCat->save();
-        }
-
-        //у $targetCat могут быть потомки
-        $model->loadCategories();
-
-        $childs = $model->getAllCatChilds($targetCat->id);
-        $childsOrderAdd = 0;
-        if (count($childs)>0){
-            $childsOrderAdd = count($childs);
-        }
-
-        if ($moveType!='left') {
-            $tmpCats = CatCategory::model()->findAll([
-                'condition' => '`status`=' . CatCategory::normal . ' and `order`>' . ($targetCat->order + $childsOrderAdd),
-                'order' => '`order`'
-            ]);
-        } else {
-            $tmpCats = CatCategory::model()->findAll([
-                'condition' => '`status`=' . CatCategory::normal . ' and `order`>=' . $targetCat->order,
-                'order' => '`order`'
-            ]);
-        }
-
-
-        foreach ($tmpCats as $tmpCat) {
-            $tmpCat->order = $tmpCat->order + $elementsForMoveCount;
-
-            $tmpCat->save();
-        }
-
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-
-        foreach ($tmpCats as $tmpCat) {
-
-            if ($moveType!='left'){
-                $tmpCat->order = $tmpCat->order + $targetCat->order+$childsOrderAdd;
-
-            } else {
-                $tmpCat->order = $tmpCat->order + $targetCat->order;
-                if ($moveType=='left') $tmpCat->order--;
-            }
-
-
-            $tmpCat->status = CatCategory::normal;
-            $tmpCat->save();
-        }
-
-        $model = CatCategory::model();
-
-
-        $this->echoJsonCategories();
+        $this->actionEchoJsonCategories();
     }
 
-    private function echoJsonCategories(){
+    public function actionEchoJsonCategories(){
         $model = CatCategory::model();
         $model->loadCategories();
         $tmp = $model->categories;
@@ -321,61 +184,11 @@ class CatCategoryController extends Controller
                     $lastId = Yii::app()->db->getLastInsertId();
 
                     //Копируем изображения
+
                     Yii::import('pictureBox.components.PBox');
-                    $PBox = new PBox('catalogItem', $lastId);
+                    $PBox = new PBox('catalogItem',$itemId );
+                    $PBox->copyToAnotherId($lastId);
 
-                    $galleryId = 'catalogItem';
-
-                    $originalPBox = new PBox($galleryId, $itemId);
-                    $newPBox = new PBox($galleryId, $lastId);
-
-                    $originalDataDir = dirname($originalPBox->dataFile);
-                    $destanationDataDir = dirname($newPBox->dataFile);
-
-                    if (file_exists($destanationDataDir)) {
-                        CFileHelper::removeDirectory($destanationDataDir);
-                    }
-
-                    mkdir($destanationDataDir);
-
-                    $files = glob($originalDataDir . '/*');
-
-                    foreach ($files as $file) {
-
-                        $file1 = $file;
-                        $file2 = dirname($file) . '/../' . $lastId . '/' . basename($file);
-                        copy($file1, $file2);
-                    }
-                    //меняем все пути в файле-оглавлении
-                    $configFilePath = dirname($file) . '/../' . $lastId . '/data.php';
-                    $configFileContentArray = file($configFilePath);
-
-
-                    $resultFile = '';
-
-                    foreach ($configFileContentArray as $configFileLine) {
-                        $resultFile .= str_replace('files/pictureBox/catalogItem/' . $itemId, 'files/pictureBox/catalogItem/' . $lastId, $configFileLine);
-
-                    }
-
-                    file_put_contents($configFilePath, $resultFile);
-
-                    //меняем все пути в файле избранных изображений
-                    $configFilePath = dirname($file) . '/../' . $lastId . '/favData.php';
-                    if (file_exists($configFilePath)) {
-
-                        $configFileContentArray = file($configFilePath);
-
-
-                        $resultFile = '';
-
-                        foreach ($configFileContentArray as $configFileLine) {
-                            $resultFile .= str_replace('files/pictureBox/catalogItem/' . $itemId, 'files/pictureBox/catalogItem/' . $lastId, $configFileLine);
-
-                        }
-
-                        file_put_contents($configFilePath, $resultFile);
-                    }
 
 
                     //Копируем привязки к разделам, если нужно
@@ -426,13 +239,15 @@ class CatCategoryController extends Controller
     {
         $model = new CatCategory;
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
 
         if (isset($_POST['CatCategory'])) {
             $model->attributes = $_POST['CatCategory'];
-            if ($model->save())
+            if ($model->save()){
+                if ($model->pid!=-1){
+                    CatCategory::moveTo($model->id,$model->pid,'middle');
+                }
                 $this->redirect(array('view', 'id' => $model->id));
+            }
         }
 
         $this->render('create', array(
@@ -472,23 +287,47 @@ class CatCategoryController extends Controller
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
      */
-    public function actionDelete($id)
+    public function actionDelete($id,$withGoods = false)
     {
-        if (Yii::app()->request->isPostRequest) {
-            // we only allow deletion via POST request
-            if ($this->loadModel($id)->delete()) {
+        /** @var CatCategory $catModel */
+        $catModel = $this->loadModel($id);
+        $catChilds = $catModel->getAllCatChilds();
+        if ($withGoods) {
+            $catChilds[]=['id'=>$id];
+            foreach ($catChilds as $catChild){
+                $catId = $catChild['id'];
+                $catItemsTocatModels = CatItemsToCat::model()->findAllByAttributes([
+                    'catId'=>$catId
+                ]);
 
-                $filename = Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogCategory/' . $id;
-                if (file_exists($filename)) {
-                    Yii::import('begemot.BegemotModule');
-                    BegemotModule::fullDelDir($filename);
+                foreach ($catItemsTocatModels as $catItemsTocatModel){
+                    if (!is_null($catItemsTocatModel->item)){
+                        if (!$catItemsTocatModel->item->delete()){
+                            throw new CHttpException(400, 'Не удалось удалить элемент каталога');
+                            return;
+                        }
+                    } else {
+                        $catItemsTocatModel->delete();
+                    }
+
                 }
             }
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax']))
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-        } else
-            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        }
+
+
+
+
+        foreach ($catChilds as $catChild ) {
+            $idForDelete = $catChild['id'];
+            if (!CatCategory::model()->findByPk($idForDelete)->delete()){
+                throw new CHttpException(400, 'Не удалось удалить подкатегорию '.$idForDelete);
+                return;
+            }
+        }
+//        if (!$catModel->delete()){
+//            throw new CHttpException(400, 'Не удалось удалить категорию '.$catModel->name);
+//        }
+
     }
 
     /**
@@ -553,22 +392,22 @@ class CatCategoryController extends Controller
         }
     }
 
-    public function actionOrderUp($id)
-    {
-        $model = $this->loadModel($id);
-        $orderModel = $model->getCategory($id);
+//    public function actionOrderUp($id)
+//    {
+//        $model = $this->loadModel($id);
+//        $orderModel = $model->getCategory($id);
+//
+//        $this->groupId = $orderModel['pid'];
+//        $this->orderUp($id);
+//    }
 
-        $this->groupId = $orderModel['pid'];
-        $this->orderUp($id);
-    }
-
-    public function actionOrderDown($id)
-    {
-        $model = $this->loadModel($id);
-        $orderModel = $model->getCategory($id);
-        $this->groupId = $orderModel['pid'];
-        $this->orderDown($id);
-    }
+//    public function actionOrderDown($id)
+//    {
+//        $model = $this->loadModel($id);
+//        $orderModel = $model->getCategory($id);
+//        $this->groupId = $orderModel['pid'];
+//        $this->orderDown($id);
+//    }
 
     public function actionTidyPost($id)
     {
