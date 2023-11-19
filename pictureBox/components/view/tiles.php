@@ -59,11 +59,11 @@ Yii::app()->clientScript->registerCssFile('/protected/modules/pictureBox/assets/
         <form>
             <div class="form-group">
                 <label for="altInput">Alt</label>
-                <input type="text" class="form-control" id="altInput" placeholder="Alt">
+                <textarea type="text" class="form-control" id="altInput" placeholder="Alt" style="width: 400px;height: 50px;"></textarea>
             </div>
             <div class="form-group">
                 <label for="titleInput">Title</label>
-                <input type="text" class="form-control" id="titleInput" placeholder="Title">
+                <textarea type="text" class="form-control" id="titleInput" placeholder="Title" style="width: 400px;height: 50px;"></textarea>
             </div>
         </form>
     </div>
