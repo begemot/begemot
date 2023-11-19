@@ -11,6 +11,7 @@ class CatalogModule extends CWebModule
 
 
     public $pagination = false;
+    public $perPage = 20;
     public $baseLayout = null;
     public $itemLayout = null;
     public $capcha = false;

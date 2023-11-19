@@ -1,0 +1,22 @@
+{
+    "name": "root/wwwdata",
+    "autoload": {
+        "psr-4": {
+            "Root\\Wwwdata\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "scott2to",
+            "email": "scott2to@gmail.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        }
+    },
+    "require": {
+        "imangazaliev/didom": "^2.0"
+    }
+}
