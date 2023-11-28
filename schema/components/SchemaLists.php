@@ -101,7 +101,7 @@ class SchemaLists
                 $sqlToPart = 'tb1.value < ' . $value['to'] . '';
                 //$sqlPart = 'tb1.value > "' . $value['from'].'"';//. '" and tb1.value < "'.$value['to'].'"';
 
-                if ($value['from'] != null && $value['to'] == null) {
+                if (!is_null($value['from']) && is_null($value['to'])) {
                     $sqlPart = $sqlFromPart;
                 }
 
@@ -196,9 +196,6 @@ class SchemaLists
         foreach ($fieldId_value_array as $fieldName => $value) {
 
             $ids = self::equalList($fieldName,$schemaId, $value, $linkType, $ids);
-            if (is_array($ids) && count($ids)==0) {
-                return false;
-            }
         }
 
         $data = self::allDataOfListIDs($linkType, $ids);
