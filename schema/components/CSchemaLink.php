@@ -76,7 +76,7 @@ class CSchemaLink
         } else
             $model->setData($fieldId, $value, $this->schemaLinkDb->schemaId, $this->linkedDataId, $linkType);
 
-        $fieldsAndData = $this->getSchemasFieldsData();
+        $fieldsAndData = $this->getSchemasFieldsData(true);
 
         if(isset($fieldsAndData[$fieldId])){
             if($model->type = 'String'){
@@ -242,7 +242,7 @@ class CSchemaLink
     }
 
 
-    public function getSchemasFieldsData()
+    public function getSchemasFieldsData($getCached=false)
     {
 
         Yii::import('cache.models.*');
@@ -250,7 +250,7 @@ class CSchemaLink
         $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
         $cacheKey = $this->linkType . '_' . $this->linkedDataId;
 
-        if (!$fieldsAndData = $cache->getValue($cacheGroup, $cacheKey)) {
+        if ($getCached || !$fieldsAndData = $cache->getValue($cacheGroup, $cacheKey)) {
 
 
             $linkType = $this->linkType;
@@ -305,7 +305,7 @@ class CSchemaLink
      *
      *
      */
-    public function getData()
+    public function getData($cacheOff = false)
     {
         $linkType = $this->linkType;
         $groupId = $this->linkedDataId;
@@ -314,7 +314,7 @@ class CSchemaLink
         $cache = new Cache();
         $cacheKey = __CLASS__ . '_' . 'getData_' . $groupId . '_' . $linkType;
 
-        if (!$schemaArray = $cache->getValue(__CLASS__ . '_' . 'getData_', $groupId . '_' . $linkType)) {
+        if ($cacheOff || !$schemaArray = $cache->getValue(__CLASS__ . '_' . 'getData_', $groupId . '_' . $linkType)) {
 
 
             Yii::import('schema.models.types.*');
