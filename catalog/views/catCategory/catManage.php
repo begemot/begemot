@@ -36,8 +36,9 @@ $tmp = $model->categories;
 <div ng-app="catManage" ng-controller="ui">
     <p>
         <button href="#myModal" class="btn  btn-success" type="button" data-toggle="modal">Добавить раздел</button>
+        <input type="text" ng-model="catsFilter">
     </p>
-    <div class="line" ng-repeat="(catId,cat) in cats" ng-class="{'disabled':cat.disabled}">
+    <div class="line" ng-repeat="(catId,cat) in cats | filter:catsFilter" ng-class="{'disabled':cat.disabled}">
         <div class="leftBlock" style="width: {{70+25*cat.level}}px;" a-drop-target catId="{{cat.id}}"
              id="item{{cat.id}}" el-type="left">
             <span class="updateDeleteButtonBlock">
