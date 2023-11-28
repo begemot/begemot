@@ -1,5 +1,5 @@
 <?php
-
+Yii::import('catalog.models.*');
 class m1697111034_categoriesRenew extends BaseMigration
 {
     public function up()

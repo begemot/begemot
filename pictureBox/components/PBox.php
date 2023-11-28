@@ -259,12 +259,16 @@ class PBox
     public function getFirstImageHtml($tag, $htmlOptions = array())
     {
 
-        if (is_null($this->favPictures)) {
-            $array = $this->pictures;
+        if (count($this->favPictures) == 0) {
+
+            $array = $this->getSortedImageList();
+
         } else {
             $array = $this->favPictures;
         }
+
         if (is_array($array)) {
+
             $id = key($array);
 
             return $this->getImageHtml($id, $tag, $htmlOptions);
