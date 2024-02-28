@@ -2,6 +2,7 @@
 /* @var $this CatItemController */
 /* @var $model CatItem */
 /* @var $form CActiveForm */
+
 ?>
 
 
@@ -63,10 +64,7 @@
         echo '</div>';
         ?>
         <?php
-        $this->widget('begemot.extensions.ckeditor.CKEditor',
-            //$this->widget('CKEditor',
-            //        $this->widget('//home/atv/www/atvargo.ru/protected/extensions/ckeditor/CKEditor',
-            array('model' => $model, 'attribute' => 'text', 'language' => 'ru', 'editorTemplate' => 'full',));
+        $this->widget('begemot.extensions.ckeditor.CKEditor',array('model' => $model, 'attribute' => 'text', 'language' => 'ru', 'editorTemplate' => 'full'));
         ?>
         <?php
         $this->widget('begemot.components.htmlClearPanel.htmlClearPanel', array('id' => 'CatItem_text'));

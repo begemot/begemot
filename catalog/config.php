@@ -24,8 +24,8 @@ return [
             'rules' => [
                 //модуль catalog
                 'catalog' => 'catalog/site/',
-                'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
-                'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/RCategoryView',
+//                'catalog/<title:[\w-]+>_<catId:\d+>' => 'catalog/site/rCategoryView',
+                'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/rCategoryView',
                 'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
             ]
         ]

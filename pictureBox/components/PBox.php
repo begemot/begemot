@@ -274,10 +274,10 @@ class PBox
 
     }
 
-    public function getFirstImage($tag='original')
+    public function getFirstImage($tag = 'original')
     {
 
-        if (count($this->favPictures)==0) {
+        if (count($this->favPictures) == 0) {
 
             $array = $this->getSortedImageList();
 
@@ -460,6 +460,51 @@ class PBox
 
     }
 
+    public function copyToAnotherId($idOfCopy)
+    {
+        $destDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $this->galleryId . '/' . $idOfCopy;
+
+        if (!file_exists($destDir)) mkdir($destDir);
+        $files = glob($this->dataFile . '/*');
+
+        foreach ($files as $file) {
+
+            $file1 = $file;
+
+            $file2 = $destDir . '/' . basename($file);
+
+            copy($file1, $file2);
+        }
+
+        $this->correctPathsInFiles($destDir, $idOfCopy);
+
+    }
+
+    private function correctPathsInFiles($dir, $newId)
+    {
+        $searchStr = $this->galleryId . '/' . $this->id;
+        $replaceStr = $this->galleryId . '/' . $newId;
+        $file = $dir . '/data_default.php';
+        if (file_exists($file)) {
+            $this->replaceInfile($file, $searchStr, $replaceStr);
+        }
+
+        $file = $dir . '/data_favData.php';
+        if (file_exists($file)) {
+            $this->replaceInfile($file, $searchStr, $replaceStr);
+        }
+    }
+
+    private function replaceInfile($file, $strToReplace, $str)
+    {
+        $file = $file;
+        $content = file_get_contents($file);
+        $newContent = str_replace($strToReplace, $str, $content);
+        if (!file_put_contents($file, $newContent)) {
+            throw new Exception('Не удалось сохранить файл');
+        }
+    }
+
     public function copyAllOriginalImages($destDir)
     {
         $imagesArray = $this->pictures;
@@ -533,7 +578,7 @@ class PBox
 
         foreach (glob($dir . '/*') as $filename) {
             if (!is_dir($filename))
-                if (!unlink($filename)){
+                if (!unlink($filename)) {
                     throw new Exception('file is not deleted');
                 }
         }

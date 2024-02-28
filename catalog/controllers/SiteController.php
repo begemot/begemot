@@ -188,15 +188,15 @@ class SiteController extends Controller
         if ($category->layout) {
             $this->layout = $category->layout;
         }
-        //$catsIDs = $category->getAllCatChilds($catId);
+        $catsIDs = $category->getAllCatChilds($catId);
 
 
-//        $iDsArray = array($catId);
-//        foreach ($catsIDs as $catData) {
-//            $iDsArray[] = $catData['id'];
-//        }
+        $iDsArray = array($catId);
+        foreach ($catsIDs as $catData) {
+            $iDsArray[] = $catData['id'];
+        }
 
-        // $iDsStr = '(' . implode(',', $iDsArray) . ')';
+         $iDsStr = '(' . implode(',', $iDsArray) . ')';
 
         $criteria = new CDbCriteria;
 

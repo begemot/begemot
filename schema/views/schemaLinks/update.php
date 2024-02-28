@@ -18,7 +18,7 @@ $link = new CSchemaLink($model->linkType, $model->linkId);
     <script>
 
         app.service('schemaData', function () {
-            this.data = <?=json_encode($link->getData())?>
+            this.data = <?=json_encode($link->getData(true))?>
         });
 
     </script>

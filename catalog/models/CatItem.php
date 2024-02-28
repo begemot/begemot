@@ -9,6 +9,9 @@
  * @property string $name_t
  * @property integer $status
  * @property string $data
+ * @property integer $quantity
+ * @property integer $delivery_date
+ * @property string $article
  */
 Yii::import('begemot.extensions.contentKit.ContentKitModel');
 Yii::import('catalog.models.*');
@@ -29,7 +32,7 @@ class CatItem extends ContentKitModel
     }
     public function schemaSet($fieldId,$value,$dataType='String')
     {
-        
+
         $schemaType = 'catItem';
         $groupId = $this->id;
 
@@ -48,22 +51,20 @@ class CatItem extends ContentKitModel
         return parent::model($className);
     }
 
-	/**
-	 * @return string the associated database table name
-	 */
-	public function tableName()
-	{
-		return 'catItems';
-	}
-        
-        public function behaviors(){
-            $behaviors = array(
-                'slug'=>array(
-                    'class' => 'begemot.extensions.SlugBehavior',
-                ),                
+    /**
+     * @return string the associated database table name
+     */
+    public function tableName()
+    {
+        return 'catItems';
+    }
 
-            );
-
+    public function behaviors()
+    {
+        $behaviors = array(
+            'slug' => array(
+                'class' => 'begemot.extensions.SlugBehavior',
+            ),
 
         );
 
@@ -140,66 +141,9 @@ class CatItem extends ContentKitModel
         foreach ($ids as $id) {
             array_push($arrayOfIds, $id->toItemId);
         }
-        
-	/**
-	 * @return array validation rules for model attributes.
-	 */
-	public function rules()
-	{
-		// NOTE: you should only define rules for those attributes that
-		// will receive user inputs.
-		 $rules = array(
-			array('name', 'required'),
-			array('status', 'numerical', 'integerOnly'=>true),
-			array('name, name_t', 'length', 'max'=>100),
-			array('seo_title', 'length', 'max'=>255),
-			// The following rule is used by search().
-			array('id, name, name_t, status, data, price, text, name, authorId', 'safe'),
-			// Please remove those attributes that should not be searched.
-			array('id, name, name_t, status, data', 'safe', 'on'=>'search'),
-		);
-        return array_merge(parent::rules(),$rules);
-	}
-
-	/**
-	 * @return array relational rules.
-	 */
-  public function relations()
-   {
-       return array(
-           'name'=>array(self::BELONGS_TO, 'CatItemsToCat', 'itemId'),
-           'category' => array(self::BELONGS_TO,'CatCategory','catId')
-       );
-   }
-
-  public function getOption(){
-    $ids = CatItemsToItems::model()->findAll(array("condition"=> 'itemId='.$this->id, 'order' => 'id ASC'));
-    $arrayOfIds = array();
-    foreach ($ids as $id) {
-        array_push($arrayOfIds, $id->toItemId);
+        $arrayOfIds = array_filter($arrayOfIds);
+        return CatItem::model()->findAllByPk($arrayOfIds);
     }
-    $arrayOfIds = array_filter($arrayOfIds);
-    return CatItem::model()->findAllByPk($arrayOfIds);
-  }
-	/**
-	 * @return array customized attribute labels (name=>label)
-	 */
-	public function attributeLabels()
-	{
-		return array(
-			'id' => 'ID',
-			'name' => 'Наименование',
-			'name_t' => 'Наименование транслитом',
-			'status' => 'Стату',
-			'data' => 'Data',
-            'authorId'=>'Автор'
-		);
-	}
-        
-    public function itemTableName(){
-        return 'catItems_'.$this->id;
-    }
-
 
     public function isPublished()
     {
@@ -291,8 +235,10 @@ class CatItem extends ContentKitModel
         );
     }
 
-
-
+    public function itemTableName()
+    {
+        return 'catItems_' . $this->id;
+    }
 
     public function beforeSave()
     {
@@ -310,28 +256,18 @@ class CatItem extends ContentKitModel
                 if (isset($_REQUEST['CatItem'][$itemRow->name_t])) {
                     if (is_array($_REQUEST['CatItem'][$itemRow->name_t])) {
                         $this->$paramName = implode(',', $_REQUEST['CatItem'][$itemRow->name_t]);
-
-
                     } else $this->$paramName = $_REQUEST['CatItem'][$itemRow->name_t];
                 }
 
 
             }
-            return true;
         }
+        return true;
     }
-        
 
-        
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
-	 */
-	public function search($id=null)
-	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
+    protected function afterFind()
+    {
+        $this->delivery_date = date('m/d/Y', $this->delivery_date);
 
         return parent::afterFind();
     }
@@ -364,7 +300,7 @@ class CatItem extends ContentKitModel
         $criteria->compare('name_t', $this->name_t, true);
         $criteria->compare('status', $this->status,true);
         $criteria->compare('article', $this->article,true);
-        $criteria->compare('data', $this->data, true);
+       // $criteria->compare('data', $this->data, true);
         $criteria->order = '`id` desc';
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -530,5 +466,5 @@ class CatItem extends ContentKitModel
         return CatColor::addImageToColor($colorToItemId, $image);
     }
 
-
 }
+

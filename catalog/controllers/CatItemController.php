@@ -350,31 +350,21 @@ class CatItemController extends Controller
         $model->delete();
 
 
-        CatItemsToItems::model()->deleteAll("itemId = '$id' OR toItemId = '$id'");
-        $this->delete_files(Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/' . $id . "/");
-
-        // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-
-        //Удаляем привязки к категориям
-        $CatItemsRelations = CatItemsToCat::model()->findAll('itemId = ' . $id);
-
-        foreach ($CatItemsRelations as $catItemToCat) {
-            $catItemToCat->delete();
-        }
 
 
-        //Удаляем привязки к категориям
-        $ParsersLinkingRelations = ParsersLinking::model()->findAll('toId = ' . $id);
 
-        foreach ($ParsersLinkingRelations as $parsersLinking) {
-
-
-            $parsersStock = $parsersLinking->linking;
-            $parsersStock->linked = 0;
-            $parsersStock->save();
-
-            $parsersLinking->delete();
-        }
+//        //Удаляем привязки к категориям
+//        $ParsersLinkingRelations = ParsersLinking::model()->findAll('toId = ' . $id);
+//
+//        foreach ($ParsersLinkingRelations as $parsersLinking) {
+//
+//
+//            $parsersStock = $parsersLinking->linking;
+//            $parsersStock->linked = 0;
+//            $parsersStock->save();
+//
+//            $parsersLinking->delete();
+//        }
 
 
         if (!Yii::app()->request->isAjaxRequest)

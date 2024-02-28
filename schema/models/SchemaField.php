@@ -13,23 +13,24 @@
  */
 
 Yii::import('schema.models.types.*');
+
 class SchemaField extends CActiveRecord
 {
 
-    public static function getSchemaFieldByName($name, $schemaId=null)
+    public static function getSchemaFieldByName($name, $schemaId = null)
     {
-        if ($schemaId!=null){
+        if ($schemaId != null) {
 
             $model = self::model()->findByAttributes(['name' => $name, 'schemaId' => $schemaId]);
         } else {
             $model = self::model()->findAllByAttributes(['name' => $name]);
 
-            if (is_array($model) && count($model)>1){
+            if (is_array($model) && count($model) > 1) {
                 throw new Exception('Полей с таким именем больше одного у разных Schema. Нужно указать id схемы при вызове');
-            } else{
-                if (isset($model[0])){
-                    $model=$model[0];
-                } else if (count($model)==0){
+            } else {
+                if (isset($model[0])) {
+                    $model = $model[0];
+                } else if (count($model) == 0) {
                     $model = false;
                 }
             }
@@ -52,21 +53,22 @@ class SchemaField extends CActiveRecord
     }
 
 
-    public function setFieldData($value,$fieldId,$linkedDataId,$linkType){
+    public function setFieldData($value, $fieldId, $linkedDataId, $linkType)
+    {
 //        $linkType = ;
-        self::setData($fieldId,$value,$this->schemaId,$linkedDataId,$linkType);
+        self::setData($fieldId, $value, $this->schemaId, $linkedDataId, $linkType);
     }
 
-    public static function setData($fielddName,$value,$schemaId, $groupId = null,$linkType)
+    public static function setData($fielddName, $value, $schemaId, $groupId = null, $linkType)
     {
 
-        $field = self::getSchemaFieldByName($fielddName,$schemaId);
+        $field = self::getSchemaFieldByName($fielddName, $schemaId);
 
         $model = SchemaData::model()->findByAttributes([
-            'fieldId'=>$field->id,
-            'schemaId'=>$schemaId,
-            'groupId'=>$groupId,
-            'linkType'=>$linkType
+            'fieldId' => $field->id,
+            'schemaId' => $schemaId,
+            'groupId' => $groupId,
+            'linkType' => $linkType
         ]);
 
         if (!$model) {
@@ -78,9 +80,11 @@ class SchemaField extends CActiveRecord
             $model->linkType = $linkType;
         }
 
-      if ($model->save()){
-          $model->setData ($value,$field->type);
-      }
+        if ($model->save()) {
+            $model->setData($value, $field->type);
+        } else {
+            throw new Exception('не сохранили');
+        }
     }
 
     /**
@@ -169,8 +173,6 @@ class SchemaField extends CActiveRecord
     {
         return parent::model($className);
     }
-
-
 
 
 }

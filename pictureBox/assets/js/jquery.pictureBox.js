@@ -206,13 +206,14 @@ function PictureBox(options) {
                     if (data[imageId]['title']==undefined)data[imageId]['title']='';
 
 
-                    $('#titleModal #altInput').attr('value', data[imageId]['alt']);
-                    $('#titleModal #titleInput').attr('value', data[imageId]['title']);
+                    $('#titleModal #altInput').val( data[imageId]['alt']);
+                    $('#titleModal #titleInput').val(data[imageId]['title']);
 
 
                     PictureBoxObject.activeImageForWindow = imageId;
 
                     $('#titleModal').modal('show');
+
                 });
 
                 $('#resizeImgSaveBtn').click(function (index, domElement) {
@@ -539,8 +540,8 @@ function PictureBox(options) {
 
     this.saveAltAndTitle = function (imageId) {
 
-        var title = $('#titleInput').val();
-        var alt = $('#altInput').val();
+        title = $('#titleInput').val();
+        alt = $('#altInput').val();
 
 
         $.ajax({
