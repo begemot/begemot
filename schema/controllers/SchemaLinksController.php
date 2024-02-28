@@ -2,48 +2,37 @@
 
 class SchemaLinksController extends Controller
 {
-	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
+
     public $layout = 'begemot.views.layouts.column2';
 
-	/**
-	 * @return array action filters
-	 */
-	public function filters()
-	{
-		return array(
-			'accessControl', // perform access control for CRUD operations
-			'postOnly + delete', // we only allow deletion via POST request
-		);
-	}
 
-	/**
-	 * Specifies the access control rules.
-	 * This method is used by the 'accessControl' filter.
-	 * @return array access control rules
-	 */
-	public function accessRules()
-	{
-		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
-                'expression' => 'Yii::app()->user->canDo("")'
-			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-                'expression' => 'Yii::app()->user->canDo("")'
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-                'expression' => 'Yii::app()->user->canDo("")'
-			),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
-		);
-	}
+    /**
+     * @return array action filters
+     */
+    public function filters()
+    {
+        return array(
+            'accessControl'
+        );
+    }
+    public function accessRules()
+    {
+        return array(
+
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+
+                'actions' => array('view','create','update','delete','index','admin'),
+
+                'expression' => 'Yii::app()->user->canDo()'
+
+
+            ),
+            array('deny', // deny all users
+                'users' => array('*'),
+            ),
+        );
+    }
+
 
 	/**
 	 * Displays a particular model.
