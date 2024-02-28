@@ -1,146 +1,11 @@
-var app = angular.module('pictureBox', ["dndLists", 'ngFileUpload']);
-
-
-app.service('galleryControl', ['$http', 'values', function ($http, values) {
-    this.activeSubGallery = 'default';
-    this.dataCollection = {};
-    this.activeFilter = '';
-    this.allImagesModal = {};
-    this.config = {};
-    this.currentPreviewSrc = '';
-    this.titleModal = {};
-    var activeFilterChangesCallbacks = [];
-    this.activeFilterChangesAddCallback = function (callback) {
-        activeFilterChangesCallbacks.push(callback);
-    }
-    this.setActiveFilter = function (filterNew) {
-        console.log('this.setActiveFilter');
-        this.activeFilter = filterNew;
-        notifyObservers();
-    }
-
-    var notifyObservers = function () {
-        console.log('notifyObservers');
-        _.forEach(activeFilterChangesCallbacks, function (callback) {
-
-            callback();
-        });
-    };
-
-
-}]);
-
-app.controller('gallery', ['$scope', '$http', 'galleryControl', 'values', function ($scope, $http, galleryControl, values) {
-    // ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
-    // $scope.galId = 'sqlLiteTest';
-    //$scope.id = 1;
-    $scope.galList = null;
-    $scope.values = values;
-    var loadGalList = function () {
-        if (this.galList == null) {
-            $http.get('/pictureBox/api/getGalleries', {
-                params: {
-                    galleryId: values.galId,
-                    id: values.id,
-                    subGallery: galleryControl.activeGallery
-                }
-            }).then(function (responce) {
-                $scope.galList = responce.data
-
-            });
-        }
-    }
-    loadGalList();
-    $scope.getGalList = function () {
-        return galleryControl.galList
-    }
-    $scope.testHook = '';
-
-
-    $scope.images = [];
-    $scope.deleted = [];
-    $scope.lastImageId = -1;
-
-    $scope.search = {params: {deleted: false}};
-    // $scope.search.params.deleted = false;
-
-    galleryControl.titleModal = {
-        id: '',
-        title: '',
-        alt: ''
-    }
-
-    galleryControl.allImagesModal = {
-        id: '123',
-        image: '23',
-    }
-    $scope.getPreview = function () {
-        return galleryControl.currentPreviewSrc;
-    }
-
-    $scope.getConfig = function () {
-        return galleryControl.config;
-    }
-    $scope.getAllImagesModal = function () {
-        return galleryControl.allImagesModal;
-    }
-
-    $scope.getTitleModal = function () {
-        return galleryControl.titleModal;
-    }
-
-    galleryControl.activeFilter = null;
-    $scope.getActiveFilterName = function () {
-        return galleryControl.activeFilter.name;
-    }
-    $scope.imagesSortedKeys = [];
-
-    //Переменная, через которую внешние компоненты понимают в какую галлерею сохранять
-
-    $scope.madeSubGalleryActive = function (name) {
-        galleryControl.activeSubGallery = name;
-
-    }
-
-
-    $scope.madeFilterActive = function (name) {
-        filter = galleryControl.config.imageFilters[name][0]
-        console.log(galleryControl.config.imageFilters[name])
-
-
-        // galleryControl.activeFilter.name = name
-        // galleryControl.activeFilter.width = filter.param.width
-        //galleryControl.activeFilter.height = filter.param.height
-        galleryControl.setActiveFilter({
-            name: name,
-            width: filter.param.width,
-            height: filter.param.height
-        });
-        galleryControl.currentPreviewSrc = galleryControl.allImagesModal.image[galleryControl.activeFilter.name] + '?' + _.random(1000);
-        console.log(galleryControl.currentPreviewSrc)
-    }
-
-    galleryControl.dataCollection = {};
-
-}]);
+var app = angular.module('pictureBox', ["dndLists", 'ngFileUpload','UiBgmt']);
 
 
 app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryControl) {
     return {
         restrict: 'E',
-        scope: {
-            //  allImagesModal: '=',
-            //  allDataCollection: '=',
-            //  activeFilter: '=',
-            // activeSubGallery: '=',
-            //   getDataHook: '=',
-            //    config: '=',
-            //    madeFilterActiveHook: '=',
-            // currentPreviewSrc: '=',
-
-
-        },
-        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?123',
+        scope: {},
+        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?1223',
         link: function (scope, element, attrs) {
 
 
@@ -149,9 +14,7 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
 
             scope.activeGallery = attrs.activeGallery;
 
-            console.log('$$$$$$')
-            console.log(scope.activeGallery)
-            console.log('$$$$')
+
             scope.sendData = function () {
                 $http.post('/pictureBox/api/obectSave', {
 
@@ -166,6 +29,7 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
                     }
                 })
             }
+
             scope.imageShownChange = function (imageId) {
                 image = _.find(scope.images, {id: imageId})
                 if (!_.has(image, 'params'))

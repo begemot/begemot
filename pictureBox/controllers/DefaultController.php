@@ -109,7 +109,7 @@ class DefaultController extends Controller
                 $newImageId = $this->addImage($dir, $model->uploadifyFile->name, $imageExt, $id, $elementId);
 
                 move_uploaded_file($model->uploadifyFile->tempName, $dir . "/" . $newImageId . '.' . $imageExt);
-
+                
                 $resultFiltersStack = array();
 
                 foreach ($config['nativeFilters'] as $filterName => $toggle) {
@@ -125,6 +125,7 @@ class DefaultController extends Controller
 
                 foreach ($filters as $filterName => $filteredImageFile) {
                     $this->addFilteredImage($newImageId, $filterName, '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, $dir);
+                    //chmod(Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $id . '/' . $elementId . '/' . $filteredImageFile, 0777);
                 }
 
                 $this->updateSortData($id, $elementId);

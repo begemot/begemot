@@ -12,9 +12,13 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
 
 Yii::app()->clientScript->registerCssFile('/bower_components/cropperjs/dist/cropper.css');
 Yii::app()->clientScript->registerScriptFile('/bower_components/cropperjs/dist/cropper.js');
-
+Yii::app()->clientScript->registerScriptFile('/protected/modules/begemot/ui/searchDropDown/js/service.ui.bgmt.js');
+Yii::app()->clientScript->registerScriptFile('/protected/modules/begemot/ui/searchDropDown/js/modal.ui.bgmt.js');
 
 Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/pictureBox.js');
+Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/pictureBox.gallery-controller.js');
+
+Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/galleryControll.js');
 Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/assets/js-angular/crop.js');
 
 ?>
