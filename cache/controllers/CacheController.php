@@ -5,13 +5,25 @@ class CacheController extends Controller
 {
 
     /**
-     * @return array access control rules
+     * @return array action filters
      */
+    public function filters()
+    {
+        return array(
+            'accessControl', // perform access control for CRUD operations
+        );
+    }
     public function accessRules()
     {
         return array(
-            array('allow', // allow authenticated users to perform any action
-                'users' => array('@'),
+
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+
+                'actions' => array('getUniqueCacheGroups','getCacheDataPage','index','resetCacheForKey','resetAllCache','setValue','getValue'),
+
+                'expression' => 'Yii::app()->user->canDo()'
+
+
             ),
             array('deny', // deny all users
                 'users' => array('*'),
