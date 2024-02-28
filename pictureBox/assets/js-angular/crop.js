@@ -35,12 +35,16 @@ app.directive('crop', ['$http','galleryControl',
 
                 var previews = document.querySelectorAll('.preview');
                 var previewReady = false;
+                scope.oldData = undefined
 
                 imageDomObj.onload = onLoadFunction = function () {
+
+
+
                     if (galleryControl.activeFilter==null) return;
                     if (_.isObject(scope.cropperObj))
                         scope.cropperObj.destroy()
-                    console.log('imageDomObj.onload = onLoadFunction = function () {');
+
                     scope.cropperObj =
                         new Cropper(imageDomObj, {
                             viewMode: 0,
@@ -73,9 +77,19 @@ app.directive('crop', ['$http','galleryControl',
                                 });
                                 previewReady = true;
                                 scope.cropperObj.reset();
+
+                                if (scope.oldData!=undefined){
+                                    scope.cropperObj.setData(scope.oldData)
+
+                                } else {
+                                    scope.oldData = scope.cropperObj.getData()
+                                }
+
+
                             },
 
                             crop: function (event) {
+
                                 if (!previewReady) {
                                     return;
                                 }
@@ -102,21 +116,25 @@ app.directive('crop', ['$http','galleryControl',
 
                             },
                         })
+
+                    this.addEventListener('cropend', (event) => {
+                        scope.oldData = scope.cropperObj.getData()
+                    });
                 }
                 this.cropperInit = onLoadFunction
 
 
                 galleryControl.activeFilterChangesAddCallback(onLoadFunction);
-                galleryControl.activeFilterChangesAddCallback(onLoadFunction);
-                galleryControl.activeFilterChangesAddCallback(onLoadFunction);
+                // galleryControl.activeFilterChangesAddCallback(onLoadFunction);
+                // galleryControl.activeFilterChangesAddCallback(onLoadFunction);
                 scope.blobSendHook = function () {
-                    console.log(scope.imageId)
+                    // console.log(scope.imageId)
                     scope.galId = iAttrs.galleryId;
                     scope.id = iAttrs.id;
                     image = _.find(scope.images, {id: scope.imageId})
 
                     scope.cropperObj.getCroppedCanvas().toBlob((blob) => {
-                        console.log(blob)
+                        // console.log(blob)
                         const formData = new FormData();
 
 
@@ -138,19 +156,19 @@ app.directive('crop', ['$http','galleryControl',
                                 id:scope.id,
                                 imageId:scope.imageId,
                                 filterName:galleryControl.activeFilter.name,
-                                subGallery:galleryControl.activeSubGallery
+                                subGallery:galleryControl.activeSubGallery,width:galleryControl.activeFilter.width,height:galleryControl.activeFilter.height
                             }
                         }).then(()=>{
                             each(previews, function (elem) {
 
-
+                                //Обработка изображения произведена. Теперь нужно вывести на стренице новое изображение в замен старого.
                                 img = angular.element(elem).parent().find('#realPreview')
 
                                 img.attr('src',img.attr('src')+'?'+_.random(1000))
-                                console.log(img.attr('src'));
+
                             })
 
-                            galleryControl.dataCollection[scope.subGallery].getData();
+                           // galleryControl.dataCollection[scope.subGallery].getData();
                             //cope.imagesReload();
 
                         })

@@ -4,12 +4,14 @@ Yii::import('pictureBox.components.PBox');
 class ApiController extends Controller
 {
 
-    public function actionGetData($galleryId, $id, $subGallery='default')
+    public function actionGetData($galleryId, $id, $subGallery = 'default')
     {
 
-        $pBox = new PBox($galleryId, $id,$subGallery);
+
+        $pBox = new PBox($galleryId, $id, $subGallery);
 
         $images = $pBox->getSortedImageList();
+
         $favData = $pBox->getFavData();
         $lastImageId = $pBox->getLastImageId();
         $sortedData = $pBox->getSortArray();
@@ -41,15 +43,15 @@ class ApiController extends Controller
                 $images[$key]['alt'] = '';
             }
 
-            foreach($images[$key] as $imageKey=>$image){
-                if ($imageKey!='id' &&
-                    $imageKey!='order' &&
-                    $imageKey!='show'&&
-                    $imageKey!='params'&&
-                    $imageKey!='title'&&
-                    $imageKey!='alt'
-                ){
-                    $images[$key][$imageKey] = $image.'?'.rand(1,100000);
+            foreach ($images[$key] as $imageKey => $image) {
+                if ($imageKey != 'id' &&
+                    $imageKey != 'order' &&
+                    $imageKey != 'show' &&
+                    $imageKey != 'params' &&
+                    $imageKey != 'title' &&
+                    $imageKey != 'alt'
+                ) {
+                    $images[$key][$imageKey] = $image . '?' . rand(1, 100000);
                 }
             }
 
@@ -61,18 +63,18 @@ class ApiController extends Controller
             'lastImageId' => $pBox->getLastImageId(),
             'sortedData' => $pBox->getSortArray(),
             'config' => $config,
-            'subGalleryList'=>$subGalleryList
+            'subGalleryList' => $subGalleryList
         ];
 
 
-        echo json_encode($allData,JSON_NUMERIC_CHECK);
+        echo json_encode($allData, JSON_NUMERIC_CHECK);
 
     }
 
-    public function actionObectSave($galleryId, $id,$subGallery='default')
+    public function actionObectSave($galleryId, $id, $subGallery = 'default')
     {
 
-        $pBox = new PBox($galleryId, $id,$subGallery);
+        $pBox = new PBox($galleryId, $id, $subGallery);
 
         $postdata = json_decode(file_get_contents("php://input"), true);
 
@@ -130,15 +132,17 @@ class ApiController extends Controller
         echo json_encode($images);
 
     }
-    public function actionGetGalleries($galleryId, $id){
+
+    public function actionGetGalleries($galleryId, $id)
+    {
 
         $pBox = new PBox($galleryId, $id);
         $wr = Yii::getPathOfAlias('webroot');
-        $filelist = glob($wr.'/'.$pBox->webDataFile.'/*',GLOB_ONLYDIR);
+        $filelist = glob($wr . '/' . $pBox->webDataFile . '/*', GLOB_ONLYDIR);
         $resultList = ['default'];
 
-        foreach ($filelist as $dir){
-            $resultList[] =  basename($dir);
+        foreach ($filelist as $dir) {
+            $resultList[] = basename($dir);
         }
 
         echo(json_encode($resultList));
@@ -201,16 +205,16 @@ class ApiController extends Controller
 
     public function actionUpload()
     {
-        $subGallery='default';
+        $subGallery = 'default';
         if (isset($_REQUEST['subGallery']))
-            $subGallery=$_REQUEST['subGallery'];
+            $subGallery = $_REQUEST['subGallery'];
 
         $this->layout = 'pictureBox.views.layouts.ajax';
 
         $id = $_POST['galleryId'];
         $elementId = $_POST['id'];
         $lastImageId = $_POST['lastId'];
-        $pbox = new PBox($id, $elementId,$subGallery);
+        $pbox = new PBox($id, $elementId, $subGallery);
 
         $config = $pbox->filters;
 
@@ -224,7 +228,7 @@ class ApiController extends Controller
 
             }
 
-            echo json_encode($addedImages,JSON_NUMERIC_CHECK);
+            echo json_encode($addedImages, JSON_NUMERIC_CHECK);
         }
     }
 
@@ -240,55 +244,57 @@ class ApiController extends Controller
     }
 
 
-    public function actionSavePreviewImage($gallery, $id, $imageId, $filterName,$subGallery='default')
+    public function actionSavePreviewImage($gallery, $id, $imageId, $filterName, $subGallery = 'default')
     {
 
         if (isset($_FILES['croppedImage'])) {
 
-            $pbox = new PBox($gallery, $id,$subGallery);
+            $pbox = new PBox($gallery, $id, $subGallery);
             $imagick = new Imagick($_FILES['croppedImage']['tmp_name']);
             $images = $pbox->getImages();
 
 
             if (isset($images[$imageId])) {
 
-                $filters = $pbox->filters['imageFilters'];
 
-                if (isset($filters[$filterName])){
 
-                    if (isset($filters[$filterName][0]['param']['width'])){
 
-                        $width = $filters[$filterName][0]['param']['width'];
-                        $height = $filters[$filterName][0]['param']['height'];
+                if (isset($pbox->filters[$filterName][0]['param']['width'])) {
+                    $width = $pbox->filters[$filterName][0]['param']['width'];
+                    $height = $pbox->filters[$filterName][0]['param']['height'];
+                } else {
+                    $width = $_REQUEST['width'];
+                    $height = $_REQUEST['height'];
+                }
 
-                        $originalImageName = $images[$imageId]['original'];
-                        $path_info = pathinfo($originalImageName);
 
-                        $ext = strtolower($path_info['extension']);
-                        $ext = explode('?',$ext);
-                        $ext = array_shift($ext);
+                $originalImageName = $images[$imageId]['original'];
+                $path_info = pathinfo($originalImageName);
 
-                        $imagick->setImageFormat($ext);
+                $ext = strtolower($path_info['extension']);
+                $ext = explode('?', $ext);
+                $ext = array_shift($ext);
 
-                        $baseDir = Yii::getPathOfAlias('webroot');
-                        $filename = $baseDir.$images[$imageId][$filterName];
-                        $filename =              explode('?',$filename);
-                        $filename = array_shift($filename);
+                $imagick->setImageFormat($ext);
+
+                $baseDir = Yii::getPathOfAlias('webroot').'/files/pictureBox/'.$gallery.'/'.$id.'/';
+                $baseWebDir = '/files/pictureBox/'.$gallery.'/'.$id.'/';
+                $filename = $baseDir . $imageId.'_'.$filterName.'.'.$ext;
+                $webFileName = $baseWebDir . $imageId.'_'.$filterName.'.'.$ext;
 //                        print_r($filename);
 //                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
 
-                        $imagick->resizeImage($width, $height, Imagick::FILTER_BLACKMAN, 0.8);
-                        $imagick->setImageBackgroundColor('white');
-                        $imagick->extentImage($width, $height, 0, 0);
+                $imagick->resizeImage($width, $height, Imagick::FILTER_BLACKMAN, 0.8);
+                $imagick->setImageBackgroundColor('white');
+                $imagick->extentImage($width, $height, 0, 0);
 
 
-                        $imagick->writeImage($filename);
-                    }
-                } else throw new Exception('$filters[$filterName] - не существует');
+                $imagick->writeImage($filename);
+               $pbox->pictures[$imageId][$filterName] = $webFileName;
+                //$pbox->pictures[]=123123;
+                $pbox->saveToFile();
 
-
-
-            } else throw new Exception('$images['.$imageId.'] - не существует');
+            } else throw new Exception('$images[' . $imageId . '] - не существует');
         } else throw new Exception('$_FILES[\'croppedImage\'] - не существует');
     }
 }
