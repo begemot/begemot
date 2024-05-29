@@ -324,9 +324,6 @@ class CatCategoryController extends Controller
                 return;
             }
         }
-//        if (!$catModel->delete()){
-//            throw new CHttpException(400, 'Не удалось удалить категорию '.$catModel->name);
-//        }
 
     }
 
