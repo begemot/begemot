@@ -168,25 +168,7 @@ class CatCategory extends CActiveRecord
         $this->pubCategories = $pubCatsArray;
 
     }
-//    //TODO: новый алгоритм работы с категориями эту функцию умножает на ноль
-//    public function getcategoriesTree(){
-//        $getcategoriesTree = [];
-//
-//        if (!is_array($this->categories)){
-//            $this->loadCategories();
-//        }else {
-//            $getcategoriesTree = $this->categories;
-//            foreach ($getcategoriesTree as $key=>$cat){
-//                if (isset($getcategoriesTree[$cat['pid']])){
-//                    $getcategoriesTree[$cat['pid']]['childs'][] = $getcategoriesTree[$key];
-//                    unset ($getcategoriesTree[$key]);
-//                }
-//            }
-//            return $getcategoriesTree;
-//        }
-//
-//
-//    }
+
 
     public function beforeSave()
     {
@@ -198,31 +180,6 @@ class CatCategory extends CActiveRecord
 
             $maxOrder = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory`')->queryScalar();
             $this->order = $maxOrder + 1;
-
-
-//            $command = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory` where `pid`='.$this->pid)->queryRow();
-//            if(!is_null($command['max'])){
-//
-//                $this->order =$command['max']+1;
-//            } elseif ($this->pid==-1) {
-//                //это первый корневой раздел
-//                $this->order =1;
-//            } else {
-//                //$this->order = CatCategory::model()->findByPk($this->pid);
-//                $this->order = CatCategory::model()->findByPk($this->pid)->order+1;
-//
-//            }
-//
-//            $criteria=new CDbCriteria;
-//            $criteria->select='*';  // выбираем только поле 'title'
-//            $criteria->condition='`order`>=:maxpidorder';
-//            $criteria->params=array(':maxpidorder'=>$this->order);
-//            $cats=CatCategory::model()->findAll($criteria);
-//
-//            foreach ($cats as $cat){
-//                $cat->order =1+$cat->order;
-//                $cat->save();
-//            }
 
 
         }
@@ -420,26 +377,6 @@ class CatCategory extends CActiveRecord
 
             $menuItem['url'] = array('catItemsToCat/admin', 'id' => $id);
             $menuEnd[] = $menuItem;
-//            if ($item['pid'] == -1) {
-//                $menuEnd[$id] = $menuItem;
-//
-//                foreach ($this->getAllCatChilds($id) as $item) {
-//
-//                    $class = ($item['pid'] != $id) ? "sub-sub-item" : "sub-item";
-//
-//                    if ($item['type'] == 'base') {
-//                        $subMenuUrl = array('catItemsToCat/admin', 'id' => $item['id']);
-//                    } else {
-//                        $subMenuUrl = array('catItemsToCat/schemaAdmin', 'id' => $item['id']);
-//                    }
-//
-//                    $menuEnd += array($item['id'] => array(
-//                        'label' => $item['name'],
-//                        'url' => $subMenuUrl,
-//                        'itemOptions' => array('class' => $class)
-//                    ));
-//                }
-//            }
 
         }
 
@@ -688,6 +625,7 @@ class CatCategory extends CActiveRecord
 
         $model = CatCategory::model();
     }
+
 
 
 }
