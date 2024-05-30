@@ -3,6 +3,7 @@
 Yii::import('pictureBox.components.PBox');
 /**
  * @var PBox
+ * @var Yii
  */
 class PictureBoxFiles extends CWidget
 {
@@ -29,14 +30,31 @@ class PictureBoxFiles extends CWidget
 
     public function run()
     {
-
+        // Объединение конфигурации
         $this->config = array_merge_recursive(self::getDefaultConfig(), $this->config);
-
+    
+        // Создание экземпляра PBox
         $pBox = new PBox($this->id, $this->elementId);
         $pBox->setImagesRenderRules($this->config);
-
+    
+        // Путь к директории, где будет сохранена конфигурация
+        $directoryPath = Yii::getPathOfAlias('webroot.files.pictureBoxConfig') . DIRECTORY_SEPARATOR . $this->id;
+    
+        // Проверка существования и создание директории, если её нет
+        if (!is_dir($directoryPath)) {
+            mkdir($directoryPath, 0777, true);
+        }
+    
+        // Путь к файлу конфигурации
+        $filePath = $directoryPath . DIRECTORY_SEPARATOR . 'config.json';
+    
+        // Сохранение конфигурации в файл
+        file_put_contents($filePath, json_encode($this->config, JSON_PRETTY_PRINT));
+    
+        // Продолжение выполнения
         $this->renderContent();
     }
+    
 
     public static function getDefaultConfig()
     {

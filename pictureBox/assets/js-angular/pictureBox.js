@@ -216,7 +216,7 @@ app.directive('upload', ['Upload', '$timeout', 'galleryControl', function (Uploa
                     //scope.files = _.drop(scope.files)
                     console.log('Загружаем файл')
                     console.log(scope.filePointer)
-
+                    console.log(galleryControl.dataCollection)
                     imageId = 0;
                     imageId = parseInt(galleryControl.dataCollection[galleryControl.activeSubGallery].lastImageId);
                     imageId++;

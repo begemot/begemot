@@ -35,7 +35,7 @@ Yii::app()->clientScript->registerScriptFile('/protected/modules/pictureBox/asse
     <div ng-repeat="g in galList">
         <div class="navbar pictureBoxNavBar">
             <div class="navbar-inner">
-                <a class="brand" href="#">Галлерея: {{values.galId}},{{values.id}}, подгаллерея {{g}}</a>
+                <a class="brand" href="#">Галлерея: {{values.galId}},{{values.id}}, подгаллерея {{subGalConfigs[g].title}}</a>
                 <ul class="nav">
                     <li><a href="#FileUpload" role="button" data-toggle="modal" ng-click="madeSubGalleryActive(g)">Загрузить файлы</a></li>
 

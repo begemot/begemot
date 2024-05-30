@@ -3,6 +3,7 @@ angular.module('pictureBox').controller('gallery', ['$scope', '$http', 'galleryC
     // $scope.galId = 'sqlLiteTest';
     //$scope.id = 1;
     $scope.galList = null;
+    $scope.subGalConfigs = null;
     $scope.values = values;
 
     var loadGalList = function () {
@@ -14,8 +15,9 @@ angular.module('pictureBox').controller('gallery', ['$scope', '$http', 'galleryC
                     subGallery: galleryControl.activeGallery
                 }
             }).then(function (responce) {
-                $scope.galList = responce.data
 
+                $scope.galList = Object.keys(responce.data)
+                $scope.subGalConfigs = responce.data
             });
         }
     }
@@ -44,8 +46,8 @@ angular.module('pictureBox').controller('gallery', ['$scope', '$http', 'galleryC
         image: '23',
     }
     $scope.getPreview = function () {
-        console.log('$scope.getPreview = function () {')
-        console.log(galleryControl.currentPreviewSrc)
+       
+    
         return galleryControl.currentPreviewSrc;
     }
 

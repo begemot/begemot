@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @var Yii
+ */
+
 Yii::import('pictureBox.components.PBox');
 
 class ApiController extends Controller
@@ -25,11 +30,11 @@ class ApiController extends Controller
                 $images[$key]['order'] = $sortedData[$key];
             }
 
-            if (!isset ($images[$key]['params']['show'])) {
+            if (!isset($images[$key]['params']['show'])) {
                 $images[$key]['params']['show'] = true;
             }
 
-            if (isset ($favData[$key])) {
+            if (isset($favData[$key])) {
                 $images[$key]['params']['fav'] = true;
             } else {
                 $images[$key]['params']['fav'] = false;
@@ -44,7 +49,8 @@ class ApiController extends Controller
             }
 
             foreach ($images[$key] as $imageKey => $image) {
-                if ($imageKey != 'id' &&
+                if (
+                    $imageKey != 'id' &&
                     $imageKey != 'order' &&
                     $imageKey != 'show' &&
                     $imageKey != 'params' &&
@@ -54,7 +60,6 @@ class ApiController extends Controller
                     $images[$key][$imageKey] = $image . '?' . rand(1, 100000);
                 }
             }
-
         }
 
         $allData = [
@@ -68,7 +73,6 @@ class ApiController extends Controller
 
 
         echo json_encode($allData, JSON_NUMERIC_CHECK);
-
     }
 
     public function actionObectSave($galleryId, $id, $subGallery = 'default')
@@ -89,12 +93,10 @@ class ApiController extends Controller
 
             if ($image['params']['fav']) {
                 $favData[$image['id']] = $images[$image['id']];
-                unset ($favData[$image['id']]['fav']);
+                unset($favData[$image['id']]['fav']);
             }
 
             unset($images[$image['id']]['id']);
-
-
         }
 
 
@@ -107,11 +109,10 @@ class ApiController extends Controller
                     if (is_array($imageFile)) continue;
                     if ($key == 'title') continue;
                     if ($key == 'alt') continue;
-//                    echo $webroot.$imageFile;
+                    //                    echo $webroot.$imageFile;
                     if (file_exists($webroot . $imageFile)) {
 
                         unlink($webroot . $imageFile);
-
                     }
                 }
             }
@@ -130,36 +131,63 @@ class ApiController extends Controller
         $images = $pBox->getSortedImageList(true);
 
         echo json_encode($images);
-
     }
 
     public function actionGetGalleries($galleryId, $id)
     {
 
-        $pBox = new PBox($galleryId, $id);
-        $wr = Yii::getPathOfAlias('webroot');
-        $filelist = glob($wr . '/' . $pBox->webDataFile . '/*', GLOB_ONLYDIR);
-        $resultList = ['default'];
+        $configDirectoryPath = Yii::getPathOfAlias('webroot.files.pictureBoxConfig') . DIRECTORY_SEPARATOR . $galleryId;
 
-        foreach ($filelist as $dir) {
-            $resultList[] = basename($dir);
+        // Путь к файлу конфигурации
+        $filePath = $configDirectoryPath . DIRECTORY_SEPARATOR . 'config.json';
+        $resultList = ['default'=>['title'=>'Основная']];
+        if (file_exists($filePath)) {
+            // Read the file contents
+            $fileContents = file_get_contents($filePath);
+
+            // Decode the JSON to an associative array
+            $config = json_decode($fileContents, true);
+
+            // Check if JSON decoding was successful
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // Successfully retrieved the configuration
+                // You can now use $config array as needed
+                $resultList = array_merge($resultList,$config['subGalleries']);
+
+            } else {
+                // Handle JSON decode error
+                $pBox = new PBox($galleryId, $id);
+                $wr = Yii::getPathOfAlias('webroot');
+                $filelist = glob($wr . '/' . $pBox->webDataFile . '/*', GLOB_ONLYDIR);
+                
+
+                foreach ($filelist as $dir) {
+                    $resultList[] = basename($dir);
+                }
+            }
+        } else {
+            // Handle the case where the file does not exist
+            throw new Exception('Configuration file does not exist: ' . $filePath);
         }
 
-        echo(json_encode($resultList));
+
+
+
+        echo (json_encode($resultList));
     }
-//    public function actionImageDelete($galleryId, $id, $imageId)
-//    {
-//
-//        $pBox = new PBox($galleryId, $id);
-//        if ($pBox->deleteImage($imageId)) {
-//            echo json_encode($pBox->pictures);
-//        } else {
-//
-//            throw new Exception('Error of sve images to file');
-//        }
-//
-//
-//    }
+    //    public function actionImageDelete($galleryId, $id, $imageId)
+    //    {
+    //
+    //        $pBox = new PBox($galleryId, $id);
+    //        if ($pBox->deleteImage($imageId)) {
+    //            echo json_encode($pBox->pictures);
+    //        } else {
+    //
+    //            throw new Exception('Error of sve images to file');
+    //        }
+    //
+    //
+    //    }
 
     public function actionImageShownChange($galleryId, $id, $imageId)
     {
@@ -172,7 +200,6 @@ class ApiController extends Controller
 
             throw new Exception('Error of save images to file');
         }
-
     }
 
     public function actionGetSort($galleryId, $id)
@@ -184,7 +211,6 @@ class ApiController extends Controller
         $sort = $pBox->getSortData();
 
         echo json_encode($sort);
-
     }
 
     public function actionSetOrder($galleryId, $id)
@@ -225,7 +251,6 @@ class ApiController extends Controller
             foreach ($_FILES as $fileArray) {
 
                 $addedImages[] = $pbox->upload($fileArray, $lastImageId);
-
             }
 
             echo json_encode($addedImages, JSON_NUMERIC_CHECK);
@@ -240,7 +265,6 @@ class ApiController extends Controller
         $lastId = $pbox->getLastImageId();
 
         echo json_encode($lastId);
-
     }
 
 
@@ -277,12 +301,12 @@ class ApiController extends Controller
 
                 $imagick->setImageFormat($ext);
 
-                $baseDir = Yii::getPathOfAlias('webroot').'/files/pictureBox/'.$gallery.'/'.$id.'/';
-                $baseWebDir = '/files/pictureBox/'.$gallery.'/'.$id.'/';
-                $filename = $baseDir . $imageId.'_'.$filterName.'.'.$ext;
-                $webFileName = $baseWebDir . $imageId.'_'.$filterName.'.'.$ext;
-//                        print_r($filename);
-//                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
+                $baseDir = Yii::getPathOfAlias('webroot') . '/files/pictureBox/' . $gallery . '/' . $id . '/';
+                $baseWebDir = '/files/pictureBox/' . $gallery . '/' . $id . '/';
+                $filename = $baseDir . $imageId . '_' . $filterName . '.' . $ext;
+                $webFileName = $baseWebDir . $imageId . '_' . $filterName . '.' . $ext;
+                //                        print_r($filename);
+                //                        $imagick->resizeImage($width,$height,imagick::FILTER_BLACKMAN,0.8);
 
                 $imagick->resizeImage($width, $height, Imagick::FILTER_BLACKMAN, 0.8);
                 $imagick->setImageBackgroundColor('white');
@@ -290,10 +314,9 @@ class ApiController extends Controller
 
 
                 $imagick->writeImage($filename);
-               $pbox->pictures[$imageId][$filterName] = $webFileName;
+                $pbox->pictures[$imageId][$filterName] = $webFileName;
                 //$pbox->pictures[]=123123;
                 $pbox->saveToFile();
-
             } else throw new Exception('$images[' . $imageId . '] - не существует');
         } else throw new Exception('$_FILES[\'croppedImage\'] - не существует');
     }
