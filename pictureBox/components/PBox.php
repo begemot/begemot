@@ -36,113 +36,6 @@ class PBox
     public $filters = null;
     public $subGalleriesList = null;
 
-    /**
-     * @param $dir
-     *
-     * Переделывает данные старого формата в новый
-     */
-    public function oldDataFormatCheckAndConvert($dir)
-    {
-        $dir = $dir . '/';
-
-        if (file_exists($dir . 'data.php')) {
-            $data = require($dir . 'data.php');
-
-            if (isset($data['images'])) {
-                $this->saveImages($data['images']);
-            }
-            if (isset($data['filters'])) {
-                $this->saveFilters($data['filters']);
-            }
-            $file = $dir . 'data.php';
-            copy($file, $file . '_old');
-            unlink($file);
-        }
-
-//        if (file_exists($dir . 'lastImageId.php')) {
-//            $file = $dir . 'lastImageId.php';
-//            $lastId = require($file);
-//            $this->saveLastImageId($lastId);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
-
-//        if (file_exists($dir . 'sort.php')) {
-//            $file = $dir . 'sort.php';
-//            $sort = require($file);
-//            $this->saveSortData($sort);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
-//
-//        if (file_exists($dir . 'favData.php')) {
-//            $file = $dir . 'favData.php';
-//            $favData = require($file);
-//            $this->saveFavData($favData);
-//            copy($file, $file . '_old');
-//            unlink($file);
-//        }
-    }
-
-    public function saveImages($images)
-    {
-        if ($this->vault->pushCollection($images)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function getImages()
-    {
-        return $this->vault->getCollection();
-    }
-
-    private function saveFilters($filters)
-    {
-        $this->vault->pushCollection($filters, 'filters');
-    }
-
-    public function getFilters()
-    {
-        return $this->vault->getCollection('filters');
-    }
-
-    private function saveLastImageId($id)
-    {
-        $this->vault->setVar('lastImageId', $id);
-    }
-
-    public function getLastImageId()
-    {
-        return $this->vault->getVar('lastImageId');
-    }
-
-    public function saveSortData($sortData)
-    {
-
-        $this->vault->pushCollection($sortData, 'sortData');
-    }
-
-    public function getSortData()
-    {
-        $data = $this->vault->getCollection('sortData');
-        if (!is_array($data))
-            return [];
-        else
-            return $data;
-    }
-
-    public function saveFavData($favData)
-    {
-
-        $this->vault->pushCollection($favData, 'favData');
-    }
-
-    public function getFavData()
-    {
-        return $this->vault->getCollection('favData');
-    }
 
     public function __construct($galleryId, $id, $subGallery = 'default')
     {
@@ -209,6 +102,94 @@ class PBox
 
     }
 
+
+
+
+    /**
+     * @param $dir
+     *
+     * Переделывает данные старого формата в новый
+     */
+    public function oldDataFormatCheckAndConvert($dir)
+    {
+        $dir = $dir . '/';
+
+        if (file_exists($dir . 'data.php')) {
+            $data = require($dir . 'data.php');
+
+            if (isset($data['images'])) {
+                $this->saveImages($data['images']);
+            }
+            if (isset($data['filters'])) {
+                $this->saveFilters($data['filters']);
+            }
+            $file = $dir . 'data.php';
+            copy($file, $file . '_old');
+            unlink($file);
+        }
+
+
+    }
+
+    public function saveImages($images)
+    {
+        if ($this->vault->pushCollection($images)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getImages()
+    {
+        return $this->vault->getCollection();
+    }
+
+    private function saveFilters($filters)
+    {
+        $this->vault->pushCollection($filters, 'filters');
+    }
+
+    public function getFilters()
+    {
+        return $this->vault->getCollection('filters');
+    }
+
+    private function saveLastImageId($id)
+    {
+        $this->vault->setVar('lastImageId', $id);
+    }
+
+    public function getLastImageId()
+    {
+        return $this->vault->getVar('lastImageId');
+    }
+
+    public function saveSortData($sortData)
+    {
+
+        $this->vault->pushCollection($sortData, 'sortData');
+    }
+
+    public function getSortData()
+    {
+        $data = $this->vault->getCollection('sortData');
+        if (!is_array($data))
+            return [];
+        else
+            return $data;
+    }
+
+    public function saveFavData($favData)
+    {
+
+        $this->vault->pushCollection($favData, 'favData');
+    }
+
+    public function getFavData()
+    {
+        return $this->vault->getCollection('favData');
+    }
 
     public function saveSubGalleryList()
     {
