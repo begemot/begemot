@@ -28,13 +28,13 @@ class ConfigBuilder
                     
                     $moduleConfig = require_once $moduleConfigPath;
 
-                    $baseConfig = CMap::mergeArray($baseConfig, $moduleConfig);
+                    $baseConfig = array_replace($baseConfig, $moduleConfig);
                 }
             }
         }
 
 
-        return CMap::mergeArray($baseConfig, $userConfig);
+        return array_replace($baseConfig, $userConfig);
     }
 
 }
