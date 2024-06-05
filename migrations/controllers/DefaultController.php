@@ -23,24 +23,28 @@ class DefaultController extends Controller
     {
         return array(
 
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('index', 'newMigration', 'manage', 'getMigrationsList', 'newMigrationFile','upMigration','downMigration'),
+            array(
+                'allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions' => array('index', 'newMigration', 'manage', 'getMigrationsList', 'newMigrationFile', 'upMigration', 'downMigration', 'getAllMigrations'),
                 'expression' => 'Yii::app()->user->canDo("")'
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
     }
 
-    public function actionUpMigration($fileName,$module){
-        Yii::import('application.modules.'.$module.'.migrations.'.$fileName);
+    public function actionUpMigration($fileName, $module)
+    {
+        Yii::import('application.modules.' . $module . '.migrations.' . $fileName);
         $instance = new $fileName();
         $instance->up();
     }
 
-    public function actionDownMigration($fileName,$module){
-        Yii::import('application.modules.'.$module.'.migrations.'.$fileName);
+    public function actionDownMigration($fileName, $module)
+    {
+        Yii::import('application.modules.' . $module . '.migrations.' . $fileName);
         $instance = new $fileName();
         $instance->down();
     }
@@ -64,8 +68,6 @@ class DefaultController extends Controller
         $file = str_replace('<class_name>', $newClassName, $file);
 
         file_put_contents($newFileName, $file);
-
-
     }
 
     public function actionIndex()
@@ -73,15 +75,41 @@ class DefaultController extends Controller
         $this->render('migrationsManage');
     }
 
-    public function actionGetMigrationsList($moduleName)
+
+    public function actionGetAllMigrations()
+    {
+        Yii::import('modules.components.ModulesManager');
+        $modules = ModulesManager::getModulesData();
+
+        $activeModules = array();
+
+        foreach ($modules as $module => $properties) {
+            if (!empty($properties['active'])) {
+                $activeModules[] = $module;
+            }
+        }
+
+        $resultMigrationsArray = [];
+        foreach ($activeModules as $module) {
+
+
+            $resultMigrationsArray = array_merge($resultMigrationsArray, $this->getMigrationsList($module));
+        }
+
+        echo json_encode($resultMigrationsArray);
+    }
+
+    private function getMigrationsList($moduleName)
     {
 
+
+
         $migrationsDir = Yii::getPathOfAlias('application.modules.' . $moduleName . '.migrations');
-//        echo $migrationsDir;
-//        die();
+        //        echo $migrationsDir;
+        //        die();
         if (!file_exists($migrationsDir)) {
             mkdir($migrationsDir, 0777);
-            echo json_encode([]);
+            $resultList = [];
         } else {
             Yii::import('application.modules.' . $moduleName . '.migrations.*');
             $dirs = glob($migrationsDir . '/*');
@@ -105,10 +133,15 @@ class DefaultController extends Controller
 
                 $resultList[] = $resData;
             }
-
-            echo json_encode($resultList);
         }
 
+        return $resultList;
     }
 
+    public function actionGetMigrationsList($moduleName)
+    {
+
+        $resultList = $this->getMigrationsList($moduleName);
+        echo json_encode($resultList);
+    }
 }
