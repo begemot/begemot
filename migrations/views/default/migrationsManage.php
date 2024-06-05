@@ -17,13 +17,15 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
 
         $scope.modulesList = modulesService.getActiveModulesData()
 
-        $scope.selectModule($scope.modulesList[0]);
+        //$scope.selectModule($scope.modulesList[0]);
+        $scope.selectAllModules()
 
     });
 
     $scope.selectModule = (module) => {
         $scope.activeModule = module
         $scope.loading = true
+        $scope.unselectAllModules()
         $scope.getMigrationList(module)
     }
 
@@ -40,6 +42,19 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
             $scope.loading = false
         })
     }
+
+    $scope.getAllMigrationList = () => {
+        $http({
+            method: 'GET',
+            url: '/migrations/default/getAllMigrations',
+
+        }).then((response) => {
+
+            $scope.migrationList = response.data
+            $scope.loading = false
+        })
+    }
+
 
     $scope.createNewMigrationFile = () => {
         if ($scope.nameOfNewMigration != null)
@@ -81,6 +96,16 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
         })
     }
 
+    $scope.allModulesSelected = true;
+    $scope.selectAllModules = () => {
+        $scope.getAllMigrationList()
+        $scope.allModulesSelected = true;
+
+    }
+
+    $scope.unselectAllModules = () => {
+        $scope.allModulesSelected = false;
+    }
 }])
 </script>
 <div ng-app="migration" ng-controller="ctrl">
@@ -94,10 +119,16 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
 
 
                     <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li class="">
+
+                            <a href="" class="link-dark d-inline-flex text-decoration-none rounded"
+                                ng-class="{'text-bg-primary':allModulesSelected}" ng-click="selectAllModules()">Все
+                                миграции</a>
+                        </li>
                         <li ng-repeat="module in modulesList" class="">
 
                             <a href="" class="link-dark d-inline-flex text-decoration-none rounded"
-                                ng-class="{'text-bg-primary':module==activeModule}"
+                                ng-class="{'text-bg-primary':module==activeModule && !allModulesSelected}"
                                 ng-click="selectModule(module)">{{module}}</a>
                         </li>
                     </ul>
