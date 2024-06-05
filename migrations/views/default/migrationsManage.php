@@ -71,30 +71,40 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
             })
     }
 
-    $scope.upMigration = (file) => {
+    $scope.upMigration = (file, module) => {
+
         $http({
             method: 'GET',
             url: '/migrations/default/upMigration',
             params: {
-                module: $scope.activeModule,
+                module: module,
                 fileName: file
             }
         }).then(() => {
-            $scope.getMigrationList($scope.activeModule)
+            $scope.updateMigrationsList()
         })
     }
-    $scope.downMigration = (file) => {
+    $scope.downMigration = (file, module) => {
         $http({
             method: 'GET',
             url: '/migrations/default/downMigration',
             params: {
-                module: $scope.activeModule,
+                module: module,
                 fileName: file
             }
         }).then(() => {
-            $scope.getMigrationList($scope.activeModule)
+            $scope.updateMigrationsList()
         })
     }
+
+    $scope.updateMigrationsList = () => {
+        if ($scope.allModulesSelected) {
+            $scope.getAllMigrationList()
+        } else {
+            $scope.getMigrationList($scope.activeModule)
+        }
+    }
+
 
     $scope.allModulesSelected = true;
     $scope.selectAllModules = () => {
@@ -165,6 +175,7 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
                         <th class="col-2">Название</th>
                         <th class="col-6">Описание</th>
                         <th class="col-2">Применено</th>
+                        <th class="col-2">Модуль</th>
                         <th class="col-2"></th>
                     </tr>
                 </thead>
@@ -177,12 +188,13 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
                             <span ng-if="migration.confirmed">да</span>
                             <span ng-if="!migration.confirmed">нет</span>
                         </td>
+                        <td>{{migration.moduleName}}</td>
                         <td>
                             <button ng-if="!migration.confirmed" type="button" class="btn btn-success btn-sm"
-                                ng-click="upMigration(migration.className)">Применить
+                                ng-click="upMigration(migration.className,migration.moduleName)">Применить
                             </button>
                             <button ng-if="migration.confirmed" type="button" class="btn btn-danger btn-sm"
-                                ng-click="downMigration(migration.className)">Откатить
+                                ng-click="downMigration(migration.className,migration.moduleName)">Откатить
                             </button>
                         </td>
                     </tr>

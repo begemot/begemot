@@ -130,7 +130,7 @@ class DefaultController extends Controller
 
                 $resData['description'] = $migrationInstance->getDescription();
                 $resData['confirmed'] = $migrationInstance->isConfirmed();
-
+                $resData['moduleName'] = $moduleName;
                 $resultList[] = $resData;
             }
         }
