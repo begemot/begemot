@@ -180,12 +180,12 @@ app.controller('ctrl', ['$scope', '$http', 'modulesService', function($scope, $h
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="migration in migrationList">
+                    <tr ng-repeat="migration in migrationList| orderBy:'-className'">
 
                         <td>{{migration.className}}</td>
                         <td>{{migration.description}}</td>
                         <td>
-                            <span ng-if="migration.confirmed">да</span>
+                            <span ng-if=" migration.confirmed">да</span>
                             <span ng-if="!migration.confirmed">нет</span>
                         </td>
                         <td>{{migration.moduleName}}</td>
