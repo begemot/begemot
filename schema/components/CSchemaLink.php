@@ -15,6 +15,15 @@ class CSchemaLink
 
     private $schemaLinkDb = null;
 
+    public static function getMaxId($schemaLinkType)
+    {
+        $sql = "SELECT MAX(linkId) AS maxLinkId FROM SchemaLinks WHERE linkType = :linkType";
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindValue(":linkType", 'vehicle');
+        $result = $command->queryRow();
+        $maxLinkId = $result['maxLinkId'];
+        return  $maxLinkId;
+    }
 
     public function createFieldAndData($fieldId, $value, $dataType)
     {
@@ -33,7 +42,6 @@ class CSchemaLink
 
         if ($model->save()) {
             $model->setFieldData($value, $fieldId, $this->linkedDataId, $this->linkType);
-
         } else {
             throw new Exception('Не создалось');
         }
@@ -78,24 +86,32 @@ class CSchemaLink
 
         $fieldsAndData = $this->getSchemasFieldsData(true);
 
-        if(isset($fieldsAndData[$fieldId])){
-            if($model->type = 'String'){
+        if (isset($fieldsAndData[$fieldId])) {
+            if ($model->type = 'String') {
                 $fieldsAndData[$fieldId]['value'] =  $value;
             } else {
-                $fieldsAndData[$fieldId][$model->type.'Value'] =  $value;
+                $fieldsAndData[$fieldId][$model->type . 'Value'] =  $value;
             }
-            Yii::import('cache.models.*');
-            $cache = new Cache();
-            $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
-            $cacheKey = $this->linkType . '_' . $this->linkedDataId;
 
-            $cache->setValue($cacheGroup, $cacheKey,$fieldsAndData);
+            //::TODO непонятно что за место
+            Yii::import('modules.components.ModulesManager');
+            if (ModulesManager::isModuleActive('cache')) {
+                Yii::import('cache.models.*');
+                $cache = new Cache();
+                $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
+                $cacheKey = $this->linkType . '_' . $this->linkedDataId;
+
+                $cache->setValue($cacheGroup, $cacheKey, $fieldsAndData);
+            }
+
+           
+
         } else {
-            throw new Exception('нет такого $fieldId: '.$fieldId);
+            throw new Exception('нет такого $fieldId: ' . $fieldId);
         }
     }
 
-    public function __construct ($linkType, $linkedDataId, $schemaId = null)
+    public function __construct($linkType, $linkedDataId, $schemaId = null)
     {
         $this->linkType = $linkType;
         $this->linkedDataId = $linkedDataId;
@@ -109,7 +125,6 @@ class CSchemaLink
         if ($model) {
 
             $this->schemaLinkDb = $model;
-
         } else {
             if ($schemaId == null) {
 
@@ -126,7 +141,6 @@ class CSchemaLink
                 }
             }
         }
-
     }
 
     public function get($fieldName)
@@ -143,7 +157,6 @@ class CSchemaLink
         } else {
             return 'no data';
         }
-
     }
 
     /**
@@ -164,11 +177,8 @@ class CSchemaLink
         $schemasIds = array_column($schemas, 'id');
 
 
-        return $fields = Yii::app()->db->createCommand()->select('*')->
-        from('SchemaField')->
-        where(['in', 'schemaId', $schemasIds])
+        return $fields = Yii::app()->db->createCommand()->select('*')->from('SchemaField')->where(['in', 'schemaId', $schemasIds])
             ->queryAll();
-
     }
 
     public function isSchemaInstanceExist()
@@ -184,19 +194,18 @@ class CSchemaLink
 
         $query = $data = Yii::app()->db->createCommand()->select(
             '*'
-        )->
-        from('SchemaData')->
-        where(
-            ['and',
-                'groupId=:groupId',
-                'linkType=:linkId',
-                ['in', 'fieldId', $fieldsId],
-            ]
-            , [
-                ':groupId' => $groupId,
-                ':linkId' => $linkType,
-            ]
-        );
+        )->from('SchemaData')->where(
+                [
+                    'and',
+                    'groupId=:groupId',
+                    'linkType=:linkId',
+                    ['in', 'fieldId', $fieldsId],
+                ],
+                [
+                    ':groupId' => $groupId,
+                    ':linkId' => $linkType,
+                ]
+            );
 
         $fieldsAndData = $query->queryRow();
 
@@ -212,9 +221,7 @@ class CSchemaLink
         $linkType = $this->linkType;
         $groupId = $this->linkedDataId;
 
-        $allSchemas = Yii::app()->db->createCommand()->select('*')->
-        from('SchemaLinks')->
-        where('linkType=:linkType and linkId=:groupId', [':groupId' => $groupId, ':linkType' => $linkType])
+        $allSchemas = Yii::app()->db->createCommand()->select('*')->from('SchemaLinks')->where('linkType=:linkType and linkId=:groupId', [':groupId' => $groupId, ':linkType' => $linkType])
             ->queryAll();
 
         $allSchemasIds = array_column($allSchemas, 'schemaId');
@@ -223,34 +230,39 @@ class CSchemaLink
 
         while (count($allSchemasIds) > 0) {
 
-            $childsSchemas = Yii::app()->db->createCommand()->select('*')->
-            from('Schema')->
-            where(['in', 'pid', $allSchemasIds])
+            $childsSchemas = Yii::app()->db->createCommand()->select('*')->from('Schema')->where(['in', 'pid', $allSchemasIds])
                 ->queryAll();
 
             $allSchemasIds = array_column($childsSchemas, 'id');
             $schemasIdsResult = array_merge($schemasIdsResult, $allSchemasIds);
-
-
         }
 
         $schemasIdsResult;
-        return Yii::app()->db->createCommand()->select('*')->
-        from('Schema')->
-        where(['in', 'id', $schemasIdsResult])
+        return Yii::app()->db->createCommand()->select('*')->from('Schema')->where(['in', 'id', $schemasIdsResult])
             ->queryAll();
     }
 
 
-    public function getSchemasFieldsData($getCached=false)
+    public function getSchemasFieldsData($getCached = false)
     {
 
-        Yii::import('cache.models.*');
-        $cache = new Cache();
-        $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
-        $cacheKey = $this->linkType . '_' . $this->linkedDataId;
 
-        if ($getCached || !$fieldsAndData = $cache->getValue($cacheGroup, $cacheKey)) {
+        Yii::import('modules.components.ModulesManager');
+
+        //Проверяем подключен ли модуль кеша
+        if (ModulesManager::isModuleActive('cache')) {
+            Yii::import('cache.models.*');
+
+            $cache = new Cache();
+            $cacheGroup = __CLASS__ . '_getSchemasFieldsData';
+            $cacheKey = $this->linkType . '_' . $this->linkedDataId;
+            $fieldsAndData = $cache->getValue($cacheGroup, $cacheKey);
+        } else {
+            $fieldsAndData = null;
+        }
+
+
+        if ($getCached || !$fieldsAndData) {
 
 
             $linkType = $this->linkType;
@@ -263,19 +275,18 @@ class CSchemaLink
 
             $query = $data = Yii::app()->db->createCommand()->select(
                 '*,tb1.value as TextValue'
-            )->
-            from('SchemaData')->
-            where(
-                ['and',
-                    'groupId=:groupId',
-                    'linkType=:linkId',
-                    ['in', 'fieldId', $fieldsId],
-                ]
-                , [
-                    ':groupId' => $groupId,
-                    ':linkId' => $linkType,
-                ]
-            );
+            )->from('SchemaData')->where(
+                    [
+                        'and',
+                        'groupId=:groupId',
+                        'linkType=:linkId',
+                        ['in', 'fieldId', $fieldsId],
+                    ],
+                    [
+                        ':groupId' => $groupId,
+                        ':linkId' => $linkType,
+                    ]
+                );
             $query = $query->leftJoin('SchmTypeText tb1', 'SchemaData.id=tb1.fieldDataId');
             $query = $query->leftJoin('SchemaField tb3', 'SchemaData.fieldId=tb3.id');
             $query = $query->join('SchmTypeString tb2', 'SchemaData.id=tb2.fieldDataId');
@@ -285,8 +296,9 @@ class CSchemaLink
             $fieldsNames = array_column($fieldsAndData, 'name');
 
             $fieldsAndData = array_combine($fieldsNames, $fieldsAndData);
-
-            $cache->setValue($cacheGroup, $cacheKey,$fieldsAndData);
+            if (ModulesManager::isModuleActive('cache')) {
+                $cache->setValue($cacheGroup, $cacheKey, $fieldsAndData);
+            }
         }
 
         return $fieldsAndData;
@@ -372,6 +384,4 @@ class CSchemaLink
         }
         return $schemaArray;
     }
-
-
 }
