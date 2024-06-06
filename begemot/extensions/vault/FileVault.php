@@ -120,7 +120,7 @@ class FileVault implements Vault
 
     private function startSession()
     {
-       if (PHP_SESSION_ACTIVE != session_status()){
+       if (!headers_sent() && PHP_SESSION_ACTIVE != session_status()){
            session_start();
        }
 
