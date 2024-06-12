@@ -1,6 +1,5 @@
 <?php
 
-
 $begemotMenuArray = require_once (dirname(__FILE__).'/../menu.php');
 
 //$configPath = Yii::getPathOfAlias('webroot.protected.config');
