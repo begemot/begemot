@@ -13,7 +13,8 @@ class ModulesManager
         'user' => '',
         'srbac' => '',
         'pictureBox' => '',
-        'settings' => ''
+        'settings' => '',
+        'schema' => ''
 
     ];
 
@@ -56,7 +57,7 @@ class ModulesManager
             }
         }
 
-       self::saveModulesData($data);
+        self::saveModulesData($data);
         return $data;
     }
 
