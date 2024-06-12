@@ -41,7 +41,6 @@ class CatalogModule extends CWebModule
         ));
 
         $this->registerScripts();
-
     }
 
     /**
@@ -49,32 +48,32 @@ class CatalogModule extends CWebModule
      */
     private function registerScripts()
     {
-            $assetsURL=$this->getAssetsURL();
-            Yii::app()->clientScript->registerCssFile($assetsURL.'/css/styles.css');
+        $assetsURL = $this->getAssetsURL();
+        Yii::app()->clientScript->registerCssFile($assetsURL . '/css/styles.css');
     }
 
     /**
-    * Publishes the module assets path.
-    * @return string the base URL that contains all published asset files.
-    */
+     * Publishes the module assets path.
+     * @return string the base URL that contains all published asset files.
+     */
     private function getAssetsURL()
     {
-            $assetsPath=Yii::getPathOfAlias('catalog.assets');
+        $assetsPath = Yii::getPathOfAlias('catalog.assets');
 
-            // Republish the assets if debug mode is enabled.
+        // Republish the assets if debug mode is enabled.
 
-            return Yii::app()->assetManager->publish($assetsPath);
+        return Yii::app()->assetManager->publish($assetsPath);
     }
 
     public function beforeControllerAction($controller, $action)
     {
-        if ($controller->id != 'site') {
-            $component=Yii::createComponent(array(
+        if (($controller->id != 'site') && ($controller->id != 'catalogAndSchema')) {
+            $component = Yii::createComponent(array(
 
-                'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+                'class' => 'begemot.extensions.bootstrap.components.Bootstrap'
 
             ));
-            Yii::app()->setComponent('bootstrap',$component);
+            Yii::app()->setComponent('bootstrap', $component);
         }
 
         return true;
@@ -94,12 +93,10 @@ class CatalogModule extends CWebModule
                 }
             }
         }
-
     }
 
-    static public function getMenu(){
-        return require dirname(__FILE__).'/views/catItem/commonMenu.php';
-
+    static public function getMenu()
+    {
+        return require dirname(__FILE__) . '/views/catItem/commonMenu.php';
     }
-
 }
