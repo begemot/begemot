@@ -49,10 +49,10 @@ class CatCategory extends CActiveRecord
                 'createAttribute' => 'dateCreate',
                 'updateAttribute' => 'dateUpdate',
             ),
-//            'CBOrderModelBehavior' => array(
-//                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
-//
-//            ),
+            //            'CBOrderModelBehavior' => array(
+            //                'class' => 'begemot.extensions.order.BBehavior.CBOrderModelBehavior',
+            //
+            //            ),
             'slug' => array(
                 'class' => 'begemot.extensions.SlugBehavior',
             ),
@@ -143,7 +143,8 @@ class CatCategory extends CActiveRecord
             array(
                 'order' => '`order`',
                 'condition' => 'status="' . CatCategory::normal . '"'
-            ));
+            )
+        );
 
         $catsArray = [];
         $pubCatsArray = [];
@@ -156,7 +157,7 @@ class CatCategory extends CActiveRecord
             $categoryArray['level'] = $category->level;
             $categoryArray['name_t'] = $category->name_t;
             $categoryArray['type'] = $category->type;
-//            $categoryArray['model'] = $category;
+            //            $categoryArray['model'] = $category;
 
             $catsArray[$category->id] = $categoryArray;
             if ($category->published) {
@@ -166,7 +167,6 @@ class CatCategory extends CActiveRecord
 
         $this->categories = $catsArray;
         $this->pubCategories = $pubCatsArray;
-
     }
 
 
@@ -180,8 +180,6 @@ class CatCategory extends CActiveRecord
 
             $maxOrder = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory`')->queryScalar();
             $this->order = $maxOrder + 1;
-
-
         }
 
         if ($this->pid == -1) {
@@ -266,10 +264,9 @@ class CatCategory extends CActiveRecord
 
                 $resultArray[] = $element;
             }
-
         }
 
-        return $resultArray;//array_filter($this->getCatArray(),$filter );
+        return $resultArray; //array_filter($this->getCatArray(),$filter );
     }
 
     //Возвращаем все дочерние категории входящие в раздел
@@ -291,10 +288,9 @@ class CatCategory extends CActiveRecord
                 }
                 $resultArray[] = $element;
             }
-
         }
 
-        return $resultArray;//array_filter($this->getCatArray(),$filter );
+        return $resultArray; //array_filter($this->getCatArray(),$filter );
     }
 
     public function getCatChildsCount($id)
@@ -377,7 +373,6 @@ class CatCategory extends CActiveRecord
 
             $menuItem['url'] = array('catItemsToCat/admin', 'id' => $id);
             $menuEnd[] = $menuItem;
-
         }
 
 
@@ -397,7 +392,6 @@ class CatCategory extends CActiveRecord
         };
 
         return $images;
-
     }
 
     //get picture list array
@@ -460,7 +454,6 @@ class CatCategory extends CActiveRecord
             } else {
                 return '#';
             }
-
         }
         if (is_null($tag)) {
             return array_shift($catalogImage);
@@ -496,7 +489,7 @@ class CatCategory extends CActiveRecord
         }
 
 
-//$tmp = $model->getcategoriesTree();
+        //$tmp = $model->getcategoriesTree();
         $model->loadCategories();
         $catsOrderList = $model->categories;
 
@@ -505,7 +498,7 @@ class CatCategory extends CActiveRecord
         $maxOrder = $model->getMaxOrderOfSubTree($draggedId);
 
         //сколько разделов перемещаем
-        $elementsForMoveCount = $maxOrder - $minOrder + 1;// ordermax-ordermin+1
+        $elementsForMoveCount = $maxOrder - $minOrder + 1; // ordermax-ordermin+1
 
         //Проверяем на перемещение на потомков самого себя
         foreach ($catsOrderList as $id => $item) {
@@ -612,7 +605,6 @@ class CatCategory extends CActiveRecord
 
             if ($moveType != 'left') {
                 $tmpCat->order = $tmpCat->order + $targetCat->order + $childsOrderAdd;
-
             } else {
                 $tmpCat->order = $tmpCat->order + $targetCat->order;
                 if ($moveType == 'left') $tmpCat->order--;
@@ -625,7 +617,4 @@ class CatCategory extends CActiveRecord
 
         $model = CatCategory::model();
     }
-
-
-
 }
