@@ -66,9 +66,15 @@ class ManageController extends Controller
         foreach ($rows as $index => $row) {
             $columns = array_map('trim', explode('|', trim($row)));
             // Удаляем пустые элементы, которые могут появиться из-за пробелов
-            // $columns = array_filter($columns, function ($column) {
-            //     return $column !== "";
-            // });
+            $columns = array_filter($columns, function ($column) {
+                return $column !== "";
+            });
+
+            // if (preg_match('/^-+$/', array_shift($columns))) {
+            //     continue;
+            // }
+
+            if ($index == 1) continue;
 
             if ($index == 0) {
                 $headers = $columns;
@@ -78,21 +84,20 @@ class ManageController extends Controller
                 }
             }
         }
+        print_r($table);
 
-        // Пример вывода массива для проверки
-        unset($table[0]);
+
         // print_r($table);
         foreach ($table as $row) {
             $fieldName = $row['Характеристика'];
             unset($row['Характеристика']);
-            foreach ($row as $key=>$value) {
-                if($value){
+            foreach ($row as $key => $value) {
+                if ($value) {
                     print_r($key);
-                    $CSchmVehicle = new CSchmVehicle(null,'Название',$key);
-                    $CSchmVehicle->set($fieldName,$value);
+                    $CSchmVehicle = new CSchmVehicle(null, 'Название', $key);
+                    $CSchmVehicle->set($fieldName, $value);
                 }
             }
         }
-        // 
     }
 }
