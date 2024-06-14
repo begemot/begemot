@@ -20,23 +20,25 @@ class CSchemaModel
 
 
 
-    public function __construct($id = null, $chemaField = null, $fieldValue = null)
+    public function __construct($id = null, $schemaField = null, $fieldValue = null)
     {
 
         if (is_null(static::$schemaId) || is_null($this->linkType)) {
             throw new Exception();
         }
 
-        if(is_null ($id) && !is_null($chemaField) && !is_null($fieldValue)){
-            $foundGroupIds = self::findAllGroupIdByAttribute($chemaField,$fieldValue);
-            if (count($foundGroupIds)>1) throw new Exception('Вернуло больше одного значения. Таким методом создавать CSchemaModel можно только когда значение уникально.');
-            if (count($foundGroupIds)==1) {$id = array_shift($foundGroupIds); }
+        if (is_null($id) && !is_null($schemaField) && !is_null($fieldValue)) {
+            $foundGroupIds = self::findAllGroupIdByAttribute($schemaField, $fieldValue);
+            if (count($foundGroupIds) > 1) throw new Exception('Вернуло больше одного значения. Таким методом создавать CSchemaModel можно только когда значение уникально.');
+            if (count($foundGroupIds) == 1) {
+                $id = array_shift($foundGroupIds);
+            }
         }
-       
+
         // если id не передано, то ищем максимальный id и делаем +1
         if (is_null($id)) {
-            $id = CSchemaLink::getMaxId($this->linkType)+1;
-            if(!$id) $id = 1;
+            $id = CSchemaLink::getMaxId($this->linkType) + 1;
+            if (!$id) $id = 1;
         }
 
         $this->groupId = $id;
@@ -49,7 +51,7 @@ class CSchemaModel
 
     public function set($fieldId, $value, $type = 'String')
     {
-        $this->schemaLink->set($fieldId, $value, $this->linkType, $type);
+        $this->schemaLink->setData($fieldId, $value, $this->linkType);
     }
 
     public function get($fieldId)
