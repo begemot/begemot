@@ -1,82 +1,108 @@
-<?php $data = "| Характеристика                          | Единицы измерения | UoMId | БТР-60            | БТР-70          | BТР-80          | БТР-90          |
-|-----------------------------------------|-------------------|-------|-------------------|-----------------|-----------------|-----------------|
-| Колесная формула                        |                   | NULL  | 8 × 8 / 4         | 8 × 8 / 4       | 8 × 8 / 4       | 8 × 8           |
-| Снаряженная масса                       | т                 | 1000  | 9.9               | 11.5            | 13.6            | 22              |
-| Экипаж                                  | чел               | 1001  | 2                 | 2               | 3               | 3               |
-| Пассажиры                               | чел               | 1001  | 14                | 8               | 7               | 7               |
-| Двигатель                               |                   | NULL  | Спаренные рядные 6-цилиндровые карбюраторные жидкостного охлаждения ГАЗ-40П | Два ЗМЗ-4905    | КамАЗ 7403 и ЯМЗ-238М2 мощностью 240 л.с. ЯМЗ-236Н | ЯМЗ 2В-06-2С |
-| Мощность                                | лс                | 1002  | 2 × 90            | 2 × 120         | 260             | 510             |
-| Удельная мощность                       | лс/т              | 1003  | 18.2              | 20              | 19.1            | нет данных      |
-| Трансмиссия                             |                   | NULL  | механическая      | механическая    | автоматическая  | автоматическая гидромеханическая реверсивная |
-| Шины                                    |                   | NULL  | пневматические, бескамерные | пневматические, бескамерные | пневматические, бескамерные | нет данных      |
-| Подвеска                                |                   | NULL  | индивидуальная торсионная с гидравлическими амортизаторами | индивидуальная торсионная с гидравлическими амортизаторами | индивидуальная торсионная с гидравлическими амортизаторами | независимая торсионная с телескопическими гидроамортизаторами |
-| Длина троса лебедки                     | м                 | 1004  | 50                | 50              | 50              | нет данных      |
-| Предельное тяговое усилие на крюке      | тс                | 1005  | 6 (12 с блоком)   | 6 (12 с блоком) | 6 (12 с блоком) | нет данных      |
-| Длина                                   | мм                | 1006  | 7560              | 7535            | 7650            | 8200            |
-| Ширина                                  | мм                | 1006  | 2830              | 2800            | 2900            | 3100            |
-| Высота                                  | мм                | 1006  | 2235              | 2235-2320       | 2350-2460       | 3000            |
-| Колея                                   | мм                | 1006  | 2380              | 2380            | 2410            | нет данных      |
-| Клиренс                                 | мм                | 1006  | 475               | 475             | 475             | 510             |
-| Радиус поворота                         |                   | NULL  | 13.2              | 13.2            | 13.2            | нет данных      |
-| Скорость                                |                   | 1008  | 80                | 80              | 80              | более 100       |
-| Скорость по воде                        |                   | 1008  | 10                | 9-10            | 9               | 12              |
-| Преодолеваемый ров                      | м                 | 1004  | 2.0               | 2.0             | 2.0             | нет данных      |
-| Преодолеваемая стенка                   | м                 | 1004  | 0.5               | 0.5             | 0.5             | нет данных      |
-| Преодолеваемый подъем                   | град.             | 1007  | 30                | 30              | 30              | нет данных      |
-| Скорость по пересеченной местности      |                   | NULL  | нет данных        | 25-30 по грунтовым дорогам и колонным путям | 20-40 по грунту | нет данных      |
-| Запас хода по шоссе                     | км                | 1009  | 500               | 400-600         | 600             | 800             |
-| Запас хода по пересеченной местности    | км                | 1009  | нет данных        | 250-375 по грунтовым дорогам и колонным путям | 200-500 по грунтовым дорогам | нет данных      |
-";?>
+<?php
+$this->menu = require dirname(__FILE__) . '/../default/commonMenu.php';
+?>
 
 <script>
-    var app = angular.module('myApp', []);
+var app = angular.module('myApp', []);
 
-    app.controller('FormController', ['$http', function($http) {
-      var ctrl = this;
-      ctrl.formData = {};
+app.controller('FormController', ['$http', function($http) {
+    var ctrl = this;
+    ctrl.formData = {};
 
-      ctrl.submitForm = function() {
+    ctrl.submitForm = function() {
         // Prepare data to send
         var data = ctrl.formData;
 
         // Send POST request using $http service
-        $http.post('/schema/Manage/MassDataProcess', data)
-          .then(function(response) {
-            // Handle successful submission (e.g., display success message)
-            console.log("Form submitted successfully!", response);
-          })
-          .catch(function(error) {
-            // Handle submission errors
-            console.error("Error submitting form:", error);
-          });
-      };
-    }]);
-  </script>
+        $http.post('/schema/Manage/MassDataProcess?XDEBUG_SESSION_START', data)
+            .then(function(response) {
+                // Handle successful submission (e.g., display success message)
+                console.log("Form submitted successfully!", response);
+            })
+            .catch(function(error) {
+                // Handle submission errors
+                console.error("Error submitting form:", error);
+            });
+    };
+}]);
+</script>
 
-  <div class="container" ng-app="myApp" ng-controller="FormController as ctrl">
-    <h2>Form with Textarea</h2>
-    <form ng-submit="ctrl.submitForm()">
-      <div class="control-group">
-        <label class="control-label" for="inputName">Name</label>
-        <div class="controls">
-          <input type="text" id="inputName" ng-model="ctrl.formData.name" placeholder="Your Name">
+<style>
+.hidden-content {
+    display: none;
+}
+</style>
+<div class="container" ng-app="myApp" ng-controller="FormController as ctrl">
+    <h2>Массовая обработка MD данных</h2>
+    <h3>Структура таблицы для примера</h3>
+
+
+
+    <div class="container mt-5">
+        <button id="toggleButton" class="btn btn-primary mb-3">Показать/Скрыть таблицы</button>
+        <div id="content" class="hidden-content">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Характеристика</th>
+                        <th>Четра</th>
+                        <th>Четра 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Название</td>
+                        <td>Четра</td>
+                        <td>Четра 2</td>
+                    </tr>
+                    <tr>
+                        <td>Двигатель</td>
+                        <td>ЯМЗ-236Б-2 с газотурбинным надувом</td>
+                        <td>ЯМЗ-238Б-4 с турбонаддувом</td>
+                    </tr>
+                    <tr>
+                        <td>Мощность</td>
+                        <td>184 (250)</td>
+                        <td>220 (300)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Таблица для которая нужна на вход(такую отдает GPT)</h3>
+            <pre>| Характеристика                         | Четра                                                         | Четра 2                    |
+|----------------------------------------|----------------------------------------------------------------|----------------------------|
+| Название                               | Четра                                                          | Четра 2                    |
+| Двигатель                              | ЯМЗ-236Б-2 с газотурбинным надувом                              | ЯМЗ-238Б-4 с турбонаддувом |
+| Мощность                               | 184 (250)                                                       | 220 (300)                  |
+</pre>
         </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="inputMessage">Message</label>
-        <div class="controls">
-          <textarea id="inputMessage" rows="4" ng-model="ctrl.formData.message" placeholder="Your Message">
+    </div>
+    <script>
+    document.getElementById('toggleButton').addEventListener('click', function() {
+        var content = document.getElementById('content');
+        if (content.classList.contains('hidden-content')) {
+            content.classList.remove('hidden-content');
+        } else {
+            content.classList.add('hidden-content');
+        }
+    });
+    </script>
+    <form ng-submit="ctrl.submitForm()">
+
+        <div class="control-group">
+            <label class="control-label" for="inputMessage">Message</label>
+            <div class="controls">
+                <textarea style="height:300px;width:100%" id="inputMessage" rows="4" ng-model="ctrl.formData.message"
+                    placeholder="Your Message">
 
 
 
           </textarea>
+            </div>
         </div>
-      </div>
-      <div class="control-group">
-        <div class="controls">
-          <button type="submit" class="btn btn-primary">Submit</button>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
         </div>
-      </div>
     </form>
-  </div>
-  <?php print_r($data);?>
+</div>
