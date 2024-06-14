@@ -51,7 +51,7 @@ class CSchemaModel
 
     public function set($fieldId, $value, $type = 'String')
     {
-        $this->schemaLink->setData($fieldId, $value, $this->linkType);
+        $this->schemaLink->set($fieldId, $value, $type);
     }
 
     public function get($fieldId)

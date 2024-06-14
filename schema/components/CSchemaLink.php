@@ -19,7 +19,7 @@ class CSchemaLink
     {
         $sql = "SELECT MAX(linkId) AS maxLinkId FROM SchemaLinks WHERE linkType = :linkType";
         $command = Yii::app()->db->createCommand($sql);
-        $command->bindValue(":linkType", 'vehicle');
+        $command->bindValue(":linkType", $schemaLinkType);
         $result = $command->queryRow();
         $maxLinkId = $result['maxLinkId'];
         return  $maxLinkId;
@@ -47,7 +47,7 @@ class CSchemaLink
         }
     }
 
-    public function setData($fieldId, $value, $dataType)
+    public function setData($fieldId, $value, $dataType = 'String')
     {
 
         $oldValue = $this->get($fieldId);
@@ -62,7 +62,7 @@ class CSchemaLink
         }
     }
 
-    public function set($fieldId, $value, $linkType, $type)
+    public function set($fieldId, $value, $type)
     {
         $model = SchemaField::model()->findByAttributes([
             'name' => $fieldId,
@@ -87,7 +87,7 @@ class CSchemaLink
         $fieldsAndData = $this->getSchemasFieldsData(true);
 
         if (isset($fieldsAndData[$fieldId])) {
-            if ($model->type = 'String') {
+            if ($model->type == 'String') {
                 $fieldsAndData[$fieldId]['value'] =  $value;
             } else {
                 $fieldsAndData[$fieldId][$model->type . 'Value'] =  $value;
