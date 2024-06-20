@@ -42,7 +42,7 @@ class CSchemaModel
         }
 
         $this->groupId = $id;
-        $this->schemaLink = new CSchemaLink($this->linkType, $this->groupId, static::$schemaId);
+        $this->schemaLink = new CSchemaLink($this->linkType, $this->groupId, static::$schemaId, $fieldValue);
     }
 
 

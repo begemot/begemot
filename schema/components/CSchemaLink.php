@@ -108,7 +108,7 @@ class CSchemaLink
         }
     }
 
-    public function __construct($linkType, $linkedDataId, $schemaId = null)
+    public function __construct($linkType, $linkedDataId, $schemaId = null, $name = null)
     {
         $this->linkType = $linkType;
         $this->linkedDataId = $linkedDataId;
@@ -131,6 +131,7 @@ class CSchemaLink
                 $model->linkType = $linkType;
                 $model->linkId = $linkedDataId;
                 $model->schemaId = $schemaId;
+                $model->name = $name;
                 if (!$model->save()) {
                     throw new Exception('Не удалось создать SchemaLink');
                 } else {
