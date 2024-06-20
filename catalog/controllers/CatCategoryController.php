@@ -21,12 +21,11 @@ class CatCategoryController extends Controller
     public function behaviors()
     {
         return array(
-//            'CBOrderControllerBehavior' => array(
-//                'class' => 'begemot.extensions.order.BBehavior.CBOrderControllerBehavior',
-//                'groupName' => 'pid'
-//            )
+            //            'CBOrderControllerBehavior' => array(
+            //                'class' => 'begemot.extensions.order.BBehavior.CBOrderControllerBehavior',
+            //                'groupName' => 'pid'
+            //            )
         );
-
     }
 
     /**
@@ -38,15 +37,17 @@ class CatCategoryController extends Controller
     {
         return array(
 
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+            array(
+                'allow', // allow admin user to perform 'admin' and 'delete' actions
 
-                'actions' => array('admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage','echoJsonCategories'),
+                'actions' => array('ajaxCategoryCreate', 'admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage', 'echoJsonCategories'),
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
 
 
             ),
-            array('deny', // deny all users
+            array(
+                'deny', // deny all users
                 'users' => array('*'),
             ),
         );
@@ -96,7 +97,7 @@ class CatCategoryController extends Controller
 
             $copyParams = [
                 'mode' => $mode,
-//                'catOfOriginal'=>$_POST['mode']=='catOfOriginal'
+                //                'catOfOriginal'=>$_POST['mode']=='catOfOriginal'
             ];
 
             $this->moveOrMakeCopy($_POST['items'], $copyParams);
@@ -110,7 +111,6 @@ class CatCategoryController extends Controller
     {
 
         $this->connectItemToCats($_REQUEST['itemId'], $_REQUEST['catIds']);
-
     }
 
     public function actionMoveCat()
@@ -122,13 +122,14 @@ class CatCategoryController extends Controller
         $targetdId = $params['target']['id'];
         $moveType = $params['type'];
 
-        CatCategory::moveTo($draggedId,$targetdId,$moveType);
+        CatCategory::moveTo($draggedId, $targetdId, $moveType);
 
 
         $this->actionEchoJsonCategories();
     }
 
-    public function actionEchoJsonCategories(){
+    public function actionEchoJsonCategories()
+    {
         $model = CatCategory::model();
         $model->loadCategories();
         $tmp = $model->categories;
@@ -175,7 +176,6 @@ class CatCategoryController extends Controller
                             continue;
                         };
                         $itemCopy->$columnName = $itemOriginal->$columnName;
-
                     }
 
                     $itemCopy->isNewRecord = true;
@@ -186,7 +186,7 @@ class CatCategoryController extends Controller
                     //Копируем изображения
 
                     Yii::import('pictureBox.components.PBox');
-                    $PBox = new PBox('catalogItem',$itemId );
+                    $PBox = new PBox('catalogItem', $itemId);
                     $PBox->copyToAnotherId($lastId);
 
 
@@ -208,8 +208,6 @@ class CatCategoryController extends Controller
 
                         $this->connectItemToCats($lastId, $options['categoriesIds']);
                     }
-
-
                 }
             }
         }
@@ -226,28 +224,39 @@ class CatCategoryController extends Controller
                 $newCatItemToCat->itemId = $itemId;
                 $newCatItemToCat->save();
             }
+        }
+    }
+    public function actionAjaxCategoryCreate()
+    {
+        $rawData = file_get_contents("php://input");
 
+        $attributes = CJSON::decode($rawData, true);
+
+        if (!isset($attributes['pid'])) {
+            $attributes['pid'] = -1;
         }
 
+        $_POST['CatCategory'] = $attributes;
+        $this->actionCreate();
     }
-
     /**
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      */
     public function actionCreate()
     {
+
         $model = new CatCategory;
 
 
         if (isset($_POST['CatCategory'])) {
             $model->attributes = $_POST['CatCategory'];
-            if ($model->save()){
-                if ($model->pid!=-1){
-                    CatCategory::moveTo($model->id,$model->pid,'middle');
+            if ($model->save()) {
+                if ($model->pid != -1) {
+                    CatCategory::moveTo($model->id, $model->pid, 'middle');
                 }
                 $this->redirect(array('view', 'id' => $model->id));
-            }
+            } else  throw new Exception('Не удалось создать категорию каталога');
         }
 
         $this->render('create', array(
@@ -278,8 +287,6 @@ class CatCategoryController extends Controller
             'model' => $model,
             'tab' => $tab,
         ));
-
-
     }
 
     /**
@@ -287,29 +294,28 @@ class CatCategoryController extends Controller
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
      */
-    public function actionDelete($id,$withGoods = false)
+    public function actionDelete($id, $withGoods = false)
     {
         /** @var CatCategory $catModel */
         $catModel = $this->loadModel($id);
         $catChilds = $catModel->getAllCatChilds();
         if ($withGoods) {
-            $catChilds[]=['id'=>$id];
-            foreach ($catChilds as $catChild){
+            $catChilds[] = ['id' => $id];
+            foreach ($catChilds as $catChild) {
                 $catId = $catChild['id'];
                 $catItemsTocatModels = CatItemsToCat::model()->findAllByAttributes([
-                    'catId'=>$catId
+                    'catId' => $catId
                 ]);
 
-                foreach ($catItemsTocatModels as $catItemsTocatModel){
-                    if (!is_null($catItemsTocatModel->item)){
-                        if (!$catItemsTocatModel->item->delete()){
+                foreach ($catItemsTocatModels as $catItemsTocatModel) {
+                    if (!is_null($catItemsTocatModel->item)) {
+                        if (!$catItemsTocatModel->item->delete()) {
                             throw new CHttpException(400, 'Не удалось удалить элемент каталога');
                             return;
                         }
                     } else {
                         $catItemsTocatModel->delete();
                     }
-
                 }
             }
         }
@@ -317,14 +323,13 @@ class CatCategoryController extends Controller
 
 
 
-        foreach ($catChilds as $catChild ) {
+        foreach ($catChilds as $catChild) {
             $idForDelete = $catChild['id'];
-            if (!CatCategory::model()->findByPk($idForDelete)->delete()){
-                throw new CHttpException(400, 'Не удалось удалить подкатегорию '.$idForDelete);
+            if (!CatCategory::model()->findByPk($idForDelete)->delete()) {
+                throw new CHttpException(400, 'Не удалось удалить подкатегорию ' . $idForDelete);
                 return;
             }
         }
-
     }
 
     /**
@@ -337,10 +342,10 @@ class CatCategoryController extends Controller
             Yii::import('begemot.BegemotModule');
             BegemotModule::fullDelDir($filename);
         }
-//		$dataProvider=new CActiveDataProvider('CatItem');
-//		$this->render('admin',array(
-//			'dataProvider'=>$dataProvider,
-//		));
+        //		$dataProvider=new CActiveDataProvider('CatItem');
+        //		$this->render('admin',array(
+        //			'dataProvider'=>$dataProvider,
+        //		));
     }
 
     /**
@@ -349,15 +354,15 @@ class CatCategoryController extends Controller
     public function actionAdmin($pid = -1)
     {
 
-//        $model = new CatCategory('search');
-//        $model->unsetAttributes(); // clear any default values
-//        if (isset($_GET['CatCategory']))
-//            $model->attributes = $_GET['CatCategory'];
-//
-//        $this->render('admin', array(
-//            'model' => $model,
-//            'pid' => $pid
-//        ));
+        //        $model = new CatCategory('search');
+        //        $model->unsetAttributes(); // clear any default values
+        //        if (isset($_GET['CatCategory']))
+        //            $model->attributes = $_GET['CatCategory'];
+        //
+        //        $this->render('admin', array(
+        //            'model' => $model,
+        //            'pid' => $pid
+        //        ));
         $this->render('catManage');
     }
 
@@ -389,22 +394,22 @@ class CatCategoryController extends Controller
         }
     }
 
-//    public function actionOrderUp($id)
-//    {
-//        $model = $this->loadModel($id);
-//        $orderModel = $model->getCategory($id);
-//
-//        $this->groupId = $orderModel['pid'];
-//        $this->orderUp($id);
-//    }
+    //    public function actionOrderUp($id)
+    //    {
+    //        $model = $this->loadModel($id);
+    //        $orderModel = $model->getCategory($id);
+    //
+    //        $this->groupId = $orderModel['pid'];
+    //        $this->orderUp($id);
+    //    }
 
-//    public function actionOrderDown($id)
-//    {
-//        $model = $this->loadModel($id);
-//        $orderModel = $model->getCategory($id);
-//        $this->groupId = $orderModel['pid'];
-//        $this->orderDown($id);
-//    }
+    //    public function actionOrderDown($id)
+    //    {
+    //        $model = $this->loadModel($id);
+    //        $orderModel = $model->getCategory($id);
+    //        $this->groupId = $orderModel['pid'];
+    //        $this->orderDown($id);
+    //    }
 
     public function actionTidyPost($id)
     {
@@ -423,13 +428,12 @@ class CatCategoryController extends Controller
 
         $this->module->tidyleadImage != 0 ? $leadImage = 1 : $leadImage = 0;
 
-        $tidy = new TidyBuilder ($model->text, $this->module->tidyConfig, $images, $leadImage);
+        $tidy = new TidyBuilder($model->text, $this->module->tidyConfig, $images, $leadImage);
 
         $model->text = $tidy->renderText();
 
         $model->save();
 
         $this->redirect(array('/catalog/catCategory/update', 'id' => $model->id,));
-
     }
 }
