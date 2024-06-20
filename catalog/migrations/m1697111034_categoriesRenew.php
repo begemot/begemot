@@ -29,14 +29,14 @@ class m1697111034_categoriesRenew extends BaseMigration
         //сортируем по уровню вложенности
         $itemsByLevelArray = [];
         foreach ($catsArray as $catItem) {
-            if (!isset ($itemsByLevelArray[$catItem['level']]) || !is_array($itemsByLevelArray[$catItem['level']])) $itemsByLevelArray[$catItem['level']] = [];
+            if (!isset($itemsByLevelArray[$catItem['level']]) || !is_array($itemsByLevelArray[$catItem['level']])) $itemsByLevelArray[$catItem['level']] = [];
             $itemsByLevelArray[$catItem['level']][] = $catItem;
         }
 
         //разбивка элементов по pid
         $itemsByPidArray = [];
         foreach ($catsArray as $catItem) {
-            if (!isset ($itemsByPidArray[$catItem['pid']]) || !is_array($itemsByPidArray[$catItem['pid']])) $itemsByPidArray[$catItem['pid']] = [];
+            if (!isset($itemsByPidArray[$catItem['pid']]) || !is_array($itemsByPidArray[$catItem['pid']])) $itemsByPidArray[$catItem['pid']] = [];
             $itemsByPidArray[$catItem['pid']][] = $catItem;
         }
 
@@ -61,9 +61,10 @@ class m1697111034_categoriesRenew extends BaseMigration
             $iteration++;
         }
 
-        foreach ($baseArray as $baseArrayItem){
+        foreach ($baseArray as $baseArrayItem) {
             $cat = CatCategory::model()->findByPK($baseArrayItem['id']);
             $cat->order = $baseArrayItem['order'];
+            $cat->status = 1;
             $cat->save();
         }
 
@@ -74,7 +75,7 @@ class m1697111034_categoriesRenew extends BaseMigration
     {
         $this->localStatusToggle();
 
-        return true;
+        return false;
     }
 
     public function getDescription()
@@ -85,7 +86,7 @@ class m1697111034_categoriesRenew extends BaseMigration
     public function isConfirmed($returnBoolean = false)
     {
 
-        return $this->checkLocalStatus();//$this->tableExist('NewTable');
+        return $this->checkLocalStatus(); //$this->tableExist('NewTable');
     }
 
     /*
@@ -115,13 +116,11 @@ function insertArrayToArrayByOrder(&$baseArray, $pidArray, $orderFromMustInsert)
     foreach ($pidArray as &$pidArrayElement) {
         $pidArrayElement['order'] += $orderFromMustInsert;
         $baseArray[] = $pidArrayElement;
-
     }
 
     usort($baseArray, function ($a, $b) {
         return $a['order'] > $b['order'];
     });
-
 }
 
 function clearOrder($array)
