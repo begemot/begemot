@@ -22,13 +22,18 @@ $menuPart1 = array(
                 'url' => '/catalog/catCategory/create',
                 'label' => 'Создать раздел',
             ),
+            array(
+                'url' => '/catalog/catCategory/admin',
+                'label' => 'Новый интерфейс',
+            ),
+
         ),
     ),
     array(
 
 
-            'url' => '/catalog/catOrder/admin',
-            'label' => 'Заказы',
+        'url' => '/catalog/catOrder/admin',
+        'label' => 'Заказы',
 
 
 
@@ -94,9 +99,12 @@ $menuPart1 = array(
         'label' => 'Пересборка',
         'url' => array('/catalog/default/renderImages/action'),
     ),
+    array(
+        'label' => 'Схемы данных',
+        'url' => array('/catalog/catalogAndSchema'),
+    ),
+
     array('label' => 'РАЗДЕЛЫ'),
 );
 
 return array_merge($menuPart1, CatCategory::model()->categoriesMenu());
-
-?>
