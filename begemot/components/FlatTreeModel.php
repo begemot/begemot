@@ -42,7 +42,13 @@
 
 class FlatTreeModel
 {
+
     private $data;
+
+    public function getData()
+    {
+        return $this->data;
+    }
 
     public function __construct($data)
     {
