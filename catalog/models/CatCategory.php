@@ -178,17 +178,17 @@ class CatCategory extends CActiveRecord
             $this->status = 1;
             // в зависимости от pid создаем в конец дерева или в конец поддерева
 
-            $maxOrder = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory`')->queryScalar();
-            $this->order = $maxOrder + 1;
+            // $maxOrder = Yii::app()->db->createCommand('SELECT max(`order`) as max FROM `catCategory`')->queryScalar();
+            // $this->order = $maxOrder + 1;
         }
 
-        if ($this->pid == -1) {
-            $this->level = 0;
-        } else {
-            $parentCategory = CatCategory::model()->findAll(array('condition' => 'id = ' . $this->pid));
-            $parentCategory = $parentCategory[0];
-            $this->level = $parentCategory->level + 1;
-        }
+        // if ($this->pid == -1) {
+        //     $this->level = 0;
+        // } else {
+        //     $parentCategory = CatCategory::model()->findAll(array('condition' => 'id = ' . $this->pid));
+        //     $parentCategory = $parentCategory[0];
+        //     $this->level = $parentCategory->level + 1;
+        // }
         return true;
     }
 
@@ -272,7 +272,12 @@ class CatCategory extends CActiveRecord
     //Возвращаем все дочерние категории входящие в раздел
     public function getAllCatChilds($id = null)
     {
-        if (is_null($id)) $id = $this->id;
+        if (is_null($id)) {
+            $id = $this->id;
+            $model = $this;
+        } else {
+            $model = CatCategory::model()->findByPk($id);
+        }
 
         $array = $this->getCatArray();
 
@@ -280,10 +285,10 @@ class CatCategory extends CActiveRecord
         $collectWasStarted = false;
 
         foreach ($array as $element) {
-
-            if ($this->order < $element['order']) $collectWasStarted = true;
+            $thisOrder = $model->order;
+            if ($thisOrder < $element['order']) $collectWasStarted = true;
             if ($collectWasStarted /*&& !$collectWasStopped*/) {
-                if ($this->level == $element['level']) {
+                if ($model->level == $element['level']) {
                     break;
                 }
                 $resultArray[] = $element;
@@ -479,142 +484,42 @@ class CatCategory extends CActiveRecord
      */
     public static function moveTo($draggedId, $targetdId, $moveType)
     {
-        $model = CatCategory::model();
-
-
-        //Нужно проверить на перетаскивание на самого себя
-        if ($draggedId == $targetdId) {
-            //  $this->echoJsonCategories();
-            return;
+        $models = CatCategory::model()->findAll();
+        $flatTreeData = [];
+        foreach ($models as $item) {
+            $flatTreeDataItem = [];
+            $flatTreeDataItem['id'] = $item->id;
+            $flatTreeDataItem['name'] = $item->name;
+            $flatTreeDataItem['pid'] = $item->pid;
+            $flatTreeDataItem['order'] = $item->order;
+            $flatTreeDataItem['level'] = $item->level;
+            $flatTreeData[] = $flatTreeDataItem;
         }
-
-
-        //$tmp = $model->getcategoriesTree();
-        $model->loadCategories();
-        $catsOrderList = $model->categories;
-
-        $minOrder = $catsOrderList[$draggedId]['order'];
-
-        $maxOrder = $model->getMaxOrderOfSubTree($draggedId);
-
-        //сколько разделов перемещаем
-        $elementsForMoveCount = $maxOrder - $minOrder + 1; // ordermax-ordermin+1
-
-        //Проверяем на перемещение на потомков самого себя
-        foreach ($catsOrderList as $id => $item) {
-            if ($item['order'] >= $minOrder && $item['order'] <= $maxOrder) {
-                if ($item['id'] == $targetdId) {
-                    //цель на которую перетащили является потомком того что перетаскивают
-                    // $this->echoJsonCategories();
-                    return;
-                }
-            }
-        }
-
-        //Выключаем разделы которые перемещаем
-        foreach ($catsOrderList as $id => $item) {
-            if ($item['order'] >= $minOrder && $item['order'] <= $maxOrder) {
-                CatCategory::model()->updateByPk($id, ['status' => CatCategory::deleted]);
-            }
-        }
-
-
-        //присваеваем новый порядок от 1 до n выключенным разделам
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-        $tmpOrder = 0;
-        foreach ($tmpCats as $tmpCat) {
-            $tmpOrder++;
-            $tmpCat->order = $tmpOrder;
-            $tmpCat->save();
-        }
-
-
-        //корректируем order не удаленных разделов
-        $cats = CatCategory::model()->findAll([
-            'condition' => '`order`>' . $maxOrder . ' and ' . '`status`=' . CatCategory::normal
-        ]);
-
-        foreach ($cats as $cat) {
-            $cat->order = $cat->order - $elementsForMoveCount;
-            $cat->save();
-        }
-
-        $targetCat = CatCategory::model()->findByPK($targetdId);
-        $draggedCat = CatCategory::model()->findByPK($draggedId);
-
+        Yii::import('begemot.components.FlatTreeModel');
+        $flatTree = new FlatTreeModel($flatTreeData);
+        //$flatTree->printHierarchicalList();
 
         if ($moveType == 'middle') {
-            $draggedCat->pid = $targetCat->id;
-            $draggedCat->save();
-            $dLevel = $draggedCat->level - $targetCat->level;
-        } elseif ($moveType == 'right' || $moveType == 'left') {
-            $draggedCat->pid = $targetCat->pid;
-            $draggedCat->save();
-            $dLevel = $draggedCat->level - $targetCat->level + 1;
+            $flatTree->attachOneToAnother($draggedId, $targetdId);
         }
-
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-        foreach ($tmpCats as $tmpCat) {
-            $tmpCat->level = $tmpCat->level - $dLevel;
-            $tmpCat->save();
+        if ($moveType == 'left') {
+            $flatTree->insertSubTreeBefore($draggedId, $targetdId);
         }
-
-        //у $targetCat могут быть потомки
-        $model->loadCategories();
-
-        $childs = $model->getAllCatChilds($targetCat->id);
-        $childsOrderAdd = 0;
-        if (count($childs) > 0) {
-            $childsOrderAdd = count($childs);
+        if ($moveType == 'right') {
+            $flatTree->insertSubTreeAfter($draggedId, $targetdId);
         }
+        $data = $flatTree->getData();
+        foreach ($data as $item) {
 
-        if ($moveType != 'left') {
-            $tmpCats = CatCategory::model()->findAll([
-                'condition' => '`status`=' . CatCategory::normal . ' and `order`>' . ($targetCat->order + $childsOrderAdd),
-                'order' => '`order`'
-            ]);
-        } else {
-            $tmpCats = CatCategory::model()->findAll([
-                'condition' => '`status`=' . CatCategory::normal . ' and `order`>=' . $targetCat->order,
-                'order' => '`order`'
-            ]);
-        }
-
-
-        foreach ($tmpCats as $tmpCat) {
-            $tmpCat->order = $tmpCat->order + $elementsForMoveCount;
-
-            $tmpCat->save();
-        }
-
-        $tmpCats = CatCategory::model()->findAll([
-            'condition' => '`status`=' . CatCategory::deleted,
-            'order' => '`order`'
-        ]);
-
-
-        foreach ($tmpCats as $tmpCat) {
-
-            if ($moveType != 'left') {
-                $tmpCat->order = $tmpCat->order + $targetCat->order + $childsOrderAdd;
-            } else {
-                $tmpCat->order = $tmpCat->order + $targetCat->order;
-                if ($moveType == 'left') $tmpCat->order--;
+            $cat = null;
+            $cat = CatCategory::model()->findByPk($item['id']);
+            $cat->name = $item['name'];
+            $cat->pid = $item['pid'];
+            $cat->order = $item['order'];
+            $cat->level = $item['level'];
+            if (!$cat->save()) {
+                throw new Exception('Не удалось сохранить модель категории каталога');
             }
-
-
-            $tmpCat->status = CatCategory::normal;
-            $tmpCat->save();
         }
-
-        $model = CatCategory::model();
     }
 }
