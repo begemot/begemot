@@ -231,10 +231,12 @@ class CatCategoryController extends Controller
         $rawData = file_get_contents("php://input");
 
         $attributes = CJSON::decode($rawData, true);
-
+        $attributes['level'] = 0;
         if (!isset($attributes['pid'])) {
             $attributes['pid'] = -1;
         }
+
+
 
         $_POST['CatCategory'] = $attributes;
         $this->actionCreate();
@@ -330,6 +332,8 @@ class CatCategoryController extends Controller
                 return;
             }
         }
+
+        $catModel->delete();
     }
 
     /**

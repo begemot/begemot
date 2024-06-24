@@ -1,252 +1,288 @@
 var app = angular.module('catManage', [])
 
-app.service('dnd', ['$http', function ($http) {
+app.service('dnd', [
+	'$http',
+	function ($http) {
+		var disabled = false
 
-    var disabled = false;
+		this.turnOn = function () {
+			this.disabled = false
+		}
 
+		this.turnOff = function () {
+			this.disabled = true
+		}
 
-    this.turnOn = function () {
-        this.disabled = false
-    }
+		var dropCallBackCollection = new Array()
 
-    this.turnOff = function () {
-        this.disabled = true
-    }
+		this.draggedObject = null
+		// this.dndTargetObject = null;
 
-    var dropCallBackCollection = new Array
+		this.startDrag = function (el) {
+			this.draggedObject = el
+		}
 
-    this.draggedObject = null;
-    // this.dndTargetObject = null;
+		this.stopDrag = function () {
+			this.draggedObject = null
+		}
+		this.somethingWasDroppedOnMe = function (targetEl) {
+			if (!this.disabled) {
+				this.runDropCallBackList(this.draggedObject, targetEl)
+				this.stopDrag()
+			}
+		}
 
-    this.startDrag = function (el) {
-        this.draggedObject = el
-    }
+		this.registerDropCallBack = function (callback) {
+			dropCallBackCollection.push(callback)
+		}
+		this.runDropCallBackList = function (draggedElem, targetElem) {
+			_.forEach(dropCallBackCollection, function (callback) {
+				callback(draggedElem, targetElem)
+			})
+		}
+	},
+])
 
-    this.stopDrag = function () {
-        this.draggedObject = null;
-    }
-    this.somethingWasDroppedOnMe = function (targetEl) {
-        if (!this.disabled) {
-            this.runDropCallBackList(this.draggedObject, targetEl)
-            this.stopDrag()
-        }
-    }
+app.controller('ui', [
+	'$scope',
+	'$http',
+	'categoriesData',
+	'dnd',
+	function ($scope, $http, categoriesData, dnd) {
+		// console.log(categoriesData.categories);
 
-    this.registerDropCallBack = function (callback) {
-        dropCallBackCollection.push(callback)
+		$scope.section = {
+			name: '',
+			seo_title: '',
+			pid: '',
+		}
 
-    }
-    this.runDropCallBackList = function (draggedElem, targetElem) {
-        _.forEach(dropCallBackCollection, function (callback) {
-            callback(draggedElem, targetElem);
-        });
-    }
+		$scope.cats = _.orderBy(categoriesData.categories, [
+			function (o) {
+				return parseInt(o.order, 10)
+			},
+		])
 
-}]);
+		$scope.startDrag = function (ev) {
+			console.log(ev)
+		}
 
+		$scope.wasDropped = function (draggedElem, targetElem) {
+			console.log('$scope.wasDropped')
 
-app.controller('ui', ['$scope', '$http', 'categoriesData', 'dnd', function ($scope, $http, categoriesData, dnd) {
+			$scope.disableAll()
+			// actionMoveCat
+			$http({
+				url: '/catalog/CatCategory/MoveCat', //?XDEBUG_SESSION_START=1
+				data: {
+					dragged: {
+						id: draggedElem.attr('catId'),
+					},
+					target: {
+						id: targetElem.attr('catId'),
+					},
+					type: targetElem.attr('el-type'),
+				},
+				method: 'POST',
+			}).then(function (data) {
+				console.log(data)
+				$scope.cats = _.sortBy(data.data, [
+					function (o) {
+						return parseInt(o.order, 10)
+					},
+				])
+				$scope.enableAll()
+			})
+		}
 
-    // console.log(categoriesData.categories);
+		$scope.loadCategories = () => {
+			$scope.disableAll()
+			$http({
+				url: '/catalog/CatCategory/echoJsonCategories',
+				data: {},
+				method: 'GET',
+			}).then(function (data) {
+				console.log(data)
+				$scope.cats = _.sortBy(data.data, [
+					function (o) {
+						return parseInt(o.order, 10)
+					},
+				])
+				$scope.enableAll()
+			})
+		}
 
-    $scope.cats = _.orderBy(categoriesData.categories, [function (o) {
-        return parseInt(o.order, 10);
-    }]);
+		dnd.registerDropCallBack($scope.wasDropped)
 
-    $scope.startDrag = function (ev) {
-        console.log(ev)
-    }
+		$scope.disableLine = function (order) {
+			_.forEach($scope.cats, function (value, key) {
+				if (value.order == order) {
+					$scope.cats[key].disabled = true
+				}
+			})
+		}
+		$scope.enableLine = function (order) {
+			_.forEach($scope.cats, function (value, key) {
+				if (value.order == order) {
+					$scope.cats[key].disabled = false
+				}
+			})
+		}
 
-    $scope.wasDropped = function (draggedElem, targetElem) {
-        console.log('$scope.wasDropped');
+		$scope.disableAll = function () {
+			_.forEach($scope.cats, function (value, key) {
+				$scope.cats[key].disabled = true
+			})
+		}
+		$scope.enableAll = function () {
+			_.forEach($scope.cats, function (value, key) {
+				$scope.cats[key].disabled = false
+			})
+		}
+		$scope.markedForDeleteCategory = null
+		$scope.selectedOptionForCatrgoryDelete = 0
 
-        $scope.disableAll();
-        // actionMoveCat
-        $http({
-            url: '/catalog/CatCategory/MoveCat',
-            data: {
-                dragged: {
-                    id: draggedElem.attr('catId')
-                },
-                target: {
-                    id: targetElem.attr('catId')
-                },
-                type: targetElem.attr('el-type')
-            },
-            method: 'POST'
+		$scope.markForDeleteCategory = categoryId => {
+			console.log($scope.cats)
+			$scope.markedForDeleteCategory = $scope.cats[categoryId]
+		}
 
-        }).then(function (data) {
-            console.log(data)
-            $scope.cats = _.sortBy(data.data, [function (o) {
-                return parseInt(o.order, 10);
-            }]);
-            $scope.enableAll();
-        });
-    }
+		$scope.deleteCategory = () => {
+			console.log('$scope.deleteCategory')
+			console.log($scope.markedForDeleteCategory)
 
-    $scope.loadCategories = ()=>{
-        $scope.disableAll();
-        $http({
-            url: '/catalog/CatCategory/echoJsonCategories',
-            data: {},
-            method: 'GET'
+			$http({
+				url: '/catalog/CatCategory/delete',
+				params: {
+					id: $scope.markedForDeleteCategory.id,
+					withGoods: $scope.selectedOptionForCatrgoryDelete,
+				},
+				method: 'GET',
+			}).then(function (data) {
+				console.log(data)
+				$scope.loadCategories()
+			})
+		}
 
-        }).then(function (data) {
-            console.log(data)
-            $scope.cats = _.sortBy(data.data, [function (o) {
-                return parseInt(o.order, 10);
-            }]);
-            $scope.enableAll();
-        });
-    }
+		$scope.submitForm = function () {
+			// Обновляем значение parent_id перед отправкой
+			$scope.section.pid = $scope.parentSection
 
-    dnd.registerDropCallBack($scope.wasDropped)
+			// Отправка данных на сервер
+			$http
+				.post('/catalog/CatCategory/ajaxCategoryCreate', $scope.section)
+				.then(
+					function (response) {
+						// Обработка успешного ответа
+						alert('Форма успешно отправлена!')
+						$scope.section = {
+							name: '',
+							seo_title: '',
+							pid: '',
+						}
+						$('#myModal').modal('hide')
+						$scope.loadCategories()
+					},
+					function (error) {
+						// Обработка ошибки
+						alert('Произошла ошибка при отправке формы.')
+					}
+				)
+		}
+	},
+])
 
-    $scope.disableLine = function (order) {
-        _.forEach($scope.cats, function (value, key) {
-            if (value.order == order) {
-                $scope.cats[key].disabled = true
-            }
-        });
+app.directive('aDraggable', [
+	'$rootScope',
+	'dnd',
+	function ($rootScope, dnd) {
+		return {
+			restrict: 'A',
+			link: function (scope, el, attrs, controller) {
+				console.log('linking draggable element')
 
-    }
-    $scope.enableLine = function (order) {
-        _.forEach($scope.cats, function (value, key) {
-            if (value.order == order) {
-                $scope.cats[key].disabled = false
-            }
-        });
+				angular.element(el).attr('draggable', 'true')
+				var id = attrs.id
 
-    }
+				el.bind('dragstart', function (e) {
+					console.log('начали перетаскивать')
 
-    $scope.disableAll = function () {
-        _.forEach($scope.cats, function (value, key) {
-            $scope.cats[key].disabled = true
-        });
-    }
-    $scope.enableAll = function () {
-        _.forEach($scope.cats, function (value, key) {
-            $scope.cats[key].disabled = false
-        });
-    }
-    $scope.markedForDeleteCategory = null;
-    $scope.selectedOptionForCatrgoryDelete = 0;
+					dnd.startDrag(el)
+					$rootScope.$emit('LVL-DRAG-START')
+				})
 
-    $scope.markForDeleteCategory = (categoryId) => {
-        console.log($scope.cats)
-        $scope.markedForDeleteCategory = $scope.cats[categoryId];
-    }
+				el.bind('dragend', function (e) {
+					console.log('закончили перетаскивать')
+					dnd.stopDrag(el)
+					$rootScope.$emit('LVL-DRAG-END')
+				})
+			},
+		}
+	},
+])
 
-    $scope.deleteCategory = () => {
+app.directive('aDropTarget', [
+	'$rootScope',
+	'dnd',
+	function ($rootScope, dnd) {
+		return {
+			restrict: 'A',
+			scope: {
+				onDrop: '&',
+			},
+			link: function (scope, el, attrs, controller) {
+				var id = attrs.id
+				el.bind('dragover', function (e) {
+					console.log('надо мной объект')
+					if (e.preventDefault) {
+						e.preventDefault() // Necessary. Allows us to drop.
+					}
 
-        console.log('$scope.deleteCategory')
-        console.log($scope.markedForDeleteCategory)
+					e.dataTransfer.dropEffect = 'move' // See the section on the DataTransfer object.
+					return false
+				})
 
-        $http({
-            url: '/catalog/CatCategory/delete',
-            params: {
-                id:$scope.markedForDeleteCategory.id,
-                withGoods:  $scope.selectedOptionForCatrgoryDelete
+				el.bind('dragenter', function (e) {
+					console.log('объект появился надо мной')
+					// this / e.target is the current hover target.
+					angular.element(e.target).addClass('dragOver')
+				})
 
-            },
-            method: 'GET'
+				el.bind('dragleave', function (e) {
+					console.log('надо мной больше нет объекта')
+					angular.element(e.target).removeClass('dragOver') // this / e.target is previous target element.
+				})
 
-        }).then(function (data) {
-            console.log(data)
-            $scope.loadCategories()
-        });
-    }
+				el.bind('drop', function (e) {
+					console.log('на меня сбросили объект')
+					if (e.preventDefault) {
+						e.preventDefault() // Necessary. Allows us to drop.
+					}
 
+					if (e.stopPropagation) {
+						e.stopPropagation() // Necessary. Allows us to drop.
+					}
+					angular.element(e.target).removeClass('dragOver')
+					dnd.somethingWasDroppedOnMe(el)
+					console.log('сбросили объект с id ' + id)
+					// var data = e.dataTransfer.getData("text");
+					// var dest = document.getElementById(id);
+					// var src = document.getElementById(data);
 
-}])
+					// scope.onDrop({dragEl: src, dropEl: dest});
+				})
 
+				$rootScope.$on('LVL-DRAG-START', function () {
+					// var el = document.getElementById(id);
+					//  angular.element(el).addClass("lvl-target");
+				})
 
-app.directive('aDraggable', ['$rootScope', 'dnd', function ($rootScope, dnd) {
-    return {
-        restrict: 'A',
-        link: function (scope, el, attrs, controller) {
-            console.log("linking draggable element");
-
-            angular.element(el).attr("draggable", "true");
-            var id = attrs.id;
-
-
-            el.bind("dragstart", function (e) {
-                console.log('начали перетаскивать');
-
-                dnd.startDrag(el)
-                $rootScope.$emit("LVL-DRAG-START");
-            });
-
-            el.bind("dragend", function (e) {
-                console.log('закончили перетаскивать');
-                dnd.stopDrag(el)
-                $rootScope.$emit("LVL-DRAG-END");
-            });
-        }
-    }
-}]);
-
-
-app.directive('aDropTarget', ['$rootScope', 'dnd', function ($rootScope, dnd) {
-    return {
-        restrict: 'A',
-        scope: {
-            onDrop: '&'
-        },
-        link: function (scope, el, attrs, controller) {
-
-            var id = attrs.id
-            el.bind("dragover", function (e) {
-                console.log('надо мной объект');
-                if (e.preventDefault) {
-                    e.preventDefault(); // Necessary. Allows us to drop.
-                }
-
-                e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
-                return false;
-            });
-
-            el.bind("dragenter", function (e) {
-                console.log('объект появился надо мной');
-                // this / e.target is the current hover target.
-                angular.element(e.target).addClass('dragOver');
-            });
-
-            el.bind("dragleave", function (e) {
-                console.log('надо мной больше нет объекта');
-                angular.element(e.target).removeClass('dragOver');  // this / e.target is previous target element.
-            });
-
-            el.bind("drop", function (e) {
-                console.log('на меня сбросили объект');
-                if (e.preventDefault) {
-                    e.preventDefault(); // Necessary. Allows us to drop.
-                }
-
-                if (e.stopPropagation) {
-                    e.stopPropagation(); // Necessary. Allows us to drop.
-                }
-                angular.element(e.target).removeClass('dragOver');
-                dnd.somethingWasDroppedOnMe(el)
-                console.log('сбросили объект с id ' + id);
-                // var data = e.dataTransfer.getData("text");
-                // var dest = document.getElementById(id);
-                // var src = document.getElementById(data);
-
-                // scope.onDrop({dragEl: src, dropEl: dest});
-            });
-
-            $rootScope.$on("LVL-DRAG-START", function () {
-                // var el = document.getElementById(id);
-                //  angular.element(el).addClass("lvl-target");
-            });
-
-            $rootScope.$on("LVL-DRAG-END", function () {
-                //  var el = document.getElementById(id);
-                //   angular.element(el).removeClass("lvl-target");
-                //  angular.element(el).removeClass("lvl-over");
-            });
-        }
-    }
-}]);
+				$rootScope.$on('LVL-DRAG-END', function () {
+					//  var el = document.getElementById(id);
+					//   angular.element(el).removeClass("lvl-target");
+					//  angular.element(el).removeClass("lvl-over");
+				})
+			},
+		}
+	},
+])
