@@ -1,44 +1,19 @@
-var app = angular.module('myApp', [])
+var app = angular.module('myApp', ['uiCatalog']);
+
 app.controller('myCtrl', function ($scope, $http) {
-	$scope.catItems = []
+
+	$scope.selectedItems = [];
 	$scope.schemaLinks = []
-	$scope.selectedItems = []
 	$scope.selectedSchemaLink = null
 	$scope.schemaLinkData = null
-	$scope.filterText = ''
-
 	$scope.attachButtonVisible = false
-
-	$scope.msg = 'Нет сообщений.'
-
-	// Function to check if the attach button should be visible
 	$scope.updateAttachButtonVisibility = function () {
-		$scope.attachButtonVisible =
-			$scope.selectedItems.length > 0 && $scope.selectedSchemaLink !== null
-	}
+	    $scope.attachButtonVisible = $scope.selectedItems.length > 0 && $scope.selectedSchemaLink !=null;
+	};
 
-	// Watch for changes in selectedItems and selectedSchemaLink
-	$scope.$watch('selectedItems', $scope.updateAttachButtonVisibility, true)
+	$scope.$watch('selectedItems', $scope.updateAttachButtonVisibility, true);
+
 	$scope.$watch('selectedSchemaLink', $scope.updateAttachButtonVisibility)
-
-	// Load data from server /catalog/api/itemListJson
-	$scope.loadCatItems = function (filterText) {
-		$http
-			.get('/catalog/api/itemListJson', {
-				params: { name: filterText },
-			})
-			.then(function (response) {
-				// Exclude already selected items
-				$scope.catItems = response.data.filter(function (item) {
-					return !$scope.selectedItems.some(function (selectedItem) {
-						return selectedItem.id === item.id
-					})
-				})
-			})
-			.catch(function (error) {
-				console.error('Error loading catalog data:', error)
-			})
-	}
 
 	// Load data from server /schema/api/schemaLinks
 	$scope.loadSchemaLinks = function () {
@@ -50,33 +25,6 @@ app.controller('myCtrl', function ($scope, $http) {
 			.catch(function (error) {
 				console.error('Error loading schema data:', error)
 			})
-	}
-
-	// Initial data load
-	$scope.loadCatItems('')
-	$scope.loadSchemaLinks()
-
-	// Watch for changes in filterText and reload data
-	$scope.$watch('filterText', function (newVal) {
-		$scope.loadCatItems(newVal)
-	})
-
-	$scope.selectItem = function (item) {
-		var index = $scope.catItems.indexOf(item)
-		if (index !== -1) {
-			$scope.catItems.splice(index, 1)
-			$scope.selectedItems.push(item)
-		}
-	}
-
-	$scope.deselectItem = function (item) {
-		var index = $scope.selectedItems.indexOf(item)
-		if (index !== -1) {
-			$scope.selectedItems.splice(index, 1)
-			$scope.catItems.push(item)
-			// Refresh filter after deselecting an item
-			$scope.loadCatItems($scope.filterText)
-		}
 	}
 
 	$scope.selectSchemaLink = function (item) {
@@ -100,7 +48,6 @@ app.controller('myCtrl', function ($scope, $http) {
 		return $scope.selectedSchemaLink && $scope.selectedSchemaLink.id === item.id
 	}
 
-	// Function to submit selected data to the server
 	$scope.submitData = function () {
 		$scope.msg = 'Отправляем данные...'
 		var data = {
@@ -121,4 +68,10 @@ app.controller('myCtrl', function ($scope, $http) {
 				// Handle error response
 			})
 	}
-})
+	$scope.onSelectAndUnselect = function (items) {
+		console.log('Filtered Items:', items);
+		// You can add additional logic here if needed
+	};
+
+	$scope.loadSchemaLinks()
+});

@@ -1,0 +1,28 @@
+<div class="row">
+    <div class="col-md-6">
+        <h3>Выберите из Catalog</h3>
+        <input type="text" ng-model="filterText" class="form-control mb-3" placeholder="Фильтр">
+        <div class="scrollable-list">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="item in catItems | filter:filterText"
+                    ng-click="selectItem(item)">
+                    <img width=100 src="{{item.image}}">
+                    {{item.name}} - id:{{item.id}}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h3>Выбрано </h3>
+        <div>Сообщения:{{msg}}</div>
+        <div ng-if="selectedItems.length === 0" class="alert alert-danger">Ничего не выбрано</div>
+        <div class="scrollable-list">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="item in selectedItems" ng-click="deselectItem(item)">
+                    <img width=100 src="{{item.image}}">
+                    {{item.name}} - id:{{item.id}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
