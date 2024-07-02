@@ -137,7 +137,7 @@ class FlatTreeModel
      *
      */
 
-    function getSubTree($data, $elementId)
+    function getSubTree( $elementId)
     {
         $data = $this->data;
         // Helper function to recursively get children
@@ -168,7 +168,7 @@ class FlatTreeModel
     function getNormalizedSubTree($data, $elementId)
     {
         $data = $this->data;
-        $subTree = $this->getSubTree($data, $elementId);
+        $subTree = $this->getSubTree( $elementId);
 
         return $this->normalizeSubTree($subTree);
     }
@@ -311,7 +311,7 @@ class FlatTreeModel
 
         $subtree = $this->getNormalizedSubTree($this->data, $firstId);
         $this->deleteElementWithChildren($this->data, $firstId);
-        $targetSubTree = $this->getSubTree($this->data, $targetId);
+        $targetSubTree = $this->getSubTree( $targetId);
         // Находим минимальное и максимальное значение order
         $orders = array_column($targetSubTree, 'order');
         $minTagetOrder = min($orders);
@@ -336,7 +336,7 @@ class FlatTreeModel
 
 
 
-        $targetSubTree = $this->getSubTree($this->data, $targetId);
+        $targetSubTree = $this->getSubTree( $targetId);
 
         // Находим минимальное и максимальное значение order
         $orders = array_column($targetSubTree, 'order');
@@ -362,7 +362,7 @@ class FlatTreeModel
         $parentId = $targetElement['pid'];
 
 
-        $targetSubTree = $this->getSubTree($this->data, $targetId);
+        $targetSubTree = $this->getSubTree( $targetId);
 
         // Находим минимальное и максимальное значение order
         $orders = array_column($targetSubTree, 'order');
