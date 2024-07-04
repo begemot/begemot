@@ -16,16 +16,17 @@ $menuPart1 = array(
         'items' => array(
             array(
                 'url' => '/catalog/catCategory/admin',
-                'label' => 'Список разделов',
+                'label' => 'Управление разделами',
+            ),
+            array(
+                'url' => '/catalog/catCategory/massItemsMoveBetweenCategories',
+                'label' => 'Массовое перемещение',
             ),
             array(
                 'url' => '/catalog/catCategory/create',
                 'label' => 'Создать раздел',
             ),
-            array(
-                'url' => '/catalog/catCategory/admin',
-                'label' => 'Новый интерфейс',
-            ),
+
 
         ),
     ),
