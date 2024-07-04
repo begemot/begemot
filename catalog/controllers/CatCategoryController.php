@@ -40,7 +40,7 @@ class CatCategoryController extends Controller
             array(
                 'allow', // allow admin user to perform 'admin' and 'delete' actions
 
-                'actions' => array('ajaxCategoryCreate', 'admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage', 'echoJsonCategories'),
+                'actions' => array('massItemsMoveBetweenCategories', 'ajaxCategoryCreate', 'admin', 'moveCat', 'delete', 'orderUp', 'orderDown', 'create', 'update', 'index', 'view', 'makeCopy', 'tidyPost', 'directMakeCopyOrMove', 'massItemsToCategoriesConnect', 'catManage', 'echoJsonCategories'),
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
 
@@ -439,5 +439,11 @@ class CatCategoryController extends Controller
         $model->save();
 
         $this->redirect(array('/catalog/catCategory/update', 'id' => $model->id,));
+    }
+
+    public function actionMassItemsMoveBetweenCategories()
+    {
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $this->render('massItemsMoveBetweenCategories');
     }
 }
