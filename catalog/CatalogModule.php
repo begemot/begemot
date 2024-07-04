@@ -64,17 +64,30 @@ class CatalogModule extends CWebModule
 
         return Yii::app()->assetManager->publish($assetsPath);
     }
-
     public function beforeControllerAction($controller, $action)
     {
-        if (($controller->id != 'site') && ($controller->id != 'catalogAndSchema')) {
-            $component = Yii::createComponent(array(
+        // Массив исключений
+        $exclusions = [
+            'site' => ['*'], // Все действия контроллера 'site'
+            'catalogAndSchema' => ['*'], // Все действия контроллера 'catalogAndSchema'
+            'catCategory' => ['massItemsMoveBetweenCategories'], // Определенные действия другого контроллера
+        ];
 
-                'class' => 'begemot.extensions.bootstrap.components.Bootstrap'
+        // Проверка исключений
+        $controllerId = $controller->id;
+        $actionId = $action->id;
 
-            ));
-            Yii::app()->setComponent('bootstrap', $component);
+        if (isset($exclusions[$controllerId])) {
+            if (in_array('*', $exclusions[$controllerId]) || in_array($actionId, $exclusions[$controllerId])) {
+                return true; // Исключение, не подключаем Bootstrap
+            }
         }
+
+        // Подключение Bootstrap компонента
+        $component = Yii::createComponent([
+            'class' => 'begemot.extensions.bootstrap.components.Bootstrap'
+        ]);
+        Yii::app()->setComponent('bootstrap', $component);
 
         return true;
     }
