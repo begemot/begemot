@@ -26,20 +26,18 @@ class CatItem extends ContentKitModel
     {
         $schemaType = 'catItem';
         $groupId = $this->id;
-        $link = new CSchemaLink($schemaType,$groupId);
+        $link = new CSchemaLink($schemaType, $groupId);
         return $link->get($fieldId);
-
     }
-    public function schemaSet($fieldId,$value,$dataType='String')
+    public function schemaSet($fieldId, $value, $dataType = 'String')
     {
 
         $schemaType = 'catItem';
         $groupId = $this->id;
 
-        $link = new CSchemaLink($schemaType,$groupId);
+        $link = new CSchemaLink($schemaType, $groupId);
 
-        $link->setData($fieldId,$value,$dataType);
-
+        $link->setData($fieldId, $value, $dataType);
     }
     /**
      * Returns the static model of the specified AR class.
@@ -124,7 +122,6 @@ class CatItem extends ContentKitModel
 
             return array();
         }
-
     }
 
     public function getCategoriesItemIn()
@@ -154,7 +151,7 @@ class CatItem extends ContentKitModel
     public function removeFromCategory()
     {
 
-//        echo "<input type='checkbox' {$checked} class='togglePublished' data-id= '{$this->id}'>";
+        //        echo "<input type='checkbox' {$checked} class='togglePublished' data-id= '{$this->id}'>";
         echo "<a  data-id= '{$this->id}'  class='removeBtn btn btn-primary btn-mini'>Убрать из раздела</a>";
     }
 
@@ -175,7 +172,6 @@ class CatItem extends ContentKitModel
         if ($saleOfItem) return $saleOfItem->discount->sale;
 
         return false;
-
     }
 
     public static function getMinSale($id)
@@ -258,8 +254,6 @@ class CatItem extends ContentKitModel
                         $this->$paramName = implode(',', $_REQUEST['CatItem'][$itemRow->name_t]);
                     } else $this->$paramName = $_REQUEST['CatItem'][$itemRow->name_t];
                 }
-
-
             }
         }
         return true;
@@ -298,9 +292,9 @@ class CatItem extends ContentKitModel
 
         $criteria->compare('name', $this->name, true);
         $criteria->compare('name_t', $this->name_t, true);
-        $criteria->compare('status', $this->status,true);
-        $criteria->compare('article', $this->article,true);
-       // $criteria->compare('data', $this->data, true);
+        $criteria->compare('status', $this->status, true);
+        $criteria->compare('article', $this->article, true);
+        // $criteria->compare('data', $this->data, true);
         $criteria->order = '`id` desc';
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -318,11 +312,9 @@ class CatItem extends ContentKitModel
         $images = array();
         if (file_exists($favFilePath)) {
             $images = require($favFilePath);
-
         };
 
         return $images;
-
     }
 
 
@@ -335,8 +327,6 @@ class CatItem extends ContentKitModel
         $images = $PBox->getSortedImageList();
 
         return $images;
-
-
     }
 
     public function getItemWithMaximalPrice($catId)
@@ -386,7 +376,6 @@ class CatItem extends ContentKitModel
             } else {
                 return '#';
             }
-
         }
 
         if (is_null($tag)) {
@@ -422,7 +411,6 @@ class CatItem extends ContentKitModel
             if ($model) {
                 return '<span class="icon icon-big icon-random"></span>';
             } else return "Нет";
-
         }
 
         return null;
@@ -449,9 +437,7 @@ class CatItem extends ContentKitModel
             foreach ($color['images'] as $image) {
                 $this->addImageToColor($colorToItemId, $image);
             }
-
         }
-
     }
 
     public function addNewColor($title, $code)
@@ -466,5 +452,53 @@ class CatItem extends ContentKitModel
         return CatColor::addImageToColor($colorToItemId, $image);
     }
 
-}
 
+    public function getStandartCategories()
+    {
+        $standartCatsArrayNames = ['stock', 'catalog', 'sold', 'archive'];
+        return CatCategory::model()->findAllByAttributes(['name' => $standartCatsArrayNames]);
+    }
+
+    public function clearStandartCategories()
+    {
+
+        $standartCatsIds = array_column($this->getStandartCategories(), 'id');
+
+
+        $catItemsToCatArray = CatItemsToCat::model()->findAllByAttributes(['itemId' => $this->id, 'catId' => $standartCatsIds]);
+        array_map(function ($item) {
+            $item->delete();
+        }, $catItemsToCatArray);
+        // print_r($catItemsToCat);
+    }
+
+    public function moveToStandartCat($name)
+    {
+        $this->clearStandartCategories();
+
+        if ($name == 'clear') {
+            return;
+        }
+        
+        $catItemToCat = new CatItemsToCat();
+        $catItemToCat->itemId = $this->id;
+
+        $cat = CatCategory::model()->findAllByAttributes(['name' => $name]);
+
+        $catItemToCat->catId = $cat[0]->id;
+        $catItemToCat->save();
+    }
+
+    // public function moveToStock(){
+    //     $this->moveToStandartCat('stock');
+    // }
+    // public function moveToArchive(){
+    //     $this->moveToStandartCat('archive');
+    // }
+    // public function moveToCatalog(){
+    //     $this->moveToStandartCat('catalog');
+    // }
+    // public function moveToSold(){
+    //     $this->moveToStandartCat('sold');
+    // }
+}
