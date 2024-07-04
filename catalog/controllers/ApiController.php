@@ -25,7 +25,7 @@ class ApiController extends Controller
 
 
                 'actions' => array(
-                    'itemListJson'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList'
                 ),
 
 
@@ -74,5 +74,52 @@ class ApiController extends Controller
         header('Content-Type: application/json');
         echo CJSON::encode($result);
         Yii::app()->end();
+    }
+
+    public function actionGetCategoriesOfCatItem($itemId)
+    {
+        // Поиск всех записей catItemsToCat по itemId
+        $catItemsToCat = CatItemsToCat::model()->findAllByAttributes(['itemId' => $itemId]);
+
+        // Массив для хранения данных категорий
+        $categories = [];
+
+        // Проход по всем найденным записям и добавление данных категорий в массив
+        foreach ($catItemsToCat as $item) {
+            $categories[] = $item->cat->attributes; // Добавляем все атрибуты связанной категории
+        }
+
+        // Вывод данных в формате JSON
+        echo CJSON::encode($categories);
+    }
+    public function actionMoveItemsToStandartCat()
+    {
+        $rawPostData = file_get_contents("php://input");
+        $data = CJSON::decode($rawPostData, true);
+
+        $selectedItems = isset($data['selectedItems']) ? $data['selectedItems'] : [];
+        $name = $data['where'];
+        if (!empty($selectedItems)) {
+            // Ваша логика для перемещения элементов на склад
+            foreach ($selectedItems as $selectedItem) {
+                CatItem::model()->findByPk($selectedItem['id'])->moveToStandartCat($name);
+            }
+        }
+
+        // Возврат ответа
+        echo CJSON::encode(['status' => 'success', 'message' => 'Items moved to stock successfully.']);
+        Yii::app()->end();
+    }
+
+    public function actionGetCatList()
+    {
+        $model = CatCategory::model();
+        //$tmp = $model->getcategoriesTree();
+        $model->loadCategories();
+        $tmp = $model->categories;
+
+
+
+        echo json_encode($tmp);
     }
 }
