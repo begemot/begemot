@@ -41,6 +41,21 @@ class CatCategory extends CActiveRecord
         return 'catCategory';
     }
 
+
+    public static function getStandartCatalog(){
+        $categoryModel = self::model()->findAllByAttributes(['name'=>'catalog']);
+        return array_shift($categoryModel);
+    }
+
+    public static function getAllCatItemsOfCategory($catId){
+       
+        $flatTree = self::createFlatTree();
+        $subCats = $flatTree->getSubTree($catId);
+        $ids = array_column($subCats, 'id');
+        
+        return CatItemsToCat::model()->findAllByAttributes(['catId'=>$ids]);
+    }
+
     public function behaviors()
     {
         return array(
@@ -477,13 +492,7 @@ class CatCategory extends CActiveRecord
         ));
     }
 
-    /**
-     * @param $draggedId id категории, которую перемещаем
-     * @param $targetdId id категории, на которую перемещаем
-     * @param $moveType 'middle' - сделать дочерним, 'left' - вставить перед целью, 'right' - вставить после
-     */
-    public static function moveTo($draggedId, $targetdId, $moveType)
-    {
+    public static function createFlatTree(){
         $models = CatCategory::model()->findAll();
         $flatTreeData = [];
         foreach ($models as $item) {
@@ -496,18 +505,10 @@ class CatCategory extends CActiveRecord
             $flatTreeData[] = $flatTreeDataItem;
         }
         Yii::import('begemot.components.FlatTreeModel');
-        $flatTree = new FlatTreeModel($flatTreeData);
-        //$flatTree->printHierarchicalList();
+         return new FlatTreeModel($flatTreeData);
+    }
 
-        if ($moveType == 'middle') {
-            $flatTree->attachOneToAnother($draggedId, $targetdId);
-        }
-        if ($moveType == 'left') {
-            $flatTree->insertSubTreeBefore($draggedId, $targetdId);
-        }
-        if ($moveType == 'right') {
-            $flatTree->insertSubTreeAfter($draggedId, $targetdId);
-        }
+    public static  function flatTreeApply($flatTree){
         $data = $flatTree->getData();
         foreach ($data as $item) {
 
@@ -521,5 +522,26 @@ class CatCategory extends CActiveRecord
                 throw new Exception('Не удалось сохранить модель категории каталога');
             }
         }
+    }
+    /**
+     * @param $draggedId id категории, которую перемещаем
+     * @param $targetdId id категории, на которую перемещаем
+     * @param $moveType 'middle' - сделать дочерним, 'left' - вставить перед целью, 'right' - вставить после
+     */
+    public static function moveTo($draggedId, $targetdId, $moveType)
+    {
+        $flatTree = self::createFlatTree();
+        //$flatTree->printHierarchicalList();
+
+        if ($moveType == 'middle') {
+            $flatTree->attachOneToAnother($draggedId, $targetdId);
+        }
+        if ($moveType == 'left') {
+            $flatTree->insertSubTreeBefore($draggedId, $targetdId);
+        }
+        if ($moveType == 'right') {
+            $flatTree->insertSubTreeAfter($draggedId, $targetdId);
+        }
+        self::flatTreeApply($flatTree);
     }
 }
