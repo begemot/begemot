@@ -1,0 +1,13 @@
+
+    <h3>Выбрано </h3>
+    <div>Сообщения:{{msg}}</div>
+    <div ng-if="selectedItems.length === 0" class="alert alert-danger">Ничего не выбрано</div>
+    <div class="scrollable-list">
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="item in selectedItems" ng-click="deselectItem(item)">
+                <img width=100 src="{{item.image}}">
+                {{item.name}} - id:{{item.id}}
+                <cat-item-cat-list item-id="item.id" ng-if="showCats"></cat-item-cat-list>
+            </li>
+        </ul>
+    </div>
