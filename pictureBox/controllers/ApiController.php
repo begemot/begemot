@@ -152,7 +152,10 @@ class ApiController extends Controller
             if (json_last_error() === JSON_ERROR_NONE) {
                 // Successfully retrieved the configuration
                 // You can now use $config array as needed
-                $resultList = array_merge($resultList,$config['subGalleries']);
+                if(isset($config['subGalleries'])) {
+                    $resultList = array_merge($resultList,$config['subGalleries']);
+                } 
+      
 
             } else {
                 // Handle JSON decode error
