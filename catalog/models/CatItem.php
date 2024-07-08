@@ -501,4 +501,29 @@ class CatItem extends ContentKitModel
     // public function moveToSold(){
     //     $this->moveToStandartCat('sold');
     // }
+    public function isInArchive(){
+        $result = CatItemsToCat::model()->findAllByAttributes(['itemId'=>$this->id]);
+
+        if($result){
+            foreach($result as $catItemToCat){
+                if($catItemToCat->cat->name=='archive') return true;
+            }
+        }
+
+    }
+
+    public function isInStock(){}
+    public function isInSold(){
+        
+        $result = CatItemsToCat::model()->findAllByAttributes(['itemId'=>$this->id]);
+        
+        if($result){
+            foreach($result as $catItemToCat){
+                if($catItemToCat->cat->name=='sold') return true;
+            }
+        }
+
+    }
+
+    public function isInCatalog(){}
 }

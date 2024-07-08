@@ -46,6 +46,21 @@ class CatCategory extends CActiveRecord
         $categoryModel = self::model()->findAllByAttributes(['name'=>'catalog']);
         return array_shift($categoryModel);
     }
+    
+    public static function getStandartSold(){
+        $categoryModel = self::model()->findAllByAttributes(['name'=>'sold']);
+        return array_shift($categoryModel);
+    }
+
+    public static function getStandartArchive(){
+        $categoryModel = self::model()->findAllByAttributes(['name'=>'archive']);
+        return array_shift($categoryModel);
+    }
+
+    public static function getStandartStock(){
+        $categoryModel = self::model()->findAllByAttributes(['name'=>'stock']);
+        return array_shift($categoryModel);
+    }
 
     public static function getAllCatItemsOfCategory($catId){
        
@@ -53,7 +68,7 @@ class CatCategory extends CActiveRecord
         $subCats = $flatTree->getSubTree($catId);
         $ids = array_column($subCats, 'id');
         
-        return CatItemsToCat::model()->findAllByAttributes(['catId'=>$ids]);
+        return CatItemsToCat::model()->findAllByAttributes(['catId'=>$ids], ['order' => '`order` ASC']);
     }
 
     public function behaviors()
