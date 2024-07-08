@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['uiCatalog'])
+var app = angular.module('myApp', ['uiCatalog','commonUi'])
 
 app.controller('myCtrl', function ($scope, $http) {
 	$scope.selectedItems = []

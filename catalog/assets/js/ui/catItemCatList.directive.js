@@ -7,7 +7,7 @@ angular.module('uiCatalog').directive('catItemCatList', function ($http) {
 
 		},
 		templateUrl:
-			'/protected/modules/catalog/assets/js/ui/html/catalogItemLCats.html',
+			'/protected/modules/catalog/assets/js/ui/html/catItemCatList.template.html',
 		link: function (scope) {
 			// Функция для получения данных о категориях
 			scope.getCategories = function () {

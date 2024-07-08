@@ -1,1 +1,1 @@
-var uiModule = angular.module('uiCatalog', [])
+var uiModule = angular.module('uiCatalog', ['commonUi'])

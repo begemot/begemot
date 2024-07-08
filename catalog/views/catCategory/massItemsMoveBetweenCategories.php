@@ -1,3 +1,4 @@
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 <div ng-app="myApp" ng-controller="myCtrl">
     <style>
         .scrollable-list {
@@ -78,14 +79,17 @@
     <div class="container mt-5">
         <category-select selected-categories='selectedCategories' business-logic-enabled='true'></category-select>
     </div>
-
- 
-    <script src="/protected/modules/catalog/assets/js/ui/uiModule.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemSelectDirective.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemCatListDirective.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemListDirective.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/categorySelect.directive.js"></script>
+    
    
+
+    <script src="/protected/modules/catalog/assets/js/ui/uiModule.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemSelect.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemCatList.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemList.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/categorySelect.directive.js"></script>
+
+    <script src="/protected/modules/begemot/ui/commonUiBs5/commonUi.js"></script>
+    <script src="/protected/modules/begemot/ui/commonUiBs5/modal.commonUi.js"></script>
     <script src="/protected/modules/catalog/views/catCategory/js/massItemsMoveBetweenCategories.js"></script>
     
 
@@ -97,4 +101,5 @@
             });
         });
     </script>
+
 </div>

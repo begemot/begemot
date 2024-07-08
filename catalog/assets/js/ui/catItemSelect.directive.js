@@ -7,21 +7,42 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			attachButtonVisible: '=',
 			msg: '=',
 			onSelectChange: '&',
-			selectedItemsView:'=',
-			showCats:'=?'
+			selectedItemsView: '=',
+			showCats: '=?'
+
 		},
 		templateUrl:
-			'/protected/modules/catalog/assets/js/ui//html/catalogItemSelect.html',
+			'/protected/modules/catalog/assets/js/ui//html/catItemSelect.template.html',
 		link: function (scope) {
 
-            if (typeof scope.showCats === 'undefined') {
-                scope.showCats = false // Значение по умолчанию
-            }
-			console.log(scope.showCats )
+			scope.testFunction = function (data) { 
+				console.log(data) 
+			}
+			scope.filterCategories = [];
 
-			
+			scope.$watch('filterCategories', function (newVal, oldVal) {
+				if (newVal !== oldVal) {
+					console.log(newVal)
+					// scope.categories.forEach(function(category) {
+					//     category.selected = newVal.includes(category.id);
+					// });
+				}
+			}, true);
+
+
+			if (typeof scope.showCats === 'undefined') {
+				scope.showCats = false // Значение по умолчанию
+			}
+
+			scope.modalCatFilter = false
+
+			scope.showCatSelectModal = function () {
+				scope.modalCatFilter = true
+			}
 			scope.selectListView = scope.selectedItemsView
 			scope.selectItem = function (item) {
+				scope.filterCategories = ['123123'];
+				console.log(scope.filterCategories);
 				var index = scope.catItems.indexOf(item)
 				if (index !== -1) {
 					scope.catItems.splice(index, 1)

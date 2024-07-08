@@ -1,36 +1,47 @@
-uiModule.directive('categorySelect', function($http) {
+uiModule.directive('categorySelect', function ($http) {
     return {
         restrict: 'E',
         scope: {
             selectedCategories: '=',
-            businessLogicEnabled: '=' // Входной параметр для включения бизнес логики
+            businessLogicEnabled: '=', // Входной параметр для включения бизнес логики,
+            selectedCallBack: '&'
         },
         templateUrl: '/protected/modules/catalog/assets/js/ui/html/categorySelect.template.html',
-        link: function(scope) {
+        link: function (scope) {
+
             scope.categories = [];
             const restrictedCategories = ['sold', 'archive', 'catalog', 'stock'];
 
             // Функция для обновления списка выбранных категорий
-            scope.updateSelectedCategories = function(selectedCategory) {
+            scope.updateSelectedCategories = function (selectedCategory) {
+
+
                 if (scope.businessLogicEnabled && restrictedCategories.includes(selectedCategory.name)) {
                     // Если выбрана одна из ограниченных категорий, снимаем выбор с других ограниченных категорий
-                    scope.categories.forEach(function(category) {
+                    scope.categories.forEach(function (category) {
                         if (category.name !== selectedCategory.name && restrictedCategories.includes(category.name)) {
                             category.selected = false;
                         }
                     });
                 }
-                scope.selectedCategories = scope.categories.filter(function(category) {
+
+                scope.selectedCategories = scope.categories.filter(function (category) {
                     return category.selected;
-                }).map(function(category) {
+                }).map(function (category) {
                     return category.id;
                 });
-            };
+
+                scope.sendCollBack(scope.selectedCategories)
+            }
+
+            scope.sendCollBack = function(data){
+                scope.selectedCallBack({ data: data })
+            }
 
             // Запрос к API для получения списка категорий
-            $http.get('/catalog/api/getCatList').then(function(response) {
+            $http.get('/catalog/api/getCatList').then(function (response) {
                 var data = response.data;
-                scope.categories = Object.keys(data).map(function(key) {
+                scope.categories = Object.keys(data).map(function (key) {
                     return {
                         id: data[key].id,
                         name: data[key].name,
@@ -41,7 +52,7 @@ uiModule.directive('categorySelect', function($http) {
                 });
 
                 // Сортировка категорий по полю order
-                scope.categories.sort(function(a, b) {
+                scope.categories.sort(function (a, b) {
                     return a.order - b.order;
                 });
             });

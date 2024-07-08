@@ -8,7 +8,7 @@ angular.module('uiCatalog').directive('catItemList', function ($http) {
 			showCats:'=?'
 		},
 		templateUrl:
-			'/protected/modules/catalog/assets/js/ui/html/catalogItemList.html',
+			'/protected/modules/catalog/assets/js/ui/html/catItemList.template.html',
 		link: function (scope) {
 
 			if (typeof scope.showCats === 'undefined') {
