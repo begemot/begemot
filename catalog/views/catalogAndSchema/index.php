@@ -68,10 +68,15 @@
             </div>
         </div>
     </div>
+    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
     <script src="/protected/modules/catalog/assets/js/ui/uiModule.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemSelectDirective.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemListDirective.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemCatListDirective.js"></script>
+    <script src="/protected/modules/begemot/ui/commonUiBs5/commonUi.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemSelect.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemList.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/catItemCatList.directive.js"></script>
+    <script src="/protected/modules/catalog/assets/js/ui/categorySelect.directive.js"></script>
+    <script src="/protected/modules/begemot/ui/commonUiBs5/commonUi.js"></script>
+    <script src="/protected/modules/begemot/ui/commonUiBs5/modal.commonUi.js"></script>
     <script src="/protected/modules/catalog/views/catalogAndSchema/js/app.js"></script>
 
 

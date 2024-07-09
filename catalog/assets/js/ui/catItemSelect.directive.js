@@ -102,7 +102,9 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 						console.error('Error loading catalog data:', error)
 					})
 			}
-
+			scope.customComparator = function(item) {
+				return -parseInt(item.id);
+			};
 			scope.debouncedLoadData()
 		},
 	}

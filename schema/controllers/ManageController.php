@@ -21,7 +21,7 @@ class ManageController extends Controller
             array(
                 'allow', // allow admin user to perform 'admin' and 'delete' actions
 
-                'actions' => array('newSchemaInstance', 'massDataProcess'),
+                'actions' => array('newSchemaInstance', 'massDataProcess', 'NewFieldFromMd', 'massFieldImportFromMd'),
 
                 'expression' => 'Yii::app()->user->canDo()'
 
@@ -38,27 +38,16 @@ class ManageController extends Controller
         $this->render('newSchemaInstance');
     }
 
-    public function actionMassDataProcess()
+    public function actionNewFieldFromMd()
     {
-        Yii::import('webroot.protected.models.CSchmVehicle');
+        $this->render('newFieldFromMd');
+    }
 
+    public function parseMdTable($mdTable)
+    {
 
-        // Получаем данные из запроса
-        $params = json_decode(file_get_contents('php://input'), true);
-        print_r($params);
-        // Проверяем, что данные правильно получены
-        if (!$params || !isset($params['message'])) {
-            echo "No message data received!";
-            return;
-        }
+        $rows = explode("\n", trim($mdTable));
 
-        // Разделение строки на массив строк по новой строке
-        $rows = explode("\n", trim($params['message']));
-
-        // // Удаляем разделители таблицы
-        // $rows = array_filter($rows, function ($row) {
-        //     return !preg_match('/^-+$/', trim($row));
-        // });
 
         // Парсинг строк
         $headers = [];
@@ -84,10 +73,74 @@ class ManageController extends Controller
                 }
             }
         }
+        return $table;
+    }
+
+    public function actionMassFieldImportFromMd()
+    {
+        $params = json_decode(file_get_contents('php://input'), true);
+        print_r($params);
+
+
+
+        // Проверяем, что данные правильно получены
+        if (!$params || !isset($params['message'])) {
+            echo "No message data received!";
+            return;
+        }
+
+
+        $table = $this->parseMdTable($params['message']);
+
+        Yii::import('schema.models.SchemaField');
+        $order = 0;
+        foreach ($table as $row) {
+
+            
+            foreach ($row as $key => $value) {
+                if ($value) {
+                    $fieldModekExist = SchemaField::model()->findByAttributes(['name' => $value]);
+                    if ($fieldModekExist) {
+                        $scemaField = $fieldModekExist;
+                    } else {
+                        $scemaField = new SchemaField();
+                    }
+
+                    $order++;
+                    $scemaField->schemaId = 1;
+                    $scemaField->name = $value;
+                    $scemaField->type = 'String';
+                    $scemaField->order = $order;
+                    $scemaField->save();
+                    // $CSchmVehicle = new CSchmVehicle(null, 'Название', $key);
+                    // $CSchmVehicle->set($fieldName, $value);
+                }
+            }
+        }
+        return;
+    }
+
+    public function actionMassDataProcess()
+    {
+        Yii::import('webroot.protected.models.CSchmVehicle');
+
+
+        $params = json_decode(file_get_contents('php://input'), true);
+        print_r($params);
+
+
+
+        // Проверяем, что данные правильно получены
+        if (!$params || !isset($params['message'])) {
+            echo "No message data received!";
+            return;
+        }
+
+
+        $table = $this->parseMdTable($params['message']);
+
+
         print_r($table);
-
-
-        // print_r($table);
         foreach ($table as $row) {
             $fieldName = $row['Характеристика'];
             unset($row['Характеристика']);
