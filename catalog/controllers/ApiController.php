@@ -41,15 +41,42 @@ class ApiController extends Controller
     public function actionItemListJson()
     {
         // Получаем параметр name из GET запроса
-        $name = Yii::app()->request->getQuery('name', '');
+        $rawPostData = file_get_contents("php://input");
+        $data = CJSON::decode($rawPostData, true);
+
+        $name = isset($data['name']) ? $data['name'] : '';
+        $categoryIds = isset($data['catFilterIds']) ? $data['catFilterIds'] : [];
+
+        // // Проверка входящих данных
+        // if (empty($categoryIds)) {
+        //     echo CJSON::encode([]);
+        //     Yii::app()->end();
+        // }
 
         // Создаем критерий для поиска
         $criteria = new CDbCriteria;
+        if (is_array($categoryIds) && count($categoryIds) > 0) {
+            $catItemToCatModels = CatItemsToCat::model()->findAllByAttributes(['catId' => $categoryIds]);
+            // Преобразуем модели в массивы
+            $catItemToCatArray = [];
+            foreach ($catItemToCatModels as $model) {
+                $catItemToCatArray[] = $model->attributes;
+            }
+            $itemIds = array_column($catItemToCatArray, 'itemId');
+            $criteria->addInCondition('id', $itemIds);
+            // $criteria->with = array('categories');
+            // $criteria->together = true;
+            // $criteria->addInCondition('categories.id', $categoryIds);
+            // $criteria->group = 't.id';
+            //$criteria->having = 'COUNT(DISTINCT categories.id) = ' . count($categoryIds);
+        }
+
 
         // Если параметр name не пустой, добавляем условие фильтрации
         if (!empty($name)) {
-            $criteria->compare('name', $name, true);
+            $criteria->compare('t.name', $name, true);
         }
+
 
         // Находим все подходящие записи
         $catItems = CatItem::model()->findAll($criteria);
@@ -57,11 +84,8 @@ class ApiController extends Controller
         // Преобразуем записи в массив для вывода в формате JSON, оставляем только name и id
         $result = [];
         foreach ($catItems as $item) {
-
-
             Yii::import('pictureBox.components.PBox');
             $pBox = new PBox('catalogItem', $item->id);
-
 
             $result[] = [
                 'id' => $item->id,

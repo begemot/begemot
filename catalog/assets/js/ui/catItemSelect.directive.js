@@ -8,27 +8,30 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			msg: '=',
 			onSelectChange: '&',
 			selectedItemsView: '=',
-			showCats: '=?'
-
+			showCats: '=?',
 		},
 		templateUrl:
 			'/protected/modules/catalog/assets/js/ui//html/catItemSelect.template.html',
 		link: function (scope) {
-
-			scope.testFunction = function (data) { 
-				console.log(data) 
+			scope.categoriesFilterCallBack = function (data) {
+				scope.filterCategories = data
+				scope.debouncedLoadData()
 			}
-			scope.filterCategories = [];
+			scope.filterText = 'argo'
+			scope.filterCategories = []
 
-			scope.$watch('filterCategories', function (newVal, oldVal) {
-				if (newVal !== oldVal) {
-					console.log(newVal)
-					// scope.categories.forEach(function(category) {
-					//     category.selected = newVal.includes(category.id);
-					// });
-				}
-			}, true);
-
+			// scope.$watch(
+			// 	'filterCategories',
+			// 	function (newVal, oldVal) {
+			// 		if (newVal !== oldVal) {
+			// 			console.log(newVal)
+			// 			// scope.categories.forEach(function(category) {
+			// 			//     category.selected = newVal.includes(category.id);
+			// 			// });
+			// 		}
+			// 	},
+			// 	true
+			// )
 
 			if (typeof scope.showCats === 'undefined') {
 				scope.showCats = false // Значение по умолчанию
@@ -39,10 +42,9 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			scope.showCatSelectModal = function () {
 				scope.modalCatFilter = true
 			}
+
 			scope.selectListView = scope.selectedItemsView
 			scope.selectItem = function (item) {
-				scope.filterCategories = ['123123'];
-				console.log(scope.filterCategories);
 				var index = scope.catItems.indexOf(item)
 				if (index !== -1) {
 					scope.catItems.splice(index, 1)
@@ -81,9 +83,14 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 					})
 			}
 
-			scope.loadCatItems = function (filterText) {
+			scope.debouncedLoadData = _.debounce(loadCatItems, 1000) // 300 мс задержка
+
+			function loadCatItems() {
 				$http
-					.get('/catalog/api/itemListJson', { params: { name: filterText } })
+					.post('/catalog/api/itemListJson', {
+						name: scope.filterText,
+						catFilterIds: scope.filterCategories,
+					})
 					.then(function (response) {
 						scope.catItems = response.data.filter(function (item) {
 							return !scope.selectedItems.some(function (selectedItem) {
@@ -95,7 +102,8 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 						console.error('Error loading catalog data:', error)
 					})
 			}
-			scope.loadCatItems('')
+
+			scope.debouncedLoadData()
 		},
 	}
 })

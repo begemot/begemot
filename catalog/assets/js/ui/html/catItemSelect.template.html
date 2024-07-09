@@ -5,24 +5,25 @@
     <div class="col-md-6">
         <h3>Выберите из Catalog</h3>
         <div class="input-group mb-3">
-            <input type="text" ng-model="filterText" class="form-control" placeholder="Фильтр">
+            <input type="text" ng-model="filterText" class="form-control" placeholder="Фильтр"
+                ng-change="debouncedLoadData()">
             <button class="btn btn-outline-secondary" type="button" id="button-addon2" ng-click="showCatSelectModal()">
                 <i class="bi bi-list"></i> <!-- Иконка выбора категории, используйте нужную иконку -->
             </button>
         </div>
         <div class="scrollable-list">
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="item in catItems | filter:filterText"
-                    ng-click="selectItem(item)">
+                <li class="list-group-item" ng-repeat="item in catItems" ng-click="selectItem(item)">
                     <img width="100" src="{{item.image}}">
                     {{item.name}} - id:{{item.id}}
                 </li>
             </ul>
         </div>
     </div>
-    
+
     <div class="col-md-6">
-        <cat-item-list selected-items="selectedItems" on-deselect="deselectItem(item)" show-cats="showCats"></cat-item-list>
+        <cat-item-list selected-items="selectedItems" on-deselect="deselectItem(item)"
+            show-cats="showCats"></cat-item-list>
 
     </div>
 
@@ -41,10 +42,11 @@
     </div> -->
 
 
-</div>  
+</div>
 
 
 
 <modal visible='modalCatFilter'>
-    <category-select selected-categories='filterCategories' selected-call-back="testFunction(data)"></category-select>
+    <category-select selected-categories='filterCategories'
+        selected-call-back="categoriesFilterCallBack(data)"></category-select>
 </modal>

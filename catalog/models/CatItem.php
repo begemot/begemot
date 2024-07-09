@@ -100,6 +100,7 @@ class CatItem extends ContentKitModel
             'reviews' => array(self::HAS_MANY, 'Reviews', 'pid', 'condition' => 'status=1'),
             'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)', 'order' => '`options_options`.`order`'),
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
+            'categories' => array(self::MANY_MANY, 'CatCategory', 'catItemsToCat(itemId, catId)'),
         );
     }
 
@@ -479,7 +480,7 @@ class CatItem extends ContentKitModel
         if ($name == 'clear') {
             return;
         }
-        
+
         $catItemToCat = new CatItemsToCat();
         $catItemToCat->itemId = $this->id;
 
@@ -501,29 +502,33 @@ class CatItem extends ContentKitModel
     // public function moveToSold(){
     //     $this->moveToStandartCat('sold');
     // }
-    public function isInArchive(){
-        $result = CatItemsToCat::model()->findAllByAttributes(['itemId'=>$this->id]);
+    public function isInArchive()
+    {
+        $result = CatItemsToCat::model()->findAllByAttributes(['itemId' => $this->id]);
 
-        if($result){
-            foreach($result as $catItemToCat){
-                if($catItemToCat->cat->name=='archive') return true;
+        if ($result) {
+            foreach ($result as $catItemToCat) {
+                if ($catItemToCat->cat->name == 'archive') return true;
             }
         }
-
     }
 
-    public function isInStock(){}
-    public function isInSold(){
-        
-        $result = CatItemsToCat::model()->findAllByAttributes(['itemId'=>$this->id]);
-        
-        if($result){
-            foreach($result as $catItemToCat){
-                if($catItemToCat->cat->name=='sold') return true;
+    public function isInStock()
+    {
+    }
+    public function isInSold()
+    {
+
+        $result = CatItemsToCat::model()->findAllByAttributes(['itemId' => $this->id]);
+
+        if ($result) {
+            foreach ($result as $catItemToCat) {
+                if ($catItemToCat->cat->name == 'sold') return true;
             }
         }
-
     }
 
-    public function isInCatalog(){}
+    public function isInCatalog()
+    {
+    }
 }
