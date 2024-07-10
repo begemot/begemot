@@ -50,7 +50,7 @@
                         <li class="list-group-item" ng-class="{'selected-item': isSchemaLinkSelected(item)}"
                             ng-repeat="item in schemaLinks" ng-click="selectSchemaLink(item)">
                             <img width="100" src="{{item.image}}">
-                            {{item.name}} - id:{{item.id}}
+                            {{item.name}} - id:{{item.linkId}}
                         </li>
                     </ul>
                 </div>
