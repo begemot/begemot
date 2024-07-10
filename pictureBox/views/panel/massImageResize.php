@@ -56,20 +56,21 @@ $elementId = 3803;
             btn-label="Настройки процесса"
     >
         <label for="exampleInputEmail1" class="form-label">ID галлереи</label>
-        <input  ng-model="settingsForm.galleryId"  ng-change="formChange()" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        <input  ng-model="settingsForm.galleryId"   class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
 
         <label for="exampleInputEmail1" class="form-label">Тег изображения для пакетной обработки</label>
-        <input ng-change="formChange()" ng-model="settingsForm.tag" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        <input ng-model="settingsForm.tag" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
         <label  class="form-label">Размеры обрезки</label>
         <div class="input-group mb-3">
             <span class="input-group-text">Ш</span>
-            <input ng-change="formChange()" ng-model="settingsForm.width" type="text" class="form-control" placeholder="ширина">
+            <input  ng-model="settingsForm.width" type="text" class="form-control" placeholder="ширина">
             <span class="input-group-text">В</span>
-            <input ng-change="formChange()" ng-model="settingsForm.height" type="text" class="form-control" placeholder="высота">
+            <input  ng-model="settingsForm.height" type="text" class="form-control" placeholder="высота">
+            
         </div>
         <label for="exampleFormControlTextarea1" class="form-label">Список IDs экземпляров геллереи для обработки(через пробел)</label>
-        <textarea ng-model="settingsForm.ids" ng-change="formChange()" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-
+        <textarea ng-model="settingsForm.ids"  class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ng-click="formChange()">Обновить</button>
     </modal-and-button>
 
 

@@ -323,4 +323,23 @@ class ApiController extends Controller
             } else throw new Exception('$images[' . $imageId . '] - не существует');
         } else throw new Exception('$_FILES[\'croppedImage\'] - не существует');
     }
+
+    public function actionGetAllIds($gallery){
+       
+        $path = Yii::getPathOfAlias('webroot.files.pictureBox');
+         $path = $path. DIRECTORY_SEPARATOR.$gallery;
+        $directories = array_filter(glob($path . '/*'), 'is_dir');
+        $numericDirectories = array();
+    
+        foreach ($directories as $dir) {
+            $dirName = basename($dir);
+            if (ctype_digit($dirName)) {
+                $numericDirectories[] = (int) $dirName;
+            }
+        }
+    
+        rsort($numericDirectories);
+        
+        echo json_encode($numericDirectories);
+    }
 }

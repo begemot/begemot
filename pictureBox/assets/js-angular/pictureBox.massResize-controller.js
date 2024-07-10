@@ -6,11 +6,11 @@ angular.module('pictureBox').controller('massResize', ['$scope', '$http', 'galle
     $scope.activeImageIndex = 0
 
     $scope.settingsForm = {
-        galleryId: 'catalogCategory',
-        tag: 'catalogImage',
-        width: 475,
-        height: 235,
-        ids: '4319 4322 4320 4321 4268 4265 4292 4343 4328 4344 4315 4341 4323 4331 4332 4309 4310 4342 4345 4336 4304 4269 4305 4285 4301 4303 4290 4339 4340 4346 4347 4326 4314 4294 4318 4278 4250 4334 4311 4308 4312 4313 4275 4295 4335 4333 4298 4296 4267 4317 4300 4297 4281 4293 4274 4277 4286 4288 4272 4324 4327 4325 4287 4289 4283 4291 4284 4279 4282 4270 4280'
+        galleryId: 'catalogItem',
+        tag: 'main',
+        width: 234,
+        height: 134,
+        ids: ''
     }
     
 
@@ -30,13 +30,29 @@ angular.module('pictureBox').controller('massResize', ['$scope', '$http', 'galle
 
 
     $scope.formChange = () => {
-        // console.log($scope.settingsForm);
-    }
+        console.log($scope.settingsForm)
+        if ($scope.settingsForm.ids==''){
+            $scope.getAllIds()
+        }else {
+            $scope.parseIds()
+            $scope.nextImage()
+            $scope.getData()
+        }
 
+    }
+    $scope.getAllIds = function(){
+        
+        $http.get('/pictureBox/api/GetAllIds/gallery/'+$scope.settingsForm.galleryId).then(function (responce) {
+            $scope.IDsArray = responce.data
+            $scope.nextImage()
+            $scope.getData()
+            // $scope.interfaceUpdate(responce.data);
+        });
+    }
 
     $scope.getData = () => {
         // console.log($scope.IDsArray);
-        $http.get('/pictureBox/api/GetData', {
+        $http.get('/pictureBox/api/GetData?XDEBUG_SESSION_START=1', {
             params: {
                 galleryId: $scope.settingsForm.galleryId,
                 id: $scope.id,
