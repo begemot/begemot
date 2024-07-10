@@ -79,7 +79,7 @@
         </div>
 
         <div class="mt-3">
-            <p>Selected status: <span id="selected_status">None</span></p>
+            <button ng-click='moveToCat()'>Прикрепить элементы к категориям</button>
         </div>
     </div>
 

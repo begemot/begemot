@@ -16,7 +16,7 @@ app.controller('myCtrl', function ($scope, $http) {
     $scope.moveToStandartCat = function(cat) {
         // Проверка, что есть выбранные элементы для перемещения
         if ($scope.selectedItems.length > 0) {
-            $http.post('/catalog/api/MoveItemsToStandartCat', { selectedItems: $scope.selectedItems,where:cat})
+            $http.post('/catalog/api/massItemsMoveToCats', { selectedItems: $scope.selectedItems,where:cat})
                 .then(function(response) {
                     // Обработка успешного ответа
                     console.log('Items moved to stock successfully:', response.data);
@@ -27,6 +27,23 @@ app.controller('myCtrl', function ($scope, $http) {
                 });
         } else {
             console.log('No items selected.');
+        }
+    };
+
+    $scope.moveToCat = function(cat) {
+        // Проверка, что есть выбранные элементы для перемещения
+        if ($scope.selectedItems.length > 0 && $scope.selectedCategories.length >0) {
+            $http.post('/catalog/api/massItemsMoveToCats?XDEBUG_SESSION_START=1', { selectedItems: $scope.selectedItems,selectedCats:$scope.selectedCategories})
+                .then(function(response) {
+                    // Обработка успешного ответа
+                    console.log('Items moved to stock successfully:', response.data);
+                })
+                .catch(function(error) {
+                    // Обработка ошибки
+                    console.error('Error moving items to stock:', error);
+                });
+        } else {
+            console.log('No items or categories selected.');
         }
     };
 })

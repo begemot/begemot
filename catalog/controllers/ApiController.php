@@ -25,7 +25,7 @@ class ApiController extends Controller
 
 
                 'actions' => array(
-                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList','massItemsMoveToCats'
                 ),
 
 
@@ -133,6 +133,27 @@ class ApiController extends Controller
         // Возврат ответа
         echo CJSON::encode(['status' => 'success', 'message' => 'Items moved to stock successfully.']);
         Yii::app()->end();
+    }
+
+    public function actionMassItemsMoveToCats(){
+       
+        // Получаем параметр name из GET запроса
+         $rawPostData = file_get_contents("php://input");
+         $data = CJSON::decode($rawPostData, true);
+
+         if ( !isset($data['selectedCats']) && !isset($data['selectedItems']) ){
+            throw new Exception('нет данных');
+         }  else{
+
+            $itemsIds = array_column($data['selectedItems'],'id');
+            $catItems = CatItem::model()->findAllByAttributes(['id'=>$itemsIds]);
+            foreach ($catItems as $catItem){
+                foreach ($data['selectedCats'] as $catId){
+                    $catItem->moveToCat($catId);
+                }
+            }
+
+         }
     }
 
     public function actionGetCatList()

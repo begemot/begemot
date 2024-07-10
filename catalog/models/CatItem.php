@@ -528,7 +528,24 @@ class CatItem extends ContentKitModel
         }
     }
 
-    public function isInCatalog()
+    public function isInCategory($catId)
     {
+        $catItemsToCat = CatItemsToCat::model()->findByAttributes(['itemId'=>$this->id,'catId'=>$catId]);
+        if (!is_null($catItemsToCat)) {
+            return true;
+        } 
+        else{
+            return false;
+        };
+    }
+
+    public function moveToCat($catId){
+        if ($this->isInCategory($catId)) return;
+
+        $catItemsToCat = new CatItemsToCat();
+        $catItemsToCat->itemId = $this->id;
+        $catItemsToCat->catId = $catId;
+        $catItemsToCat->save();
+
     }
 }
