@@ -132,12 +132,12 @@ class SchemaData extends CActiveRecord
         ]);
 
 	    if ($data)
-            if ($data->delete()){
+            if (!$data->delete()){
                 $message='Не удалось удалить данные из таблицы '.$className.', в SchemaData->delete()';
                 throw new Exception($message);
             }
 	    
-	    parent::delete();
+	   return parent::delete();
     }
 
     public function getValue(){

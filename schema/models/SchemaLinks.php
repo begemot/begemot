@@ -100,4 +100,28 @@ class SchemaLinks extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+
+    protected function beforeDelete()
+    {
+		/**
+		 * Нужно удалить все данные связанные с этой schemaLinks. 
+		 * - это записи в SchemaData, по linkId->groupId
+		 * 
+		 * Данные SchemaData лежат дальше в таблице в соответсствии с типами данных и удаляются каскадно
+		 * 
+		 */
+
+		$schemaDataForDelete = SchemaData::model()->findAllByAttributes(['groupId'=>$this->linkId]);
+
+		foreach ($schemaDataForDelete as $schemaData){
+			
+			if (!$schemaData->delete()){
+				throw new Exception('Не удалось удалить SchemaData c linkId '.$schemaData->id);
+				
+			}
+		}
+
+        return parent::beforeDelete();
+    }
 }
