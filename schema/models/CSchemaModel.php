@@ -20,7 +20,7 @@ class CSchemaModel
 
 
 
-    public function __construct($id = null, $schemaField = null, $fieldValue = null)
+    public function __construct($id = null, $schemaField = null, $fieldValue = null,  $linkType = null)
     {
 
         if (is_null(static::$schemaId) || is_null($this->linkType)) {
@@ -28,7 +28,7 @@ class CSchemaModel
         }
 
         if (is_null($id) && !is_null($schemaField) && !is_null($fieldValue)) {
-            $foundGroupIds = self::findAllGroupIdByAttribute($schemaField, $fieldValue);
+            $foundGroupIds = self::findAllGroupIdByAttribute($schemaField, $fieldValue,$linkType);
             if (count($foundGroupIds) > 1) throw new Exception('Вернуло больше одного значения. Таким методом создавать CSchemaModel можно только когда значение уникально.');
             if (count($foundGroupIds) == 1) {
                 $id = array_shift($foundGroupIds);
@@ -67,7 +67,7 @@ class CSchemaModel
 
     }
 
-    public static function findAllGroupIdByAttribute($fieldName, $fieldValue)
+    public static function findAllGroupIdByAttribute($fieldName, $fieldValue,$linkType = null)
     {
         Yii::import('schema.models.SchemaLinks');
         Yii::import('schema.models.SchemaField');
@@ -85,8 +85,10 @@ class CSchemaModel
                 on SchemaData.id=SchmTypeString.fieldDataId 
     where 
         SchemaData.fieldType ='String' and 
-        fieldId='" . $fieldId . "' and 
-        value='" . $fieldValue . "';";
+        fieldId='" . $fieldId . "'".(
+            !is_null($linkType)?' and linkType=\''.$linkType.'\'':''
+        )."
+        and value='" . $fieldValue . "';";
 
         $command = Yii::app()->db->createCommand($sql);
         $result = $command->queryAll();

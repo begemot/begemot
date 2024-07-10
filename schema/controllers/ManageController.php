@@ -147,7 +147,7 @@ class ManageController extends Controller
             foreach ($row as $key => $value) {
                 if ($value) {
                     print_r($key);
-                    $CSchmVehicle = new CSchmVehicle(null, 'Название', $key);
+                    $CSchmVehicle = new CSchmVehicle(null, 'Название', $key,'vehicle');
                     $CSchmVehicle->set($fieldName, $value);
                 }
             }
