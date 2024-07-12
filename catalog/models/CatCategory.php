@@ -42,33 +42,46 @@ class CatCategory extends CActiveRecord
     }
 
 
-    public static function getStandartCatalog(){
-        $categoryModel = self::model()->findAllByAttributes(['name'=>'catalog']);
-        return array_shift($categoryModel);
-    }
-    
-    public static function getStandartSold(){
-        $categoryModel = self::model()->findAllByAttributes(['name'=>'sold']);
+    public static function getStandartCatalog()
+    {
+        $categoryModel = self::model()->findAllByAttributes(['name' => 'catalog']);
         return array_shift($categoryModel);
     }
 
-    public static function getStandartArchive(){
-        $categoryModel = self::model()->findAllByAttributes(['name'=>'archive']);
+    public static function getStandartSold()
+    {
+        $categoryModel = self::model()->findAllByAttributes(['name' => 'sold']);
         return array_shift($categoryModel);
     }
 
-    public static function getStandartStock(){
-        $categoryModel = self::model()->findAllByAttributes(['name'=>'stock']);
+    public static function getStandartArchive()
+    {
+        $categoryModel = self::model()->findAllByAttributes(['name' => 'archive']);
         return array_shift($categoryModel);
     }
 
-    public static function getAllCatItemsOfCategory($catId){
-       
+    public static function getStandartStock()
+    {
+        $categoryModel = self::model()->findAllByAttributes(['name' => 'stock']);
+        return array_shift($categoryModel);
+    }
+
+    public static function getAllCatItemsOfCategory($catId)
+    {
+
         $flatTree = self::createFlatTree();
         $subCats = $flatTree->getSubTree($catId);
         $ids = array_column($subCats, 'id');
+        $criteria = new CDbCriteria();
+        $criteria->select = 'DISTINCT t.itemId';
+        $criteria->addInCondition('catId', $ids);
+        $criteria->order = '`order` ASC';
         
-        return CatItemsToCat::model()->findAllByAttributes(['catId'=>$ids], ['order' => '`order` ASC']);
+        $items = CatItemsToCat::model()->findAll($criteria);
+
+        return $items = CatItemsToCat::model()->findAll($criteria);
+
+        // return CatItemsToCat::model()->findAllByAttributes(['catId' => $ids], ['order' => '`order` ASC']);
     }
 
     public function behaviors()
@@ -507,7 +520,8 @@ class CatCategory extends CActiveRecord
         ));
     }
 
-    public static function createFlatTree(){
+    public static function createFlatTree()
+    {
         $models = CatCategory::model()->findAll();
         $flatTreeData = [];
         foreach ($models as $item) {
@@ -520,10 +534,11 @@ class CatCategory extends CActiveRecord
             $flatTreeData[] = $flatTreeDataItem;
         }
         Yii::import('begemot.components.FlatTreeModel');
-         return new FlatTreeModel($flatTreeData);
+        return new FlatTreeModel($flatTreeData);
     }
 
-    public static  function flatTreeApply($flatTree){
+    public static  function flatTreeApply($flatTree)
+    {
         $data = $flatTree->getData();
         foreach ($data as $item) {
 
