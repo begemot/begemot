@@ -57,7 +57,7 @@ $this->endWidget();
 
     if (!$model->isNewRecord)
         $this->widget(
-                'application.modules.pictureBox.components.PictureBox', array(
+                'application.modules.pictureBox.components.PictureBoxFiles', array(
             'id' => 'videoGallery',
             'elementId' => $model->id,
             'config' => $videoConfig,
