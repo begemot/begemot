@@ -4,10 +4,15 @@ class m1697111034_categoriesRenew extends BaseMigration
 {
     public function up()
     {
+        Yii::import('catalog.models.CatCategory');
         $this->localStatusToggle();
         $cats = CatCategory::model()->findAll();
         $catsArray = [];
         foreach ($cats as $cat) {
+            $cat->status = 1;
+            if(!$cat->save()){
+                throw new Exception('не удалось сохранить статус категории');
+            }
             $catLine = [];
             $catLine['id'] = $cat->id;
             $catLine['pid'] = $cat->pid;
