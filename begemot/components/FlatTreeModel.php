@@ -109,7 +109,7 @@ class FlatTreeModel
         foreach ($this->data as $item) {
             if ($item['pid'] == $parentId) {
                 $children[] = $item['id'];
-                $children = array_merge($children, $this->getChildren($data, $item['id']));
+                $children = array_merge($children, $this->getChildren($this->data, $item['id']));
             }
         }
         return $children;
