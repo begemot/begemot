@@ -1,3 +1,4 @@
+<!-- левое меню для bs2 -->
 <?php $this->beginContent('begemot.views.layouts.main'); ?>
 
 <div class="row-fluid">

@@ -18,6 +18,13 @@ class CatCategoryController extends Controller
         );
     }
 
+    public function init() {
+        parent::init();
+        // Ваш код инициализации
+        $path = Yii::getPathOfAlias('catalog.views.catItem.commonMenu');
+        $this->menu = require $path.'.php';
+    }
+
     public function behaviors()
     {
         return array(
