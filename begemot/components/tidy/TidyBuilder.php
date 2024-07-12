@@ -22,19 +22,29 @@ class TidyBuilder
     public function __construct($text, $config, $images, $leadImage=0)
     {
         $this->text = $text;
-
+    
         $this->text = str_replace('&nbsp;', '', $this->text);
-        $this->text = preg_replace('|<p>\s+</p>|i', '!', $this->text);
-        $this->text = preg_replace('|<!-- template !-->.*?<!-- endtemplate !-->|sei', '', $this->text);
+        $this->text = preg_replace_callback(
+            '|<p>\s+</p>|i',
+            function($matches) {
+                return '!';
+            },
+            $this->text
+        );
+        $this->text = preg_replace_callback(
+            '|<!-- template !-->.*?<!-- endtemplate !-->|s',
+            function($matches) {
+                return '';
+            },
+            $this->text
+        );
         $this->config = $config;
         $this->images = $images;
-
-        if ($leadImage!==0){
+    
+        if ($leadImage !== 0) {
             $this->leadImage = $leadImage;
         }
-
     }
-
     public function renderText()
     {
 
