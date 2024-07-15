@@ -4,6 +4,12 @@
 class CatItemOptionsController extends Controller
 {
 
+    public function init() {
+        parent::init();
+        // Ваш код инициализации
+        $path = Yii::getPathOfAlias('catalog.views.catItem.commonMenu');
+        $this->menu = require $path.'.php';
+    }
     /**
      * @return array action filters
      */
@@ -23,7 +29,8 @@ class CatItemOptionsController extends Controller
     {
         return array(
 
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+            array(
+                'allow', // allow admin user to perform 'admin' and 'delete' actions
 
                 'actions' => [
                     'ajaxRenderTableOptionRow',
@@ -34,12 +41,13 @@ class CatItemOptionsController extends Controller
                     'ajaxUpdateOptionRelation',
                     'ajaxNewOptionOrder',
                     'makeImport',
-                    'removeOptions'
+                    'removeOptions','manage'
                 ],
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -84,15 +92,14 @@ class CatItemOptionsController extends Controller
 
         $sortCollection = $_REQUEST['sortCollection'];
 
-            foreach ($sortCollection as $order => $optionId){
-               $itemToItem = CatItemsToItems::model()->findByAttributes(['itemId'=>$itemId,'toItemId'=>$optionId]);
-                $itemToItem->order = $order;
+        foreach ($sortCollection as $order => $optionId) {
+            $itemToItem = CatItemsToItems::model()->findByAttributes(['itemId' => $itemId, 'toItemId' => $optionId]);
+            $itemToItem->order = $order;
 
-                if (!$itemToItem->save()){
-                    throw new Exception("Ошибка сохранения модели");
-                }
+            if (!$itemToItem->save()) {
+                throw new Exception("Ошибка сохранения модели");
             }
-
+        }
     }
 
     public function actionAjaxUpdateOptionRelation($baseItemId, $childrenOptionId, $action)
@@ -102,10 +109,10 @@ class CatItemOptionsController extends Controller
             $catItemsToItems->itemId = $baseItemId;
             $catItemsToItems->toItemId = $childrenOptionId;
 
-            if ($_REQUEST['target']=='relation')
+            if ($_REQUEST['target'] == 'relation')
                 $catItemsToItems->cantWorkWithOut = 1;
 
-            if ($_REQUEST['target']=='conflict')
+            if ($_REQUEST['target'] == 'conflict')
                 $catItemsToItems->conflict   = 1;
 
             $catItemsToItems->save();
@@ -152,10 +159,7 @@ class CatItemOptionsController extends Controller
                         echo 'not deleted';
                     };
                 } else {
-
                 }
-
-
             }
         }
     }
@@ -191,11 +195,11 @@ class CatItemOptionsController extends Controller
     {
         if (Yii::app()->request->isAjaxRequest) {
             $searchParams = ['itemId' => $selectedOptionId];
-            if ($_REQUEST['target']=='relation'){
-                $searchParams['cantWorkWithOut']=1;
+            if ($_REQUEST['target'] == 'relation') {
+                $searchParams['cantWorkWithOut'] = 1;
             }
-            if ($_REQUEST['target']=='conflict'){
-                $searchParams['conflict']=1;
+            if ($_REQUEST['target'] == 'conflict') {
+                $searchParams['conflict'] = 1;
             }
             $alreadyConnetedOptions = CatItemsToItems::model()->findAllByAttributes($searchParams);
 
@@ -203,7 +207,8 @@ class CatItemOptionsController extends Controller
         }
     }
 
-    public function actionMakeImport($id){
+    public function actionMakeImport($id)
+    {
 
         $catItem = CatItem::model()->findByPk($id);
         $postdata = file_get_contents("php://input");
@@ -211,9 +216,9 @@ class CatItemOptionsController extends Controller
         $options = $request->options;
 
 
-        foreach ($options as $option){
-            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId'=>$id,'toItemId'=>$option->id]);
-            if (!$searchOption){
+        foreach ($options as $option) {
+            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId' => $id, 'toItemId' => $option->id]);
+            if (!$searchOption) {
                 $optionRelation = new CatItemsToItems();
                 $optionRelation->itemId = $id;
                 $optionRelation->toItemId = $option->id;
@@ -226,12 +231,11 @@ class CatItemOptionsController extends Controller
                 $searchOption->order = $option->order;
                 $searchOption->save();
             }
-
         }
-
     }
 
-    public function actionRemoveOptions($id){
+    public function actionRemoveOptions($id)
+    {
 
         $catItem = CatItem::model()->findByPk($id);
         $postdata = file_get_contents("php://input");
@@ -239,14 +243,18 @@ class CatItemOptionsController extends Controller
         $options = $request->options;
         //получили опции которые нужно убрать из позиции с переданным $id
 
-        foreach ($options as $option){
-            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId'=>$id,'toItemId'=>$option->id]);
-            if ($searchOption){
+        foreach ($options as $option) {
+            $searchOption = CatItemsToItems::model()->findByAttributes(['itemId' => $id, 'toItemId' => $option->id]);
+            if ($searchOption) {
                 $searchOption->delete();
-                echo 'Открепляем опцию: '.$searchOption->toItem->name;
+                echo 'Открепляем опцию: ' . $searchOption->toItem->name;
             }
         }
-
     }
 
+    public function actionManage()
+    {
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $this->render('manage');
+    }
 }
