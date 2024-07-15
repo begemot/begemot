@@ -14,7 +14,7 @@ app.controller('FormController', ['$http', function($http) {
         var data = ctrl.formData;
 
         // Send POST request using $http service
-        $http.post('/schema/Manage/MassDataProcess?XDEBUG_SESSION_START=1', data)
+        $http.post('/schema/Manage/MassDataProcess', data)
             .then(function(response) {
                 // Handle successful submission (e.g., display success message)
                 console.log("Form submitted successfully!", response);

@@ -71,6 +71,7 @@ class CatalogModule extends CWebModule
             'site' => ['*'], // Все действия контроллера 'site'
             'catalogAndSchema' => ['*'], // Все действия контроллера 'catalogAndSchema'
             'catCategory' => ['massItemsMoveBetweenCategories'], // Определенные действия другого контроллера
+            'catItemOptions' => ['*'], // Определенные действия другого контроллера
         ];
 
         // Проверка исключений

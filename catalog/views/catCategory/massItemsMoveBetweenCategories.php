@@ -1,4 +1,29 @@
-<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<?php
+// Подключение jQuery и Lodash из bower_components
+
+// Получаем объект clientScript
+$cs = Yii::app()->clientScript;
+
+// Подключение jQuery и Lodash из bower_components
+$cs->registerScriptFile(Yii::app()->baseUrl . '/bower_components/jquery/dist/jquery.min.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/bower_components/lodash/dist/lodash.min.js', CClientScript::POS_END);
+
+// Подключение скриптов из модуля catalog
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/assets/js/ui/uiModule.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/assets/js/ui/catItemSelect.directive.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/assets/js/ui/catItemCatList.directive.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/assets/js/ui/catItemList.directive.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/assets/js/ui/categorySelect.directive.js', CClientScript::POS_END);
+
+// Подключение скриптов из модуля begemot
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/begemot/ui/commonUiBs5/commonUi.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/begemot/ui/commonUiBs5/modal.commonUi.js', CClientScript::POS_END);
+
+// Подключение скрипта massItemsMoveBetweenCategories
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/catCategory/js/massItemsMoveBetweenCategories.js', CClientScript::POS_END);
+
+?>
+
 <div ng-app="myApp" ng-controller="myCtrl">
     <style>
     .scrollable-list {
@@ -88,16 +113,7 @@
     </div>
 
 
-    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/uiModule.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemSelect.directive.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemCatList.directive.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/catItemList.directive.js"></script>
-    <script src="/protected/modules/catalog/assets/js/ui/categorySelect.directive.js"></script>
 
-    <script src="/protected/modules/begemot/ui/commonUiBs5/commonUi.js"></script>
-    <script src="/protected/modules/begemot/ui/commonUiBs5/modal.commonUi.js"></script>
-    <script src="/protected/modules/catalog/views/catCategory/js/massItemsMoveBetweenCategories.js"></script>
 
 
     <script>
