@@ -4,7 +4,8 @@ $menuPart1 = array(
     array('label' => 'Меню'),
     array('label' => 'Схемы поля', 'url' => array('/schema/default/index')),
     array('label' => 'Данные', 'url' => array('/schema/schemaLinks/admin')),
-    array('label' => 'Импорт из MD', 'url' => array('/schema/manage/newSchemaInstance')),
+    array('label' => 'Импорт данных из MD', 'url' => array('/schema/manage/newSchemaInstance')),
+    array('label' => 'Импорт полец из MD', 'url' => array('/schema/manage/newFieldFromMd.html')),
 
     //    array(
     //        'label' => 'Создать позицию',
