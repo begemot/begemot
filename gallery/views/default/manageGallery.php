@@ -16,7 +16,7 @@ if (file_exists($configFile)) {
 };
 
 $this->widget(
-    'application.modules.pictureBox.components.PictureBox', array(
+    'application.modules.pictureBox.components.PictureBoxFiles', array(
         'id' => 'gallery',
         'elementId' => $model->id,
         'config' => $picturesConfig,
