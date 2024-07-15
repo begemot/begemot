@@ -31,6 +31,10 @@ $menuPart1 = array(
         ),
     ),
     array(
+        'label' => 'Опции',
+        'url' => array('/catalog/catItemOptions/manage'),
+    ),
+    array(
 
 
         'url' => '/catalog/catOrder/admin',
