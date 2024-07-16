@@ -30,19 +30,22 @@ class CatItemController extends Controller
     {
         return array(
 
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+            array(
+                'allow', // allow admin user to perform 'admin' and 'delete' actions
 
 
                 'actions' => array(
                     'delete', 'createColor', 'deleteColor', 'setColor',
-                    'setColorTo', 'unsetColorTo','ajaxCreate',
+                    'setColorTo', 'unsetColorTo', 'ajaxCreate',
                     'deleteModifFromItem',
-                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'),
+                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'
+                ),
 
 
                 'expression' => 'Yii::app()->user->canDo("Catalog")'
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -74,27 +77,23 @@ class CatItemController extends Controller
         // $this->performAjaxValidation($model);
 
 
-//        if (isset($_POST['CatItem'])) {
+        //        if (isset($_POST['CatItem'])) {
 
-            $model->name = "Новая позиция";
-            if ($model->save()) {
+        $model->name = "Новая позиция";
+        if ($model->save()) {
 
-              $this->redirect(array('catItem/update', 'id' => $model->id));
+            $this->redirect(array('catItem/update', 'id' => $model->id));
+        } else {
+            throw new Exception(json_encode($model->getErrors()), 1);
+        }
 
+        //        }
 
-            } else {
-                throw new Exception(json_encode($model->getErrors()), 1);
-
-
-            }
-
-//        }
-
-//        if (!isset($_POST['returnId'])) {
-//            $this->render('create', array(
-//                'model' => $model,
-//            ));
-//        }
+        //        if (!isset($_POST['returnId'])) {
+        //            $this->render('create', array(
+        //                'model' => $model,
+        //            ));
+        //        }
 
     }
     public function actionAjaxCreate()
@@ -103,8 +102,7 @@ class CatItemController extends Controller
         $model->attributes = $_POST['CatItem'];
         if ($model->save()) {
 
-                echo $model->id;
-
+            echo $model->id;
         } else {
             echo 'ошибка сохранения';
         }
@@ -124,12 +122,9 @@ class CatItemController extends Controller
                 if ($flag) {
                     $currentPosition++;
                 }
-
             } else {
                 $flag = false;
             }
-
-
         }
 
         $array['currentPos'] = $currentPosition;
@@ -138,7 +133,6 @@ class CatItemController extends Controller
             ob_end_clean();
 
         echo json_encode($array);
-
     }
 
     /**
@@ -154,9 +148,9 @@ class CatItemController extends Controller
         CatalogModule::checkEditAccess($model->authorId);
 
 
-        if(Yii::app()->request->isAjaxRequest){
+        if (Yii::app()->request->isAjaxRequest) {
 
-            if (isset($_GET['changePrice'])){
+            if (isset($_GET['changePrice'])) {
                 $model->price = $_GET['changePrice'];
                 $model->save();
             }
@@ -218,7 +212,6 @@ class CatItemController extends Controller
                     } else {
                         $order++;
                     }
-
                 }
 
                 $currentItemModel->order = $itemModel->order;
@@ -237,10 +230,8 @@ class CatItemController extends Controller
                     $item->modOfThis = $id;
                     $item->save();
                     $this->redirect('/catalog/catItem/update/id/' . $id . '/tab/modifications');
-
                 }
             }
-
         }
 
         if (isset($_POST['saveItemsToItems'])) {
@@ -254,9 +245,7 @@ class CatItemController extends Controller
                     $item->toItemId = $itemId;
 
                     $item->save();
-
                 }
-
             }
 
             if (isset($_POST['items'])) {
@@ -268,7 +257,6 @@ class CatItemController extends Controller
 
                     $item->save();
                 }
-
             }
         }
 
@@ -300,10 +288,7 @@ class CatItemController extends Controller
                         array_push($fileListOfDirectory, array('name' => $class->getName(), 'className' => $className));
                     }
                 }
-
             }
-
-
         }
 
 
@@ -333,7 +318,6 @@ class CatItemController extends Controller
             'model' => $model,
             'tab' => $tab,
         ));
-
     }
 
     /**
@@ -346,25 +330,33 @@ class CatItemController extends Controller
         $model = $this->loadModel($id);
 
         CatalogModule::checkEditAccess($model->authorId);
+        // Удаляем записи из catItemsToCat
+        CatItemsToCat::model()->deleteAll('itemId=:itemId', array(':itemId' => $id));
 
+        // Удаляем записи из catItemsToItems где текущий элемент является родительским
+        CatItemsToItems::model()->deleteAll('itemId=:itemId', array(':itemId' => $id));
+
+        // Удаляем записи из catItemsToItems где текущий элемент является дочерним
+        CatItemsToItems::model()->deleteAll('toItemId=:itemId', array(':itemId' => $id));
+        
         $model->delete();
 
 
 
 
 
-//        //Удаляем привязки к категориям
-//        $ParsersLinkingRelations = ParsersLinking::model()->findAll('toId = ' . $id);
-//
-//        foreach ($ParsersLinkingRelations as $parsersLinking) {
-//
-//
-//            $parsersStock = $parsersLinking->linking;
-//            $parsersStock->linked = 0;
-//            $parsersStock->save();
-//
-//            $parsersLinking->delete();
-//        }
+        //        //Удаляем привязки к категориям
+        //        $ParsersLinkingRelations = ParsersLinking::model()->findAll('toId = ' . $id);
+        //
+        //        foreach ($ParsersLinkingRelations as $parsersLinking) {
+        //
+        //
+        //            $parsersStock = $parsersLinking->linking;
+        //            $parsersStock->linked = 0;
+        //            $parsersStock->save();
+        //
+        //            $parsersLinking->delete();
+        //        }
 
 
         if (!Yii::app()->request->isAjaxRequest)
@@ -377,13 +369,13 @@ class CatItemController extends Controller
     public function actionIndex()
     {
 
-//        $dataProvider = new CActiveDataProvider('CatItem',
-//            array(
-//                'criteria' => array('order' => '`id` desc'),
-//                'pagination' => array(
-//                    'pageSize' => 1000,
-//                ),
-//            ));
+        //        $dataProvider = new CActiveDataProvider('CatItem',
+        //            array(
+        //                'criteria' => array('order' => '`id` desc'),
+        //                'pagination' => array(
+        //                    'pageSize' => 1000,
+        //                ),
+        //            ));
 
         $model = new CatItem('search');
 
@@ -396,7 +388,6 @@ class CatItemController extends Controller
             'model' => $model,
 
         ));
-
     }
 
     public function actionTogglePublished($id)
@@ -439,7 +430,6 @@ class CatItemController extends Controller
             if (!$item->save()) {
                 echo 'Ошибка!';
             }
-
         }
     }
 
@@ -466,13 +456,10 @@ class CatItemController extends Controller
                     $model = $models[0];
 
                     $catItem->catId = $model->catId;
-
                 }
 
                 $catItem->save();
-
             }
-
         }
     }
 
@@ -531,7 +518,7 @@ class CatItemController extends Controller
 
         CatColor::createColor($colorName, $colorCode, $catItemId);
 
-        $this->redirect('/catalog/catItem/update/id/'.$catItemId.'/tab/colors');
+        $this->redirect('/catalog/catItem/update/id/' . $catItemId . '/tab/colors');
     }
 
     public function actionSetColorTo($colorId, $catItemId)
@@ -574,7 +561,7 @@ class CatItemController extends Controller
 
         $this->module->tidyleadImage != 0 ? $leadImage = 1 : $leadImage = 0;
 
-        $tidy = new TidyBuilder ($model->text, $this->module->tidyConfig, $images, $leadImage);
+        $tidy = new TidyBuilder($model->text, $this->module->tidyConfig, $images, $leadImage);
 
         $model->text = $tidy->renderText();
 
