@@ -2,10 +2,11 @@ var app = angular.module('myApp', ['uiCatalog', 'commonUi']);
 
 app.controller('myCtrl', function ($scope, $http) {
     $scope.selectedItems = [];
-
+    $scope.celectedItem = undefined
     // Функция, которая будет вызываться при изменении selectedItems
     $scope.onSelectItem = function(item) {
         console.log('Первый элемент selectedItems:', item);
+        $scope.selectedItem = item
         // Здесь можно добавить дополнительную логику для обработки элемента item
     };
 
@@ -25,4 +26,17 @@ app.controller('myCtrl', function ($scope, $http) {
             }
         }
     });
+
+
+
+
+
+    // Пример входных данных
+    $scope.inputData = [
+        { name: 'John', age: 25, email: 'john@example.com' },
+        { name: 'Jane', age: 30, email: 'jane@example.com' }
+    ];
+
+    // Выходные данные будут храниться здесь
+    $scope.outputData = [];
 });

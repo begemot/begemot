@@ -25,7 +25,7 @@ class ApiController extends Controller
 
 
                 'actions' => array(
-                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList','massItemsMoveToCats'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport'
                 ),
 
 
@@ -135,25 +135,25 @@ class ApiController extends Controller
         Yii::app()->end();
     }
 
-    public function actionMassItemsMoveToCats(){
-       
+    public function actionMassItemsMoveToCats()
+    {
+
         // Получаем параметр name из GET запроса
-         $rawPostData = file_get_contents("php://input");
-         $data = CJSON::decode($rawPostData, true);
+        $rawPostData = file_get_contents("php://input");
+        $data = CJSON::decode($rawPostData, true);
 
-         if ( !isset($data['selectedCats']) && !isset($data['selectedItems']) ){
+        if (!isset($data['selectedCats']) && !isset($data['selectedItems'])) {
             throw new Exception('нет данных');
-         }  else{
+        } else {
 
-            $itemsIds = array_column($data['selectedItems'],'id');
-            $catItems = CatItem::model()->findAllByAttributes(['id'=>$itemsIds]);
-            foreach ($catItems as $catItem){
-                foreach ($data['selectedCats'] as $catId){
+            $itemsIds = array_column($data['selectedItems'], 'id');
+            $catItems = CatItem::model()->findAllByAttributes(['id' => $itemsIds]);
+            foreach ($catItems as $catItem) {
+                foreach ($data['selectedCats'] as $catId) {
                     $catItem->moveToCat($catId);
                 }
             }
-
-         }
+        }
     }
 
     public function actionGetCatList()
@@ -169,7 +169,79 @@ class ApiController extends Controller
     }
 
 
-    public function actionGetOptionslist($itemId){
-
+    public function actionGetOptionslist($itemId)
+    {
     }
+
+    public function actionMassOptionsImport()
+    {
+        $jsonoptions = file_get_contents("php://input");
+        $data = CJSON::decode($jsonoptions, true);
+    
+        // Проверяем, что данные были получены и декодированы
+        if (!$data) {
+            throw new CHttpException(400, 'Invalid JSON input.');
+        }
+    
+        // Проверяем, что основные ключи присутствуют
+        if (!isset($data['data']) || !isset($data['additionalData'])) {
+            throw new CHttpException(400, 'Missing required data.');
+        }
+    
+        // Предполагаем, что у нас есть идентификатор основного элемента в additionalData
+        $mainItemId = $data['additionalData']['id'];
+    
+        // Ищем основной элемент CatItem по идентификатору
+        $mainItem = CatItem::model()->findByPk($mainItemId);
+    
+        if (!$mainItem) {
+            throw new CHttpException(404, 'Main item not found.');
+        }
+    
+        // Создание и связывание опций
+        foreach ($data['data'] as $itemData) {
+            $item = new CatItem();
+            $item->name = $itemData['name'];
+            $item->price = $itemData['price'];
+          
+            $item->status = 1;
+            $item->data = json_encode($itemData);
+            $item->quantity = 1;
+            $item->delivery_date = time();
+            $item->article = 'option-item';
+    
+            if (!$item->save()) {
+                throw new CHttpException(500, 'Failed to save option item.');
+            }
+    
+            // Связывание опции с категорией (предполагаем, что категория "options" уже существует)
+            $category = CatCategory::model()->find('name=:name', array(':name' => 'options'));
+            if ($category) {
+                $this->addCategory($item->id, $category->id);
+            }
+    
+            // Связывание опции с основным CatItem
+            $itemsToItems = new CatItemsToItems();
+            $itemsToItems->toItemId = $item->id;
+            $itemsToItems->itemId = $mainItem->id;
+    
+            if (!$itemsToItems->save()) {
+                throw new CHttpException(500, 'Failed to save item-to-item link.');
+            }
+        }
+    }
+    
+    private function addCategory($itemId, $categoryId)
+    {
+        $categoryItem = new CatItemsToCat();
+        $categoryItem->itemId = $itemId;
+        $categoryItem->catId = $categoryId;
+        $categoryItem->order = 0; // или любое другое значение по умолчанию
+    
+        if (!$categoryItem->save()) {
+            throw new CHttpException(500, 'Failed to save category link.');
+        }
+    }
+    
+    
 }
