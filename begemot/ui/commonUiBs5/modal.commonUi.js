@@ -1,5 +1,5 @@
 // app.js
-angular.module('commonUi', [])
+angular.module('commonUi')
 .directive('modal', function() {
   return {
     restrict: 'E',

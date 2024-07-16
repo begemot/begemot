@@ -1,0 +1,55 @@
+<div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th> <!-- Добавленный столбец для нумерации строк -->
+                <th ng-repeat="(key, value) in data[0]">{{ key }}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="row in data">
+                <td>{{ $index + 1 }}</td> <!-- Нумерация строк -->
+                <td ng-repeat="(key, value) in row">
+                    <div class="d-flex align-items-center">
+                        <input type="text" ng-model="row[key]" class="form-control me-2">
+                        <img ng-if="isImageUrl(row[key])" ng-src="{{ row[key] }}" width="100">
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-danger" ng-click="removeRow($index)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button class="btn btn-primary" ng-click="addRow()">Add Row</button>
+    <button class="btn btn-success" ng-click="saveData()">Save</button>
+    <button class="btn btn-info" ng-click="importJson()">Import JSON</button>
+    <button class="btn btn-warning" ng-click="exportJson()">Export JSON</button>
+</div>
+
+<!-- Modal for JSON import/export -->
+<div class="modal fade" id="jsonModal" tabindex="-1" aria-labelledby="jsonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="jsonModalLabel">JSON Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <textarea ng-model="modalJson" class="form-control" rows="10"></textarea>
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="appendData" ng-model="appendData">
+                    <label class="form-check-label" for="appendData">Append data</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-click="applyModal()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<h2>Образец json</h2>
+<pre ng-bind="data | json"></pre>
