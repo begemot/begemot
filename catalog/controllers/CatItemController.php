@@ -339,6 +339,9 @@ class CatItemController extends Controller
         // Удаляем записи из catItemsToItems где текущий элемент является дочерним
         CatItemsToItems::model()->deleteAll('toItemId=:itemId', array(':itemId' => $id));
         
+        Yii::import('pictureBox.components.PBox');
+        $pBox = new PBox('catalogItem',$model->id);
+        $pBox->deleteAll();
         $model->delete();
 
 
