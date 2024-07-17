@@ -54,7 +54,7 @@ class SmartResizeFilter extends BaseFilter{
         $image->cropImage($cropWidth, $cropHeight, $cropX, $cropY);
 
         // Сохраняем измененное изображение
-        $image->writeImage($localFile);
+        $image->writeImage($this->newFileName);
 
 
 
