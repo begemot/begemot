@@ -21,12 +21,22 @@ return array(
 
     'modules' => array(
         'begemot',
+        'gii' => array(
+            'class' => 'system.gii.GiiModule',
+            'password' => '123123123', // Задайте пароль для доступа к Gii
+            // Укажите IP-адреса, с которых разрешен доступ к Gii
+            'ipFilters' => array('*', '*'),
+        ),
     ),
 
     'components' => array(
 
 
-        // uncomment the following to enable URLs in path-format
+
+        // ... другие компоненты ...
+        'visitStatistics' => array(
+            'class' => 'application.modules.begemot.components.VisitStatisticsComponent',
+        ),
 
         'urlManager' => array(
 
@@ -47,7 +57,7 @@ return array(
 
 
                 'contacts' => '/site/contact',
-             //   'katalog' => '/site/ModelsAndPrices',
+                //   'katalog' => '/site/ModelsAndPrices',
 
             )
 
