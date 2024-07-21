@@ -20,7 +20,7 @@ class BaseFilter{
     }
     public function checkImageformat($file){
         try {
-            $image_info = @getimagesize($this->fileName);
+            $image_info = getimagesize($this->fileName);
         } catch (Exception $e) {
             return false;
         }

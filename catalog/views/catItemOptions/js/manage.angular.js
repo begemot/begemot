@@ -33,10 +33,25 @@ app.controller('myCtrl', function ($scope, $http) {
 
     // Пример входных данных
     $scope.inputData = [
-        { name: 'John', age: 25, email: 'john@example.com' },
-        { name: 'Jane', age: 30, email: 'jane@example.com' }
-    ];
-
+        {
+          "name": "Предпусковой подогреватель двигателя",
+          "price": 231000,
+          "url": "https://avtoros.com/upload/iblock/bfc/bfcc138a91477900cf0350547a159804.jpg",
+          "group": "Шасси"
+        },
+        {
+          "name": "Передняя гидравлическая лебедка",
+          "price": 357500,
+          "url": "https://avtoros.com/upload/iblock/81d/81d467a4fce9c375363c8413d1bad2ec.jpg",
+          "group": "Шасси"
+        },
+        {
+          "name": "Задняя электрическая лебедка",
+          "price": 275000,
+          "url": "https://avtoros.com/upload/iblock/e4a/e4a3596c3181fad014256d597cc8caa8.jpg",
+          "group": "Шасси"
+        }
+    ]
     // Выходные данные будут храниться здесь
     $scope.outputData = [];
 });

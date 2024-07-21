@@ -1,12 +1,11 @@
 <?php
-class SmartResizeFilter extends BaseFilter{
+class MaxSmartResizeFilter extends BaseFilter{
        
     public function make (){
 
         if ($this->checkImageformat($this->fileName)) {
 
             $image = new Imagick($this->fileName);
-            $image->setResourceLimit(Imagick::RESOURCETYPE_AREA, 1024 * 1024); // 1 GB
         } else return false;
 
 
@@ -15,11 +14,16 @@ class SmartResizeFilter extends BaseFilter{
         $newWidth = $this->param['width'];
         $newHeight = $this->param['height'];
 
+        $originalWidth = $image->getImageWidth();
+        $originalHeight = $image->getImageHeight();
+
+        if ($originalWidth<$newWidth) return;
+        if ($originalHeight<$newHeight) return;
+
         $aspectRatio = $newWidth / $newHeight;
         if ($aspectRatio >= 1) {
             // Получаем текущие размеры изображения
-            $originalWidth = $image->getImageWidth();
-            $originalHeight = $image->getImageHeight();
+
 
             // Вычисляем новую высоту, чтобы сохранить пропорции
             $resizeHeight = ($newWidth / $originalWidth) * $originalHeight;
@@ -34,8 +38,7 @@ class SmartResizeFilter extends BaseFilter{
             $cropY = ($resizeHeight - $cropHeight) / 2; // Кроп по центру по вертикали
         } else {
             // Получаем текущие размеры изображения
-            $originalWidth = $image->getImageWidth();
-            $originalHeight = $image->getImageHeight();
+
 
             // Вычисляем новую высоту, чтобы сохранить пропорции
             $resizeWidth = ($newHeight / $originalHeight) * $originalWidth;
@@ -52,16 +55,11 @@ class SmartResizeFilter extends BaseFilter{
 
 
         // Кроп изображения
-        if(!$image->cropImage($cropWidth, $cropHeight, $cropX, $cropY)){
-            throw new Exception();
-        }
-        
+        $image->cropImage($cropWidth, $cropHeight, $cropX, $cropY);
 
         // Сохраняем измененное изображение
-        ;
-        if(!$image->writeImage($this->newFileName)){
-            throw new Exception();
-        }
+        $image->writeImage($this->newFileName);
+
 
 
 
