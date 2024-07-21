@@ -1,29 +1,51 @@
 <?php
 $this->menu = require dirname(__FILE__) . '/../default/commonMenu.php';
+
+$cs = Yii::app()->clientScript;
+
+// Подключение jQuery и Lodash из bower_components
+$cs->registerScriptFile(Yii::app()->baseUrl . '/bower_components/jquery/dist/jquery.min.js', 1);
+// $cs->registerScriptFile(Yii::app()->baseUrl . '/bower_components/jquery/dist/jquery.min.js', 1);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/bower_components/lodash/dist/lodash.min.js', CClientScript::POS_BEGIN);
+
+// Подключение скриптов из модуля begemot
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/begemot/ui/commonUiBs5/commonUi.js', CClientScript::POS_BEGIN);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/begemot/ui/commonUiBs5/modal.commonUi.js', CClientScript::POS_BEGIN);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/begemot/ui/commonUiBs5/jsonTable.commonUi.directive.js', CClientScript::POS_BEGIN);
+
 ?>
 
 <script>
-var app = angular.module('myApp', []);
+var app = angular.module('myApp', ['commonUi']);
 
-app.controller('FormController', ['$http', function($http) {
+app.controller('FormController', ['$http', '$scope', function($http, $scope) {
     var ctrl = this;
     ctrl.formData = {};
+    $scope.test = 111;
+    $scope.inputData = [{
+            name: 'Название Field 1'
+        },
+        {
+            name: 'Название Field 2'
+        }
+    ]
+    $scope.outputData = []
 
-    ctrl.submitForm = function() {
-        // Prepare data to send
-        var data = ctrl.formData;
+    // ctrl.submitForm = function() {
+    //     // Prepare data to send
+    //     var data = ctrl.formData;
 
-        // Send POST request using $http service
-        $http.post('/schema/Manage/MassFieldImportFromMd', data)
-            .then(function(response) {
-                // Handle successful submission (e.g., display success message)
-                console.log("Form submitted successfully!", response);
-            })
-            .catch(function(error) {
-                // Handle submission errors
-                console.error("Error submitting form:", error);
-            });
-    };
+    //     // Send POST request using $http service
+    //     $http.post('/schema/Manage/MassFieldImportFromMd', data)
+    //         .then(function(response) {
+    //             // Handle successful submission (e.g., display success message)
+    //             console.log("Form submitted successfully!", response);
+    //         })
+    //         .catch(function(error) {
+    //             // Handle submission errors
+    //             console.error("Error submitting form:", error);
+    //         });
+    // };
 }]);
 </script>
 
@@ -33,90 +55,22 @@ app.controller('FormController', ['$http', function($http) {
 }
 </style>
 <div class="container" ng-app="myApp" ng-controller="FormController as ctrl">
-    <h2>Массовая обработка MD данных</h2>
-    <h3>Структура таблицы для примера</h3>
+    <h2>Массовый ввод SchemaField по json</h2>
 
 
 
     <div class="container mt-5">
-        <button id="toggleButton" class="btn btn-primary mb-3">Показать/Скрыть таблицы</button>
-        <div id="content" class="hidden-content">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Характеристика</th>
-                
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td> Тип двигателя</td>
-              
-                    </tr>
-                    <tr>
-                        <td>Усиление переднего и заднего мостов </td>
-               
-                    </tr>
-                    <tr>
-                        <td>и так далее</td>
-                    
-                    </tr>
-                </tbody>
-            </table>
-            <h3>Таблица для которая нужна на вход(такую отдает GPT)</h3>
-            <pre>
-            | Характеристика                           |
-|------------------------------------------|
-| Название                                 |
-| Колесная формула                         |
-| Мощность двигателя                       |
-| Тип двигателя                            |
+        <div class="row mt-5">
+            <h2>Импорт данных JSON</h2>
+            <json-table input-data="inputData" output-data="outputData"
+                send-data-url='/schema/Manage/MassFieldImportFromMd' additional-data-for-send='selectedItem' mt='false'>
+            </json-table>
 
-| Усиление переднего и заднего мостов      |
-| Подножка                                 |
-| Шины                                     |
-| Диски                                    |
-| Давление на грунт на колесах             |
-| Давление на грунт на гусеницах           |
-| Клиренс на шинах                         |
-| Клиренс на гусеницах                     |
-| Гарантия                                 |
-| Условия эксплуатации                     |
-| Температура эксплуатации                 |
-| Цвет                                     |
-| Дополнительные характеристики            |
-| Дополнительный генератор                 |
 
-</pre>
         </div>
     </div>
-    <script>
-    document.getElementById('toggleButton').addEventListener('click', function() {
-        var content = document.getElementById('content');
-        if (content.classList.contains('hidden-content')) {
-            content.classList.remove('hidden-content');
-        } else {
-            content.classList.add('hidden-content');
-        }
-    });
-    </script>
-    <form ng-submit="ctrl.submitForm()">
-
-        <div class="control-group">
-            <label class="control-label" for="inputMessage">Message</label>
-            <div class="controls">
-                <textarea style="height:300px;width:100%" id="inputMessage" rows="4" ng-model="ctrl.formData.message"
-                    placeholder="Your Message">
 
 
 
-          </textarea>
-            </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </div>
-    </form>
+
 </div>

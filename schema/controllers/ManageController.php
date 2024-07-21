@@ -35,11 +35,13 @@ class ManageController extends Controller
     }
     public function actionNewSchemaInstance()
     {
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('newSchemaInstance');
     }
 
     public function actionNewFieldFromMd()
     {
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('newFieldFromMd');
     }
 
@@ -79,24 +81,19 @@ class ManageController extends Controller
     public function actionMassFieldImportFromMd()
     {
         $params = json_decode(file_get_contents('php://input'), true);
-        print_r($params);
+        $table = $params['data'];
 
 
 
-        // Проверяем, что данные правильно получены
-        if (!$params || !isset($params['message'])) {
-            echo "No message data received!";
-            return;
-        }
 
 
-        $table = $this->parseMdTable($params['message']);
-
+        // $table = $this->parseMdTable($params['data']);
+        print_r($table);
         Yii::import('schema.models.SchemaField');
         $order = 0;
         foreach ($table as $row) {
 
-            
+
             foreach ($row as $key => $value) {
                 if ($value) {
                     $fieldModekExist = SchemaField::model()->findByAttributes(['name' => $value]);
@@ -130,24 +127,32 @@ class ManageController extends Controller
 
 
 
-        // Проверяем, что данные правильно получены
-        if (!$params || !isset($params['message'])) {
-            echo "No message data received!";
-            return;
-        }
+        // // Проверяем, что данные правильно получены
+        // if (!$params || !isset($params['message'])) {
+        //     echo "No message data received!";
+        //     return;
+        // }
 
 
-        $table = $this->parseMdTable($params['message']);
+        //$table = $this->parseMdTable($params['message']);
 
 
-        print_r($table);
-        foreach ($table as $row) {
-            $fieldName = $row['Характеристика'];
-            unset($row['Характеристика']);
-            foreach ($row as $key => $value) {
+        foreach ($params['data'] as $table) {
+
+            $name = $table['Название'];
+
+            foreach ($table as $fieldName => $value) {
+                // $fieldName = $row['Характеристика'];
+                // unset($row['Характеристика']);
+
                 if ($value) {
-                    print_r($key);
-                    $CSchmVehicle = new CSchmVehicle(null, 'Название', $key,'vehicle');
+
+                    if ($value=='Рулевое управление'){
+                        $test=123;
+                    }
+                    $CSchmVehicle = new CSchmVehicle(null, 'Название', $name, 'vehicle');
+                    $fieldName1=$fieldName;
+                    $value1=$value;
                     $CSchmVehicle->set($fieldName, $value);
                 }
             }

@@ -34,7 +34,7 @@ class SchmTypeString extends CActiveRecord
         // will receive user inputs.
         return array(
             array('fieldDataId', 'numerical','integerOnly' => true),
-            array('value', 'length', 'max' => 200),
+            array('value', 'length', 'max' => 400),
 
         );
     }
