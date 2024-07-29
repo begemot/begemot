@@ -59,7 +59,7 @@ class SchemaField extends CActiveRecord
         self::setData($fieldId, $value, $this->schemaId, $linkedDataId, $linkType);
     }
 
-    public static function setData($fielddName, $value, $schemaId, $groupId = null, $linkType)
+    public static function setData($fielddName, $value, $schemaId, $groupId , $linkType)
     {
 
         $field = self::getSchemaFieldByName($fielddName, $schemaId);
