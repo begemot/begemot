@@ -1,4 +1,15 @@
+<div ng-show="isSending">
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: {{progress}}%;" aria-valuenow="{{progress}}"
+            aria-valuemin="0" aria-valuemax="100">{{progress}}%</div>
+    </div>
+</div>
 <div>
+    <button class="btn btn-primary" ng-click="addRow()">Add Row</button>
+    <button class="btn btn-success" ng-click="saveData()">Save</button>
+    <button class="btn btn-info" ng-click="importJson()">Import JSON</button>
+    <button class="btn btn-warning" ng-click="exportJson()">Export JSON</button>
+    <input type="checkbox" name="" id="" ng-model="stepBystepSend"> запросы по одному
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -27,7 +38,12 @@
     <button class="btn btn-info" ng-click="importJson()">Import JSON</button>
     <button class="btn btn-warning" ng-click="exportJson()">Export JSON</button>
 </div>
-
+<div ng-show="isSending">
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: {{progress}}%;" aria-valuenow="{{progress}}"
+            aria-valuemin="0" aria-valuemax="100">{{progress}}%</div>
+    </div>
+</div>
 <!-- Modal for JSON import/export -->
 <div class="modal fade" id="jsonModal" tabindex="-1" aria-labelledby="jsonModalLabel" aria-hidden="true">
     <div class="modal-dialog">

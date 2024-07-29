@@ -1,4 +1,4 @@
-angular.module('commonUi').directive('jsonTable', function ($http) {
+angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
 	return {
 		restrict: 'E',
 		scope: {
@@ -11,27 +11,14 @@ angular.module('commonUi').directive('jsonTable', function ($http) {
 			'/protected/modules/begemot/ui/commonUiBs5/templates/jsonTable.commonUi.template.html',
 		link: function (scope) {
 			console.log(scope.additionalDataForSend)
-			// scope.data = angular.copy(scope.inputData);
-
-			// scope.data = angular.copy(scope.inputData);
+			scope.stepBystepSend = false;
 			scope.data = scope.inputData
-			// [
-			// 	{
-			// 		name: 'Турист',
-			// 		price: 0,
-			// 		url: 'https://avtoros.com/shaman/config//img/tourist1.jpg',
-			// 		group: 'Салон',
-			// 	},
-			// 	{
-			// 		name: 'Охотник',
-			// 		price: 850000,
-			// 		url: 'https://avtoros.com/shaman/config//img/hunter1.jpg',
-			// 		group: 'Салон',
-			// 	},
-			// ]
 			scope.showModal = false
 			scope.modalJson = ''
-			scope.appendData = false // Добавлено свойство для галочки
+			scope.appendData = false
+
+			scope.isSending = false // Variable to track sending status
+			scope.progress = 0 // Variable to track progress percentage
 
 			scope.removeRow = function (index) {
 				scope.data.splice(index, 1)
@@ -47,27 +34,44 @@ angular.module('commonUi').directive('jsonTable', function ($http) {
 				}
 			}
 
-			scope.saveData = function () {
-				scope.outputData = angular.copy(scope.data)
-				// Удаляем $$hashKey перед отправкой
-				var cleanData = angular.copy(scope.data, [])
-				angular.forEach(cleanData, function (item) {
-					delete item.$$hashKey
-				})
+			function sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms))
+			}
 
-				// Отправка данных методом POST
-				$http
-					.post(scope.sendDataUrl, {
-						data: cleanData,
+			scope.saveData = async function () {
+				scope.outputData = angular.copy(scope.data)
+				var cleanData = angular.copy(scope.data, [])
+				var totalItems = cleanData.length
+				var sentItems = 0
+
+				scope.isSending = true // Show progress bar
+				scope.progress = 0 // Reset progress
+
+				for (let item of cleanData) {
+					delete item.$$hashKey
+					var dataToSend = {
+						data: [item],
 						additionalData: scope.additionalDataForSend,
-					})
-					.then(function (response) {
-						alert('Data saved and sent successfully')
-					})
-					.catch(function (error) {
-						console.error('Error sending data:', error)
-						alert('Error sending data')
-					})
+					}
+
+					try {
+						await $http.post(scope.sendDataUrl, dataToSend)
+						sentItems++
+						scope.progress = Math.round((sentItems / totalItems) * 100)
+						scope.$apply() // Update scope changes
+						if (scope.stepBystepSend)
+							await sleep(3000)
+					} catch (error) {
+						console.error('Error sending data element:', error)
+						alert('Error sending data element')
+						break // Stop sending further if there is an error
+					}
+				}
+
+				scope.isSending = false // Hide progress bar
+				if (sentItems === totalItems) {
+					alert('All data sent successfully')
+				}
 			}
 
 			scope.importJson = function () {
@@ -79,7 +83,6 @@ angular.module('commonUi').directive('jsonTable', function ($http) {
 			}
 
 			scope.exportJson = function () {
-				// Удаляем $$hashKey перед экспортом
 				var cleanData = angular.copy(scope.data, [])
 				angular.forEach(cleanData, function (item) {
 					delete item.$$hashKey
