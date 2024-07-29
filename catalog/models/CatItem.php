@@ -84,7 +84,7 @@ class CatItem extends ContentKitModel
             // The following rule is used by search().
             array('id, name, name_t, status, data, price, text, name, delivery_date, quantity, authorId', 'safe'),
             // Please remove those attributes that should not be searched.
-            array('id, name, name_t, status, data', 'safe', 'on' => 'search'),
+            array('id, name,article, name_t, status, data', 'safe', 'on' => 'search'),
         );
         return array_merge(parent::rules(), $rules);
     }
@@ -98,10 +98,40 @@ class CatItem extends ContentKitModel
             'name' => array(self::BELONGS_TO, 'CatItemsToCat', 'itemId'),
             'category' => array(self::BELONGS_TO, 'CatCategory', 'catId'),
             'reviews' => array(self::HAS_MANY, 'Reviews', 'pid', 'condition' => 'status=1'),
-            'options' => array(self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)', 'order' => '`options_options`.`order`'),
+           
+
+            'options' => array(
+                self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)',
+                'joinType' => 'INNER JOIN',
+                'order' => '`options_options`.`order`',
+ 
+            ),
+
+
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
             'categories' => array(self::MANY_MANY, 'CatCategory', 'catItemsToCat(itemId, catId)'),
         );
+    }
+
+    protected function beforeDelete()
+    {
+
+        // Удаляем записи из catItemsToCat
+        CatItemsToCat::model()->deleteAll('itemId=:itemId', array(':itemId' => $this->id));
+
+        // Удаляем записи из catItemsToItems где текущий элемент является родительским
+        CatItemsToItems::model()->deleteAll('itemId=:itemId', array(':itemId' => $this->id));
+
+        // Удаляем записи из catItemsToItems где текущий элемент является дочерним
+        CatItemsToItems::model()->deleteAll('toItemId=:itemId', array(':itemId' => $this->id));
+
+        Yii::import('pictureBox.components.PBox');
+        $pBox = new PBox('catalogItem', $this->id);
+        $pBox->deleteAll();
+
+
+        // Call the parent implementation which raises the 'onBeforeDelete' event
+        return parent::beforeDelete();
     }
 
     public function getVideos()
@@ -530,22 +560,21 @@ class CatItem extends ContentKitModel
 
     public function isInCategory($catId)
     {
-        $catItemsToCat = CatItemsToCat::model()->findByAttributes(['itemId'=>$this->id,'catId'=>$catId]);
+        $catItemsToCat = CatItemsToCat::model()->findByAttributes(['itemId' => $this->id, 'catId' => $catId]);
         if (!is_null($catItemsToCat)) {
             return true;
-        } 
-        else{
+        } else {
             return false;
         };
     }
 
-    public function moveToCat($catId){
+    public function moveToCat($catId)
+    {
         if ($this->isInCategory($catId)) return;
 
         $catItemsToCat = new CatItemsToCat();
         $catItemsToCat->itemId = $this->id;
         $catItemsToCat->catId = $catId;
         $catItemsToCat->save();
-
     }
 }

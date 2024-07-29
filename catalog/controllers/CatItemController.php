@@ -37,7 +37,7 @@ class CatItemController extends Controller
                 'actions' => array(
                     'delete', 'createColor', 'deleteColor', 'setColor',
                     'setColorTo', 'unsetColorTo', 'ajaxCreate',
-                    'deleteModifFromItem',
+                    'deleteModifFromItem','MassImages',
                     'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'
                 ),
 
@@ -331,17 +331,7 @@ class CatItemController extends Controller
 
         CatalogModule::checkEditAccess($model->authorId);
         // Удаляем записи из catItemsToCat
-        CatItemsToCat::model()->deleteAll('itemId=:itemId', array(':itemId' => $id));
 
-        // Удаляем записи из catItemsToItems где текущий элемент является родительским
-        CatItemsToItems::model()->deleteAll('itemId=:itemId', array(':itemId' => $id));
-
-        // Удаляем записи из catItemsToItems где текущий элемент является дочерним
-        CatItemsToItems::model()->deleteAll('toItemId=:itemId', array(':itemId' => $id));
-        
-        Yii::import('pictureBox.components.PBox');
-        $pBox = new PBox('catalogItem',$model->id);
-        $pBox->deleteAll();
         $model->delete();
 
 
@@ -572,4 +562,10 @@ class CatItemController extends Controller
 
         $this->redirect(array('/catalog/catItem/update', 'id' => $model->id,));
     }
+
+    public function actionMassImages(){
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $this->render('manageImages');
+    }
+
 }

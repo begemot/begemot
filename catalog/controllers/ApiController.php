@@ -25,7 +25,7 @@ class ApiController extends Controller
 
 
                 'actions' => array(
-                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'test'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport'
                 ),
 
 
@@ -74,7 +74,11 @@ class ApiController extends Controller
 
         // Если параметр name не пустой, добавляем условие фильтрации
         if (!empty($name)) {
-            $criteria->compare('t.name', $name, true);
+            //  $criteria->compare('name', $name, true);
+            // $criteria->compare('article', $name, true);
+            $criteria->addCondition('name LIKE :name OR article LIKE :article');
+            $criteria->params[':name'] = '%' . $name . '%';
+            $criteria->params[':article'] = '%' . $name . '%';
         }
 
 
@@ -90,7 +94,8 @@ class ApiController extends Controller
             $result[] = [
                 'id' => $item->id,
                 'name' => $item->name,
-                'image' => $pBox->getFirstImage('admin')
+                'image' => $pBox->getFirstImage('admin'),
+                'article' => $item->article
             ];
         }
 
@@ -175,6 +180,7 @@ class ApiController extends Controller
 
     public function actionMassOptionsImport()
     {
+
         $jsonoptions = file_get_contents("php://input");
         $data = CJSON::decode($jsonoptions, true);
 
@@ -190,7 +196,7 @@ class ApiController extends Controller
 
         // Предполагаем, что у нас есть идентификатор основного элемента в additionalData
         $mainItemId = $data['additionalData']['id'];
-
+    
         // Ищем основной элемент CatItem по идентификатору
         $mainItem = CatItem::model()->findByPk($mainItemId);
 
@@ -200,51 +206,93 @@ class ApiController extends Controller
 
         // Создание и связывание опций
         foreach ($data['data'] as $itemData) {
-            $item = new CatItem();
-            $item->name = $itemData['name'];
-            $item->price = $itemData['price'];
+            if (isset($itemData['article'])) {
+               
+                $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
+                if (is_array($res) && count($res) > 0) {
+                   
+                    $item = array_shift($res);
+                    $res2 = CatItemsToItems::model()->findAllByAttributes(['toItemId' => $item->id, 'itemId' => $mainItem->id]);
 
-            $item->status = 1;
-            $item->data = json_encode($itemData);
-            $item->quantity = 1;
-            $item->delivery_date = time();
-            $item->article = 'option-item';
-
-            if (!$item->save()) {
-                throw new CHttpException(500, 'Failed to save option item.');
-            } else {
-
-                Yii::import('pictureBox.components.PBox');
-                $config = [];
-
-                $pBox = new PBox('catalogItem',$item->id);
-
-
-                $picturesConfig = array();
-
-                $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS).'.php' ;
-                if (file_exists($configFile)) {
-                    Yii::import('pictureBox.components.PictureBoxFiles');
-                    $defConf = PictureBoxFiles::getDefaultConfig();
-                    $picturesConfig = require($configFile);
-                    $picturesConfig = array_merge_recursive($defConf, $picturesConfig);
+                    if (!(is_array($res2) && count($res2) > 0)) {
+                        $itemsToItems = new CatItemsToItems();
+                        $itemsToItems->toItemId = $item->id;
+                        $itemsToItems->itemId = $mainItem->id;
+                        if (isset($itemData['Standard']) && $itemData['Standard'] ==1) {
+                            $itemsToItems->isBase = 1;
+                        }
+                        
+                        if (!$itemsToItems->save()) {
+                            throw new CHttpException(500, 'Failed to save item-to-item link.');
+                        }
+                    } else {
+                       
+                        $itemsToItems = array_shift($res2);
+                    
+                        if (isset($itemData['Standard']) && $itemData['Standard'] ==1) {
+                            $itemsToItems->isBase = 1;
+                            $itemsToItems->save();
+                   
+                        }
+                    }
                 }
-
-                $pBox->filters = $picturesConfig;
-                $pBox->addImagefile($itemData['url']);
-                // Связывание опции с категорией (предполагаем, что категория "options" уже существует)
                 $category = CatCategory::model()->find('name=:name', array(':name' => 'options'));
                 if ($category) {
                     $this->addCategory($item->id, $category->id);
                 }
-
                 // Связывание опции с основным CatItem
-                $itemsToItems = new CatItemsToItems();
-                $itemsToItems->toItemId = $item->id;
-                $itemsToItems->itemId = $mainItem->id;
+                // $itemsToItems = new CatItemsToItems();
+                // $itemsToItems->toItemId = $item->id;
+                // $itemsToItems->itemId = $mainItem->id;
 
-                if (!$itemsToItems->save()) {
-                    throw new CHttpException(500, 'Failed to save item-to-item link.');
+
+             
+            } else {
+                $item = new CatItem();
+                $item->name = $itemData['name'];
+                $item->price = $itemData['price'];
+
+                $item->status = 1;
+                $item->data = json_encode($itemData);
+                $item->quantity = 1;
+                $item->delivery_date = time();
+                $item->article = 'option-item';
+
+                if (!$item->save()) {
+                    throw new CHttpException(500, 'Failed to save option item.');
+                } else {
+
+                    Yii::import('pictureBox.components.PBox');
+
+                    $pBox = new PBox('catalogItem', $item->id);
+
+
+                    $picturesConfig = array();
+
+                    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
+                    if (file_exists($configFile)) {
+                        Yii::import('pictureBox.components.PictureBoxFiles');
+                        $defConf = PictureBoxFiles::getDefaultConfig();
+                        $picturesConfig = require($configFile);
+                        $picturesConfig = array_merge_recursive($defConf, $picturesConfig);
+                    }
+
+                    $pBox->filters = $picturesConfig;
+                    $pBox->addImagefile($itemData['url']);
+                    // Связывание опции с категорией (предполагаем, что категория "options" уже существует)
+                    $category = CatCategory::model()->find('name=:name', array(':name' => 'options'));
+                    if ($category) {
+                        $this->addCategory($item->id, $category->id);
+                    }
+
+                    // Связывание опции с основным CatItem
+                    $itemsToItems = new CatItemsToItems();
+                    $itemsToItems->toItemId = $item->id;
+                    $itemsToItems->itemId = $mainItem->id;
+
+                    if (!$itemsToItems->save()) {
+                        throw new CHttpException(500, 'Failed to save item-to-item link.');
+                    }
                 }
             }
         }
@@ -262,8 +310,44 @@ class ApiController extends Controller
         }
     }
 
-    public function actionTest()
+    public function actionMassItemImageImport()
     {
-       
+        $jsonoptions = file_get_contents("php://input");
+        $data = CJSON::decode($jsonoptions, true);
+
+        // Проверяем, что данные были получены и декодированы
+        if (!$data) {
+            throw new CHttpException(400, 'Invalid JSON input.');
+        }
+        // Проверяем, что основные ключи присутствуют
+        if (!isset($data['data']) || !isset($data['additionalData'])) {
+            throw new CHttpException(400, 'Missing required data.');
+        }
+
+        // Предполагаем, что у нас есть идентификатор основного элемента в additionalData
+        $itemId = $data['additionalData']['id'];
+        Yii::import('pictureBox.components.PBox');
+
+        $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
+        if (file_exists($configFile)) {
+            Yii::import('pictureBox.components.PictureBoxFiles');
+            $defConf = PictureBoxFiles::getDefaultConfig();
+            $picturesConfig = require($configFile);
+            $picturesConfig = array_merge_recursive($defConf, $picturesConfig);
+        }
+
+        foreach ($data['data'] as $url) {
+            $pBox = new PBox('catalogItem', $itemId);
+            while ($pBox->isLock()) {
+                sleep(1);
+                $pBox = new PBox('catalogItem', $itemId);
+            }
+            $pBox->setLock();
+
+            $pBox->filters = $picturesConfig;
+            $pBox->addImagefile($url['url']);
+            $pBox->unLock();
+            // sleep(1);
+        }
     }
 }

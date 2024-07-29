@@ -74,8 +74,9 @@ class SiteController extends Controller
         }
 
         $uri = $_SERVER['REQUEST_URI'];
+        
+        $item = CatItem::model()->findByPk($item);
 
-        $item = CatItem::model()->with('options')->findByPk($item);
         $this->pageTitle = $item->seo_title;
 //        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
