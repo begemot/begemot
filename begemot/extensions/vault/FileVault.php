@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Николай Козлов
@@ -17,8 +18,8 @@ class FileVault implements Vault
     {
         $this->dataPath = $vaultPath;
 
-        if (!file_exists($vaultPath)){
-            mkdir($vaultPath,0777,true);
+        if (!file_exists($vaultPath)) {
+            mkdir($vaultPath, 0777, true);
         }
     }
 
@@ -34,7 +35,7 @@ class FileVault implements Vault
 
         $this->startSession();
 
-        if (isset($_SESSION['fileValut'][$fileName])){
+        if (isset($_SESSION['fileValut'][$fileName])) {
             $_SESSION['fileValut'][$fileName] = $collection;
             session_commit();
         }
@@ -56,10 +57,10 @@ class FileVault implements Vault
         }
         if (!file_exists($fileName)) $_SESSION['fileValut'][$fileName] = [];
 
-//        $this->startSession();
-//
-//        if (isset($_SESSION['fileValut'][$fileName]))
-//            return $_SESSION['fileValut'][$fileName];
+        //        $this->startSession();
+        //
+        //        if (isset($_SESSION['fileValut'][$fileName]))
+        //            return $_SESSION['fileValut'][$fileName];
 
 
         if (file_exists($fileName)) {
@@ -80,7 +81,9 @@ class FileVault implements Vault
 
         $_SESSION['fileValut'][$varFileName] = $value;
 
-        $this->crPhpArrayFile($varFileName, $value);
+        if ($this->crPhpArrayFile($varFileName, $value)) {
+            return true;
+        }
     }
 
     public function getVar($name)
@@ -110,20 +113,37 @@ class FileVault implements Vault
   return
  " . var_export($data, true) . ";
 ?>";
-        if (file_put_contents($fileName, $code)) {
+
+        $file = $fileName;
+        $data = $code;
+
+        $fp = fopen($file, 'w');
+
+        if (flock($fp, LOCK_EX)) { // acquire an exclusive lock
+            fwrite($fp, $data);
+            fflush($fp); // flush output before releasing the lock
+            flock($fp, LOCK_UN); // release the lock
+            fclose($fp);
+
             return true;
         } else {
+            fclose($fp);
             return false;
         }
 
+
+
+        // if (file_put_contents($fileName, $code)) {
+        // return true;
+        // } else {
+        // return false;
+        // }
     }
 
     private function startSession()
     {
-       if (!headers_sent() && PHP_SESSION_ACTIVE != session_status()){
-           session_start();
-       }
-
+        if (!headers_sent() && PHP_SESSION_ACTIVE != session_status()) {
+            session_start();
+        }
     }
-
 }
