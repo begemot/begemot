@@ -57,7 +57,7 @@ class ApiController extends Controller
                     $imageKey != 'title' &&
                     $imageKey != 'alt'
                 ) {
-                    $images[$key][$imageKey] = $image . '?' . rand(1, 100000);
+                    $images[$key][$imageKey] = $image ;
                 }
             }
         }

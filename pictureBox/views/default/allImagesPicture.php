@@ -5,7 +5,7 @@
          image-filter="<?= $imageKey ?>" src="<?= $image['original'] ?>"/>
     <div style="position: relative;width:<?= $filterWidth ?>px;height:<?= $filterHeight ?>px;overflow: hidden;">
         <img style="float:left;position: relative;max-width: none;" class="original"
-             src="<?= $subImage . '?' . rand(1, 1000) ?>"/>
+             src="<?= $subImage ?>"/>
     </div>
 
 </div>

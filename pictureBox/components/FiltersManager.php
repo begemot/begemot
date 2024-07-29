@@ -30,13 +30,23 @@ class FiltersManager
 
     public function checkFilters()
     {
-
+   
         $filePathInfo = pathinfo($this->fileName);
 
         $filePath = $filePathInfo['dirname'];
         $fileName = $filePathInfo['basename'];
         $fileExt = $filePathInfo['extension'];
         $fileNameClear = $this->delFileExt($fileName);
+
+        if (isset($this->config['original'])) {
+         
+            foreach ($this->config['original'] as $originalFilter) {
+                $originalFileName = $filePath . '/' . $fileNameClear  . '.' . $fileExt;
+                $filterClassName = $originalFilter['filter'] . 'Filter';
+                $filterInstance = new $filterClassName($originalFileName, $originalFileName, $originalFilter['param']);
+                $filterInstance->make();
+            }
+        }
 
         foreach ($this->config['imageFilters'] as $filterName => $filters) {
 
@@ -77,13 +87,7 @@ class FiltersManager
             }
         }
 
-        if (isset($this->config['original'])) {
-            foreach ($this->config['original'] as $originalFilter) {
-                $filterClassName = $originalFilter['filter'] . 'Filter';
-                $filterInstance = new $filterClassName($this->fileName, $this->fileName, $originalFilter['param']);
-                $filterInstance->make();
-            }
-        }
+
     }
 
     //возвращаем 

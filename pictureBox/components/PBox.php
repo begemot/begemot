@@ -154,7 +154,9 @@ class PBox
 
     private function saveLastImageId($id)
     {
-        $this->vault->setVar('lastImageId', $id);
+        if ($this->vault->setVar('lastImageId', $id)) {
+            return true;
+        }
     }
 
     public function getLastImageId()
@@ -165,7 +167,9 @@ class PBox
     public function saveSortData($sortData)
     {
 
-        $this->vault->pushCollection($sortData, 'sortData');
+        if (!$this->vault->pushCollection($sortData, 'sortData')) {
+            throw new Exception('ошибка');
+        } else return true;
     }
 
     public function getSortData()
@@ -180,7 +184,9 @@ class PBox
     public function saveFavData($favData)
     {
 
-        $this->vault->pushCollection($favData, 'favData');
+        if ($this->vault->pushCollection($favData, 'favData')) {
+            return true;
+        } else throw new Exception('ошибка');
     }
 
     public function getFavData()
@@ -406,7 +412,9 @@ class PBox
             if (!isset($images[$key])) unset($sortData[$key]);
         }
 
-        $this->saveSortData($sortData);
+        if ($this->saveSortData($sortData)) {
+            return true;
+        } else throw new Exception('ошибка сохранения');
     }
 
     //    public function saveSortArray()
@@ -424,10 +432,17 @@ class PBox
 
         $data = array();
         $data['images'] = $this->pictures;
+        if (!$this->saveImages($this->pictures)) {
+            throw new Exception('ошибка');
+        }
+        if (!$this->saveSortData($this->sortArray)) {
+            throw new Exception('ошибка');
+        }
+        if (!$this->saveFavData($this->favPictures)) {
+            throw new Exception('ошибка');
+        }
 
-        $this->saveImages($this->pictures);
-        $this->saveSortData($this->sortArray);
-        $this->saveFavData($this->favPictures);
+        return true;
     }
 
     public function copyToAnotherId($idOfCopy)
@@ -614,8 +629,11 @@ class PBox
 
             $imageId = $lastImageIdParam;
         }
-
-        $this->saveLastImageId($imageId);
+        echo $imageId;
+        if (!$this->saveLastImageId($imageId)) {
+            throw new Exception('Не удалось сохранить');
+            return;
+        }
 
 
         $basePath = Yii::getPathOfAlias('webroot');
@@ -663,9 +681,12 @@ class PBox
         }
 
         $this->pictures[$imageId] = $pictureForAdd;
-        $this->saveToFile();
-        $this->updateSortData();
+        if (!$this->saveToFile()) throw new Exception('Ошибка');
+        if (!$this->updateSortData()) throw new Exception('Ошибка');
         $pictureForAdd['id'] = $imageId;
+        print_r($this->pictures);
+        print_r($this->getImages());
+
         return $pictureForAdd;
     }
 
@@ -747,39 +768,39 @@ class PBox
 
         // Concatenate the parts to form the new image path
         $resultImage = $directory . '/' . $filename . '_' . $subImageName . '.' . $extension;
-        if (!file_exists($webroot.'/'.$resultImage)){
+        if (!file_exists($webroot . '/' . $resultImage)) {
             if ($image) {
 
                 $config = [
                     'nativeFilters' => array(
                         $subImageName => true,
-    
+
                     ),
                     'filtersTitles' => array(
                         $subImageName => 'getFirstImageOrCreate',
                     ),
                     'imageFilters' => array(
-    
+
                         $subImageName => array(
                             0 => array(
                                 'filter' => $filterName,
                                 'param' => $params,
                             ),
                         ),
-    
+
                     ),
-    
+
                 ];
-    
+
                 if (strpos($image, '?') !== false) {
                     $clean_url = explode('?', $image)[0];
                 } else {
                     $clean_url = $image;
                 }
-    
+
                 $filterManager = new FiltersManager($this->dataFile . DIRECTORY_SEPARATOR . basename($clean_url), $config);
                 $filters = $filterManager->getFilteredImages();
-                
+
                 return $this->webDataFile . DIRECTORY_SEPARATOR . array_shift($filters);
             } else {
                 return 'noImage.png';
@@ -787,6 +808,22 @@ class PBox
         } else {
             return $resultImage;
         }
+    }
 
+    public function setLock()
+    {
+        if (!$this->isLock()) {
+            file_put_contents($this->dataFile . '/locked.lk', ' ');
+        }
+    }
+    public function unLock()
+    {
+        if ($this->isLock()) {
+            unlink($this->dataFile . '/locked.lk');
+        }
+    }
+    public function isLock()
+    {
+        return file_exists($this->dataFile . '/locked.lk');
     }
 }

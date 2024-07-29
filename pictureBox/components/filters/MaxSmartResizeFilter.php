@@ -2,11 +2,13 @@
 class MaxSmartResizeFilter extends BaseFilter{
        
     public function make (){
-
+        throw new Exception('Не удалось сохранить изображение!');
         if ($this->checkImageformat($this->fileName)) {
 
             $image = new Imagick($this->fileName);
-        } else return false;
+        } else {
+            throw new Exception('Фильтр не создался!');
+        }
 
 
 
@@ -16,6 +18,10 @@ class MaxSmartResizeFilter extends BaseFilter{
 
         $originalWidth = $image->getImageWidth();
         $originalHeight = $image->getImageHeight();
+
+        if (!$originalWidth || !$originalHeight){
+            throw new Exception('Размер изображения не импортировался!');
+        }
 
         if ($originalWidth<$newWidth) return;
         if ($originalHeight<$newHeight) return;
@@ -58,7 +64,9 @@ class MaxSmartResizeFilter extends BaseFilter{
         $image->cropImage($cropWidth, $cropHeight, $cropX, $cropY);
 
         // Сохраняем измененное изображение
-        $image->writeImage($this->newFileName);
+        if (!$image->writeImage($this->newFileName)){
+            throw new Exception('Не удалось сохранить изображение!');
+        }
 
 
 
