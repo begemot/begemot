@@ -4,6 +4,13 @@ Yii::import('webroot.protected.jobs.*');
 
 class CatItemController extends Controller
 {
+
+    public function init() {
+        parent::init();
+        // Ваш код инициализации
+        $path = Yii::getPathOfAlias('catalog.views.catItem.commonMenu');
+        $this->menu = require $path.'.php';
+    }
     /**
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
      * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -38,7 +45,7 @@ class CatItemController extends Controller
                     'delete', 'createColor', 'deleteColor', 'setColor',
                     'setColorTo', 'unsetColorTo', 'ajaxCreate',
                     'deleteModifFromItem','MassImages',
-                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'test'
+                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'Video'
                 ),
 
 
@@ -567,5 +574,8 @@ class CatItemController extends Controller
         $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('manageImages');
     }
-
+    public function actionVideo(){
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $this->render('manageVideo');
+    }
 }
