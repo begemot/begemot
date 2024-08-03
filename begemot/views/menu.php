@@ -46,7 +46,7 @@ return array(
     array('label' => 'Галлерея',
         'items' => array(
             array('url' => array('/gallery'), 'visible' => Yii::app()->hasModule('gallery'), 'label' => 'Фото'),
-            array('url' => array('/videoGallery/videoGalleryVideo/admin'), 'label' => 'Видео', 'visible' => Yii::app()->hasModule('videoGallery')),
+            array('url' => array('/videoGallery/video/manage'), 'label' => 'Видео', 'visible' => Yii::app()->hasModule('videoGallery')),
 
         ),
     ),

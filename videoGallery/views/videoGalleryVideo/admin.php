@@ -1,15 +1,12 @@
 <?php
 
-$this->breadcrumbs = array(
-	$model->label(2) => array('index'),
-	'Manage',
-);
+
 
 $this->menu = require(dirname(__FILE__).'/../commonMenu.php');
 
 ?>
 
-<h1><?php echo 'Manage' . ' ' . GxHtml::encode($model->label(2)); ?></h1>
+<h1><?php echo 'Manage' . ' '  ?></h1>
 
 
 <?php $this->widget('bootstrap.widgets.TbExtendedGridView', array(

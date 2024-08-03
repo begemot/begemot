@@ -1,6 +1,6 @@
 <?php
 
-class VideoGalleryVideoController extends GxController {
+class VideoGalleryVideoController extends Controller {
     	public $layout='begemot.views.layouts.column2';
 public function filters() {
 	return array(
@@ -50,9 +50,9 @@ public function accessRules() {
 	}
 
 	public function actionUpdate($id) {
-		$model = $this->loadModel($id, 'VideoGalleryVideo');
+		$model = VideoGalleryVideo::model()->findByPk($id);
 
-		$this->performAjaxValidation($model, 'video-gallery-video-form');
+		//$this->performAjaxValidation($model, 'video-gallery-video-form');
 
 		if (isset($_POST['VideoGalleryVideo'])) {
 			$model->setAttributes($_POST['VideoGalleryVideo']);

@@ -27,12 +27,8 @@
     $this->renderFile($path . '/leftMenu.php');
     ?>
 
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
-            <div class="col-10">
-                <?php echo $content; ?>
-            </div>
-        </div>
-    </div>
+
+    <?php echo $content; ?>
+
 
 </html>

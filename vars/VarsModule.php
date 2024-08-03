@@ -4,7 +4,7 @@ class VarsModule extends CWebModule
 {
 
     public static $arrayForSite = null;
-
+    public static $arrayid = null;
     public function init()
     {
         // this method is called when the module is being created
@@ -20,12 +20,12 @@ class VarsModule extends CWebModule
     {
 
         self::checkDataFile();
-        $component=Yii::createComponent(array(
+        $component = Yii::createComponent(array(
 
-            'class'=>'begemot.extensions.bootstrap.components.Bootstrap'
+            'class' => 'begemot.extensions.bootstrap.components.Bootstrap'
 
         ));
-        Yii::app()->setComponent('bootstrap',$component);
+        Yii::app()->setComponent('bootstrap', $component);
 
         return true;
     }
@@ -48,45 +48,57 @@ class VarsModule extends CWebModule
         self::checkDataFile();
 
         file_put_contents($dataFile, '<?php return ' . var_export($data, true) . '?>');
-    }
+}
 
-    public static function getVar($varName,$silent=false)
-    {
+public static function getVar($varName, $silent = false)
+{
 
-        self::checkDataFile();
 
-        if (self::$arrayForSite === null) {
-            $data = self::getData();
+self::checkDataFile();
 
-            $siteArray = array();
+if (self::$arrayForSite === null) {
+$data = self::getData();
 
-            foreach ($data as $var) {
-                $siteArray[$var['varname']] = $var['vardata'];
-            }
+$siteArray = array();
+$idArray = array();
 
-            self::$arrayForSite = $siteArray;
+foreach ($data as $id => $var) {
+$siteArray[$var['varname']] = $var['vardata'];
+$idArray[$var['varname']] = $id;
+}
 
-        }
-        $resultVarData = null;
+self::$arrayForSite = $siteArray;
+self::$arrayid = $idArray;
+}
 
-        if (isset(self::$arrayForSite[$varName])) {
-            $resultVarData = self::$arrayForSite[$varName];
-        } else {
-            if (!$silent)
-                $resultVarData = 'Переменная - ' . $varName;
-        }
+$editUrl = '';
+if (!Yii::app()->user->isGuest) {
+if (isset($arrayid[$varName])) {
+$editUrl = '<a href="/vars/default/update/id/' . self::$arrayid[$varName] . '" target="_blank">редактировать </a>';
+} else {
+}
+}
 
-        return $resultVarData;
-    }
+$resultVarData = null;
 
-    public static function checkDataFile()
-    {
-        $dataFile = VarsModule::getDataFilePath();
+if (isset(self::$arrayForSite[$varName])) {
+$resultVarData = self::$arrayForSite[$varName];
+} else {
+if (!$silent)
+$resultVarData = 'Переменная - ' . $varName;
+}
 
-        if (!file_exists($dataFile)) {
-            $fp = fopen($dataFile, "w");
-            fwrite($fp, '<?php return array();?>');
-            fclose($fp);
-        }
-    }
+return $resultVarData . $editUrl;
+}
+
+public static function checkDataFile()
+{
+$dataFile = VarsModule::getDataFilePath();
+
+if (!file_exists($dataFile)) {
+$fp = fopen($dataFile, "w");
+fwrite($fp, '<?php return array();?>');
+fclose($fp);
+}
+}
 }

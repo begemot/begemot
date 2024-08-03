@@ -1,0 +1,97 @@
+<div class="container mt-5">
+
+    <button class="btn btn-primary mb-3" ng-click="showAddForm()">Добавить Видео</button>
+
+    <modal title="Добавить Видео" visible="addFormVisible">
+        <form ng-submit="addVideo()">
+            <div class="mb-3">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-control" ng-model="newVideo.title" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Текст</label>
+                <textarea class="form-control" ng-model="newVideo.text" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">URL</label>
+                <input type="text" class="form-control" ng-model="newVideo.url" required>
+            </div>
+            <button type="submit" class="btn btn-success">Добавить</button>
+        </form>
+    </modal>
+
+    <h2>Список Видео</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Текст</th>
+                <th>URL</th>
+                <th>Дата публикации</th>
+                <th>Опубликовано</th>
+                <th>ID автора</th>
+                <th>Действия</th>
+                <th ng-if="modelName && modelId">Связь</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="video in videos">
+                <td>{{video.id}}</td>
+                <td>{{video.title}}</td>
+                <td>{{video.text}}</td>
+                <td>
+                    <div ng-if="video.isYouTube">
+                        <a href="{{video.url}}" target="_blank">
+                            <img ng-src="{{video.thumbnailUrl}}" alt="{{video.title}}" class="img-thumbnail" width="250" height="150">
+                        </a>
+                    </div>
+                    <div ng-if="!video.isYouTube">
+                        <a href="{{video.url}}" target="_blank">{{video.url}}</a>
+                    </div>
+                </td>
+                <td>{{video.pub_date}}</td>
+                <td>{{video.published ? 'Да' : 'Нет'}}</td>
+                <td>{{video.authorId}}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" ng-click="showEditForm(video)">Редактировать</button>
+                    <button class="btn btn-danger btn-sm" ng-click="confirmDelete(video)">Удалить</button>
+                    <a href="/videoGallery/videoGalleryVideo/update/id/{{video.id}}" target="_blank">Изображения</a>
+                </td>
+                <td ng-if="modelName && modelId">
+                    <input type="checkbox" ng-checked="video.isLinked" ng-click="toggleLink(video)">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <modal title="Редактировать Видео" visible="editFormVisible">
+        <form ng-submit="updateVideo()">
+            <div class="mb-3">
+                <label class="form-label">Название</label>
+                <input type="text" class="form-control" ng-model="currentVideo.title" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Текст</label>
+                <textarea class="form-control" ng-model="currentVideo.text" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">URL</label>
+                <input type="text" class="form-control" ng-model="currentVideo.url" required>
+            </div>
+            <button type="submit" class="btn btn-success">Сохранить</button>
+        </form>
+    </modal>
+
+    <modal title="Подтвердить удаление" visible="confirmDeleteVisible">
+        <div class="modal-body">
+            Вы уверены, что хотите удалить это видео?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" ng-click="confirmDeleteVisible = false">Отмена</button>
+            <button type="button" class="btn btn-danger" ng-click="deleteVideo()">Удалить</button>
+           
+        </div>
+    </modal>
+
+</div>

@@ -8,20 +8,13 @@ class SiteController extends Controller
         
 	public function actionIndex() {
 
-        $withArray = array(
-            'videoGalleryVideos'=>array(
-                'scopes'=>array(
-                    // passing only one parameter
-                    'published',
-                ),
-            ),
-        );
+ 
 
         $this->layout = VideoGalleryModule::$galleryLayout;
-        $cats = VideoGallery::model()->findAll(array('with'=>$withArray));
+        $videos= VideoGalleryVideo::model()->findAll();
                 
 		$this->render('index', array(
-			'videoCats' => $cats,
+			'videos' => $videos,
 		));
 	}  
         
