@@ -5,7 +5,8 @@
 /* @var $model CatItem */
 
 Yii::app()->clientScript->registerScriptFile(
-    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/editItem.js'), CClientScript::POS_HEAD
+    Yii::app()->assetManager->publish(Yii::app()->getModule('catalog')->basePath . '/assets/js/editItem.js'),
+    CClientScript::POS_HEAD
 );
 Yii::app()->clientScript->registerCssFile('/protected/modules/catalog/assets/css/admin-catalog.css');
 
@@ -18,7 +19,7 @@ $this->breadcrumbs = array(
 $this->menu = require dirname(__FILE__) . '/commonMenu.php';
 ?>
 
-    <h4>Редактирование позиции "<?php echo $model->name; ?>"</h4>
+<h4>Редактирование позиции "<?php echo $model->name; ?>"</h4>
 
 <?php $this->widget('bootstrap.widgets.TbMenu', array(
     'type' => 'tabs', // '', 'tabs', 'pills' (or 'list')
@@ -30,7 +31,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
             'label' => 'Опции',
 
             'active' => $tab == 'options' or $tab == 'configuration',
-            'items'=>[
+            'items' => [
 
                 array('label' => 'Список опций',  'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/options', 'active' => $tab == 'options', 'visible' => isset(Yii::app()->modules['parsers'])),
                 array('label' => 'Импорт опций', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/optionsImport', 'active' => $tab == 'optionsImport', 'visible' => isset(Yii::app()->modules['parsers'])),
@@ -39,7 +40,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
         array('label' => 'Парсер', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/parser', 'active' => $tab == 'parser', 'visible' => isset(Yii::app()->modules['parsers'])),
         array('label' => 'Перемещение позиции', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/position', 'active' => $tab == 'position'),
         array('label' => 'Изображения', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/photo', 'active' => $tab == 'photo'),
-        array('label' => 'Видео', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/video', 'active' => $tab == 'video'),
+        // array('label' => 'Видео', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/video', 'active' => $tab == 'video'),
         array('label' => 'Модификации', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/modifications', 'active' => $tab == 'modifications'),
         array('label' => 'Цвета', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/colors', 'active' => $tab == 'colors'),
 
@@ -50,7 +51,8 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
 <?php
 $viewFileName = dirname(__FILE__) . '/' . $tab . '.php';
 if (file_exists($viewFileName)) {
-    require $viewFileName;}
+    require $viewFileName;
+}
 ?>
 
 <?php
@@ -66,7 +68,8 @@ if ($tab == 'data')
         if (is_array($categories) && count($categories) > 0) {
             foreach ($categories as $cat) {
                 if ($cat->is_through_display_child == 0) {
-                    Yii::app()->clientScript->registerCss('link',
+                    Yii::app()->clientScript->registerCss(
+                        'link',
                         "
                         .td-link {
                             margin-left:15px;
@@ -115,15 +118,15 @@ if ($tab == 'data')
         echo '<div class="container-fluid">' . $testForm->render() . '</div>';
     } ?>
     <script>
-        $('.td-link').click(function () {
+        $('.td-link').click(function() {
             var $this = $(this);
             var cat_id = $this.attr('data-value');
             if (!$this.hasClass('active')) {
-                $.post('/catalog/catItemsToCat/changeThroughDisplayValue/cat_id/' + cat_id + '/item_id/' + <?=$model->id?> +'/value/' + 1, function () {
+                $.post('/catalog/catItemsToCat/changeThroughDisplayValue/cat_id/' + cat_id + '/item_id/' + <?= $model->id ?> + '/value/' + 1, function() {
                     location.reload()
                 })
             } else {
-                $.post('/catalog/catItemsToCat/changeThroughDisplayValue/cat_id/' + cat_id + '/item_id/' + <?=$model->id?> +'/value/' + 0, function () {
+                $.post('/catalog/catItemsToCat/changeThroughDisplayValue/cat_id/' + cat_id + '/item_id/' + <?= $model->id ?> + '/value/' + 0, function() {
                     location.reload()
                 })
             }
@@ -133,18 +136,19 @@ if ($tab == 'data')
 
 <?php if ($tab == 'position') { ?>
     <script>
-
-        $(document).on("change", "#loadValues", function () {
-            $.getJSON('/catalog/catItem/getItemsFromCategory/catId/' + $(this).val() + "/curCatId/" + $("#curPos").val(), function (data) {
+        $(document).on("change", "#loadValues", function() {
+            $.getJSON('/catalog/catItem/getItemsFromCategory/catId/' + $(this).val() + "/curCatId/" + $("#curPos").val(), function(data) {
                 $("#category").html(data.html);
 
-                jQuery('#itemId').autocomplete({'minLength': '0', 'source': data.ids});
+                jQuery('#itemId').autocomplete({
+                    'minLength': '0',
+                    'source': data.ids
+                });
                 $("#itemId").attr("autocomplete", "on");
                 $("#currentPos").html(data.currentPos);
                 $(".hidden").show();
             })
         })
-
     </script>
     <h4>Перемещение позиции</h4>
 
@@ -152,9 +156,10 @@ if ($tab == 'data')
         <input type="hidden" name='currentItem' value='<?= $model->id ?>' id='curPos'>
     </form>
 
-    <?php if (!$model->isNewRecord): ?>
+    <?php if (!$model->isNewRecord) : ?>
         <div class="success" style='color: green'>
-<!--            --><?php //echo $message ?>
+            <!--            --><?php //echo $message 
+                                ?>
         </div>
         <?php $categories = CatItemsToCat::model()->with('item')->findAll(array('condition' => 'itemId=' . $model->id)); ?>
         <?php if (is_array($categories) && count($categories) > 0) : ?>
@@ -162,19 +167,16 @@ if ($tab == 'data')
                 <label for="">Выберите раздел:</label>
                 <select name='categoryId' id='loadValues'>
                     <option value="">Выберите раздел</option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option
-                            value='<?php echo $cat->catId ?>'><?php echo CatCategory::model()->getCatName($cat->catId) ?></option>
+                    <?php foreach ($categories as $cat) : ?>
+                        <option value='<?php echo $cat->catId ?>'><?php echo CatCategory::model()->getCatName($cat->catId) ?></option>
                         <?php $items[$cat->catId] = CatItem::model()->findAll(array('condition' => 'catId=' . $cat->catId)); ?>
                     <?php endforeach ?>
                 </select>
                 <div class='hidden' style='display:none;'>
-                    <input type='submit' name='pasteOnFirstPosition' class='btn btn-info'
-                           value='Переместить на первую позицию'/>
-                    <input type='submit' name='pasteOnLastPosition' class='btn btn-info'
-                           value='Переместить на последнию позицию'/>
+                    <input type='submit' name='pasteOnFirstPosition' class='btn btn-info' value='Переместить на первую позицию' />
+                    <input type='submit' name='pasteOnLastPosition' class='btn btn-info' value='Переместить на последнию позицию' />
 
-                    Сейчас находится на <span id='currentPos'>2</span><br/>
+                    Сейчас находится на <span id='currentPos'>2</span><br />
                     <label for="">Переместить перед:</label>
                     <select name='item' id='category'>
                         <!---->
@@ -189,91 +191,84 @@ if ($tab == 'data')
                             'minLength' => '0',
                         ),
                     )); ?>
-                    <br/>
-                    <input type="submit" class='btn '/>
+                    <br />
+                    <input type="submit" class='btn ' />
                     <input type="hidden" name='changePosition'>
                     <input type="hidden" name='currentItem' value='<?php echo $model->id ?>' id='curPos'>
                 </div>
 
             </form>
-        <?php else: ?>
+        <?php else : ?>
             <!-- Для начала добавльте карточку хоть в одну категорию -->
         <?php endif ?>
 
 
     <?php endif ?>
 
-    <?php foreach ($categories as $key => $value): ?>
+    <?php foreach ($categories as $key => $value) : ?>
 
     <?php endforeach ?>
 <?php } ?>
 
 
 
-<?php if (!$model->isNewRecord): ?>
-    <?php if (isset(Yii::app()->modules['parsers'])): ?>
+<?php if (!$model->isNewRecord) : ?>
+    <?php if (isset(Yii::app()->modules['parsers'])) : ?>
         <?php if ($tab == 'parser') { ?>
             <h4>Парсеры</h4>
-            <?php if (isset($synched)): ?>
+            <?php if (isset($synched)) : ?>
                 <div class="append redColored">Сохраненно</div>
                 <table>
                     <thead>
-                    <tr>
-                        <td>Артикул</td>
-                        <td>Название</td>
-                        <td>Старая цена</td>
-                        <td>Новая цена</td>
-                        <td>Наличие</td>
-                        <td>Обновить</td>
-                        <td>Удалить связь</td>
-                    </tr>
+                        <tr>
+                            <td>Артикул</td>
+                            <td>Название</td>
+                            <td>Старая цена</td>
+                            <td>Новая цена</td>
+                            <td>Наличие</td>
+                            <td>Обновить</td>
+                            <td>Удалить связь</td>
+                        </tr>
                     </thead>
                     <tbody>
 
-                    <tr class='<?php echo $synched->id ?>'>
-                        <td><?php echo $synched->fromId ?></td>
-                        <td class='name'><?php echo $synched->item->name ?></td>
-                        <td><?php echo $synched->item->price ?></td>
-                        <td><input type='text' value='<?php echo $synched->linking->price ?>'
-                                   name='item[<?php echo $synched->item->id ?>][price]' class='price input-small'></td>
-                        <td><input type='text' value='<?php echo $synched->linking->quantity ?>'
-                                   name='item[<?php echo $synched->item->id ?>][quantity]' class='quantity input-small'>
-                        </td>
-                        <td>
-                            <button type='button' class='updatePrice btn btn-primary'
-                                    data-id='<?php echo $synched->item->id ?>'>Обновить цену и наличие
-                            </button>
-                        </td>
-                        <td>
-                            <button type='button' class='deleteLinking btn btn-danger'
-                                    data-id='<?php echo $synched->id ?>'>Удалить связь
-                            </button>
-                        </td>
-                    </tr>
+                        <tr class='<?php echo $synched->id ?>'>
+                            <td><?php echo $synched->fromId ?></td>
+                            <td class='name'><?php echo $synched->item->name ?></td>
+                            <td><?php echo $synched->item->price ?></td>
+                            <td><input type='text' value='<?php echo $synched->linking->price ?>' name='item[<?php echo $synched->item->id ?>][price]' class='price input-small'></td>
+                            <td><input type='text' value='<?php echo $synched->linking->quantity ?>' name='item[<?php echo $synched->item->id ?>][quantity]' class='quantity input-small'>
+                            </td>
+                            <td>
+                                <button type='button' class='updatePrice btn btn-primary' data-id='<?php echo $synched->item->id ?>'>Обновить цену и наличие
+                                </button>
+                            </td>
+                            <td>
+                                <button type='button' class='deleteLinking btn btn-danger' data-id='<?php echo $synched->id ?>'>Удалить связь
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-            <?php else: ?>
+            <?php else : ?>
                 <table>
                     <thead>
-                    <tr>
-                        <td>Название файла</td>
-                        <td>Спарсить новые данные</td>
-                        <td>Применить</td>
-                    </tr>
+                        <tr>
+                            <td>Название файла</td>
+                            <td>Спарсить новые данные</td>
+                            <td>Применить</td>
+                        </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($fileListOfDirectory as $item): ?>
-                        <tr>
-                            <td><?php echo $item['name'] ?></td>
-                            <td><input type='button' class='parseNew' data-file='<?php echo $item['className'] ?>'
-                                       value='Спарсить новые данные'></td>
-                            <td><input type='button' class='getParsedForCatItem btn btn-small btn-info'
-                                       data-file='<?php echo $item['name'] ?>' data-id='<?php echo $model->id ?>'
-                                       value='Работать с текущими данными'></td>
+                        <?php foreach ($fileListOfDirectory as $item) : ?>
+                            <tr>
+                                <td><?php echo $item['name'] ?></td>
+                                <td><input type='button' class='parseNew' data-file='<?php echo $item['className'] ?>' value='Спарсить новые данные'></td>
+                                <td><input type='button' class='getParsedForCatItem btn btn-small btn-info' data-file='<?php echo $item['name'] ?>' data-id='<?php echo $model->id ?>' value='Работать с текущими данными'></td>
 
-                        </tr>
+                            </tr>
 
-                    <?php endforeach ?>
+                        <?php endforeach ?>
                     </tbody>
                 </table>
 
@@ -283,38 +278,38 @@ if ($tab == 'data')
             <?php endif ?>
 
             <script>
-                $(document).on("click", ".parseNew", function () {
+                $(document).on("click", ".parseNew", function() {
                     var button = $(this);
 
-                    $.get('/parsers/default/parseNew/className/' + $(this).attr("data-file") + '/', function (data) {
+                    $.get('/parsers/default/parseNew/className/' + $(this).attr("data-file") + '/', function(data) {
                         if (data == 1) {
                             button.val("Спарсенно");
-                        }
-                        ;
+                        };
 
                     })
 
                 })
 
-                $(document).on("click", ".getParsedForCatItem", function () {
+                $(document).on("click", ".getParsedForCatItem", function() {
                     var button = $(this);
                     var params = {
                         'CatItem': {
                             'name': $(this).attr("name"),
                             'price': $(this).attr("price"),
                             'text': $(this).attr("text")
-                        }, 'returnId': true
+                        },
+                        'returnId': true
                     };
 
                     $(".append").html("<span class='spinner'></span>");
-                    $.get('/parsers/default/getParsedForCatItem/itemId/' + $(this).attr("data-id") + '/file/' + $(this).attr("data-file") + '/', function (data) {
+                    $.get('/parsers/default/getParsedForCatItem/itemId/' + $(this).attr("data-id") + '/file/' + $(this).attr("data-file") + '/', function(data) {
                         $(".append").html(data);
 
                     })
 
                 })
 
-                $(document).on("submit", ".ajaxSubmit", function (e) {
+                $(document).on("submit", ".ajaxSubmit", function(e) {
                     e.preventDefault();
                     var form = $(this);
                     var hideAfter = $(this).attr("data-hideafter");
@@ -322,7 +317,7 @@ if ($tab == 'data')
                     var status = true;
                     $(this).find(".required").removeClass("form_error");
 
-                    $(this).find(".required").each(function () {
+                    $(this).find(".required").each(function() {
                         if ($(this).val() == "") {
                             status = false
                         }
@@ -330,18 +325,18 @@ if ($tab == 'data')
                     })
                     if (!status) return false;
 
-                    $.post(form.attr("action"), form.serialize(), function (data) {
+                    $.post(form.attr("action"), form.serialize(), function(data) {
                         location.reload();
                     })
                 })
 
-                $(document).on("click", ".deleteLinking", function (e) {
+                $(document).on("click", ".deleteLinking", function(e) {
 
                     var link = $(this);
                     var id = $(this).attr("data-id");
 
 
-                    $.get('/parsers/default/deleteLinking/id/' + id, function (data) {
+                    $.get('/parsers/default/deleteLinking/id/' + id, function(data) {
                         if (data == '1') {
                             location.reload();
 
@@ -353,7 +348,7 @@ if ($tab == 'data')
 
                 })
 
-                $(document).on("click", ".updatePrice", function (e) {
+                $(document).on("click", ".updatePrice", function(e) {
 
                     var button = $(this);
                     var params = {
@@ -363,21 +358,19 @@ if ($tab == 'data')
                     };
 
 
-                    $.post('/parsers/default/updateCard', params, function (data) {
+                    $.post('/parsers/default/updateCard', params, function(data) {
                         if (data == '1') {
                             $('.append').fadeIn('1000');
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 $('.append').fadeOut('1000');
                             }, 1000)
 
                             button.attr('disabled', true);
-                        }
-                        ;
+                        };
 
                     })
 
                 })
-
             </script>
 
         <?php } ?>
@@ -391,69 +384,23 @@ if ($tab == 'data')
 
     $picturesConfig = array();
 
-    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS).'.php' ;
+    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
     if (file_exists($configFile)) {
 
         $picturesConfig = require($configFile);
 
         $this->widget(
-            'application.modules.pictureBox.components.PictureBoxFiles', array(
+            'application.modules.pictureBox.components.PictureBoxFiles',
+            array(
                 'id' => 'catalogItem',
                 'elementId' => $model->id,
                 'config' => $picturesConfig,
                 'theme' => 'tiles'
             )
         );
-
-
     } else {
         Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
     }
     ?>
-<?php } ?>
-
-<?php if ($tab == 'video') { ?>
-
-    <div id='video'>
-
-        Алгоритм работы таков. После добавления изображения, надо указывать в парамметрах "video_url" урл для видео и
-        нажимать на сохранить зоголовок каждый раз. Парамметр видео урл находится на месте "alt", то есть если сохранил
-        заголовок, то там и должно быть урл видео.
-        <br/>
-        Сама ссылка должна содержать только сам код ролика(Например: Ghnz9pLsAc)
-        <br/>
-        Пусть к файлу с конфигом: /protected/config/catalog/categoryItemVideoSettings.php
-        <?php
-
-        $picturesConfig = array();
-        $configFile = Yii::getPathOfAlias('webroot') . '/protected/config/catalog/categoryItemVideoSettings.php';
-        if (file_exists($configFile)) {
-
-            $picturesConfig = require($configFile);
-
-            $this->widget(
-                'application.modules.pictureBox.components.PictureBox', array(
-                    'id' => 'catalogItemVideo',
-                    'elementId' => $model->id,
-                    'config' => $picturesConfig,
-                )
-            );
-        } else {
-            Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
-        }
-        ?>
-
-    </div>
-
-    <script>
-        $(function () {
-            var html = $("#video").find("FORM").html();
-
-            if (html != undefined) {
-                html = html.replace('alt:', 'video_url:');
-                $("#video").find("FORM").html(html);
-            }
-        })
-    </script>
 <?php } ?>
 

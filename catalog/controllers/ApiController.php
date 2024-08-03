@@ -25,6 +25,7 @@ class ApiController extends Controller
 
 
                 'actions' => array(
+                    'GetOptionslist',
                     'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport'
                 ),
 
@@ -176,7 +177,35 @@ class ApiController extends Controller
 
     public function actionGetOptionslist($itemId)
     {
+        // Найти все записи, где itemId равен переданному значению
+        $options = CatItemsToItems::model()->findAllByAttributes(array('itemId' => $itemId));
+
+        // Если записи найдены, подготовить данные для вывода
+        if ($options) {
+            $result = array();
+            foreach ($options as $option) {
+                // Загрузить модель CatItem по toItemId
+                $catItem = CatItem::model()->findByPk($option->toItemId);
+                if ($catItem) {
+                    $result[] = array(
+                        'itemId' => $option->toItemId,
+
+                        'name' => $catItem->name,
+                        'price' => $catItem->price,
+                        'isBase' => $option->isBase,  // добавить isBase
+                        'image' => $catItem->getPbox()->getFirstImage('admin')
+                    );
+                }
+            }
+
+            // Выводим JSON
+            echo CJSON::encode($result);
+        } else {
+            // Если записи не найдены, выводим пустой массив
+            echo CJSON::encode(array());
+        }
     }
+
 
     public function actionMassOptionsImport()
     {
@@ -196,7 +225,7 @@ class ApiController extends Controller
 
         // Предполагаем, что у нас есть идентификатор основного элемента в additionalData
         $mainItemId = $data['additionalData']['id'];
-    
+
         // Ищем основной элемент CatItem по идентификатору
         $mainItem = CatItem::model()->findByPk($mainItemId);
 
@@ -206,11 +235,16 @@ class ApiController extends Controller
 
         // Создание и связывание опций
         foreach ($data['data'] as $itemData) {
-            if (isset($itemData['article'])) {
-               
-                $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
+            if (isset($itemData['article']) || isset($itemData['itemId'])) {
+                
+                if (isset($itemData['article']))
+                    $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
+
+                if (isset($itemData['itemId']))
+                    $res = CatItem::model()->findAllByAttributes(['id' => $itemData['itemId']]);
+
                 if (is_array($res) && count($res) > 0) {
-                   
+
                     $item = array_shift($res);
                     $res2 = CatItemsToItems::model()->findAllByAttributes(['toItemId' => $item->id, 'itemId' => $mainItem->id]);
 
@@ -218,21 +252,20 @@ class ApiController extends Controller
                         $itemsToItems = new CatItemsToItems();
                         $itemsToItems->toItemId = $item->id;
                         $itemsToItems->itemId = $mainItem->id;
-                        if (isset($itemData['Standard']) && $itemData['Standard'] ==1) {
+                        if (isset($itemData['Standard']) && $itemData['Standard'] == 1) {
                             $itemsToItems->isBase = 1;
                         }
-                        
+
                         if (!$itemsToItems->save()) {
                             throw new CHttpException(500, 'Failed to save item-to-item link.');
                         }
                     } else {
-                       
+
                         $itemsToItems = array_shift($res2);
-                    
-                        if (isset($itemData['Standard']) && $itemData['Standard'] ==1) {
+
+                        if (isset($itemData['Standard']) && $itemData['Standard'] == 1) {
                             $itemsToItems->isBase = 1;
                             $itemsToItems->save();
-                   
                         }
                     }
                 }
@@ -246,7 +279,7 @@ class ApiController extends Controller
                 // $itemsToItems->itemId = $mainItem->id;
 
 
-             
+
             } else {
                 $item = new CatItem();
                 $item->name = $itemData['name'];

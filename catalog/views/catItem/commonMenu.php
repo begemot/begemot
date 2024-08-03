@@ -35,6 +35,14 @@ $menuPart1 = array(
         'url' => array('/catalog/catItemOptions/manage'),
     ),
     array(
+        'label' => 'Изображения(json)',
+        'url' => array('/catalog/catItem/massImages'),
+    ),
+    array(
+        'label' => 'Видео',
+        'url' => array('/catalog/catItem/video'),
+    ),
+    array(
 
 
         'url' => '/catalog/catOrder/admin',

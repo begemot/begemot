@@ -72,7 +72,7 @@ class CatalogModule extends CWebModule
             'catalogAndSchema' => ['*'], // Все действия контроллера 'catalogAndSchema'
             'catCategory' => ['massItemsMoveBetweenCategories'], // Определенные действия другого контроллера
             'catItemOptions' => ['*'], // Определенные действия другого контроллера
-            'catItem'=>['massImages']
+            'catItem'=>['massImages','video']
         ];
 
         // Проверка исключений

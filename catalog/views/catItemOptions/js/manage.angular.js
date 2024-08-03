@@ -7,6 +7,7 @@ app.controller('myCtrl', function ($scope, $http) {
     $scope.onSelectItem = function (item) {
         console.log('Первый элемент selectedItems:', item);
         $scope.selectedItem = item
+        $scope.getOptionsList()
         // Здесь можно добавить дополнительную логику для обработки элемента item
     };
 
@@ -27,7 +28,19 @@ app.controller('myCtrl', function ($scope, $http) {
         }
     });
 
-
+    $scope.optionsListOfSelected = []
+    $scope.getOptionsList = function() {
+        $http.get('https://atvargo.ru/catalog/api/getOptionsList', {
+            params: { itemId: $scope.selectedItem.id }
+        }).then(function(response) {
+            // Успешный ответ от сервера
+            $scope.optionsListOfSelected = response.data
+            $scope.inputData = response.data
+        }, function(error) {
+            // Обработка ошибок
+            console.error('Ошибка при получении списка опций:', error);
+        });
+    };
 
 
 

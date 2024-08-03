@@ -126,7 +126,7 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			scope.customComparator = function (item) {
 				return -parseInt(item.id);
 			};
-			scope.debouncedLoadData()
+			//scope.debouncedLoadData()
 		},
 	}
 })

@@ -20,6 +20,7 @@ class CatItem extends ContentKitModel
 {
 
 
+
     private $schemaArray = null;
 
     public function schemaGet($fieldId)
@@ -98,13 +99,13 @@ class CatItem extends ContentKitModel
             'name' => array(self::BELONGS_TO, 'CatItemsToCat', 'itemId'),
             'category' => array(self::BELONGS_TO, 'CatCategory', 'catId'),
             'reviews' => array(self::HAS_MANY, 'Reviews', 'pid', 'condition' => 'status=1'),
-           
+
 
             'options' => array(
                 self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)',
                 'joinType' => 'INNER JOIN',
                 'order' => '`options_options`.`order`',
- 
+
             ),
 
 
@@ -136,23 +137,16 @@ class CatItem extends ContentKitModel
 
     public function getVideos()
     {
-
-        $imagesDataPath = Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItemVideo/' . $this->id;
-        $favFilePath = $imagesDataPath . '/data.php';
-        $images = array();
-
-        if (file_exists($favFilePath)) {
-
-            $images = require($favFilePath);
-            if (isset($images['images']))
-                return $images['images'];
-            else
-                return array();
-        } else {
+        Yii::import('videoGallery.models.*');
 
 
-            return array();
+        $VideoEntityLinkModels = VideoEntityLink::model()->findAllByAttributes(['entity_model'=>'CatItem','entity_id'=>$this->id]);
+
+        $result_videos = [];
+        foreach ($VideoEntityLinkModels as $VideoEntityLinkModel){
+            $result_videos[] = $VideoEntityLinkModel->video;
         }
+        return $result_videos;
     }
 
     public function getCategoriesItemIn()
@@ -333,6 +327,13 @@ class CatItem extends ContentKitModel
         ));
     }
 
+    public function getPbox()
+    {
+        Yii::import("pictureBox.components.PBox");
+        $pbox = new PBox('catalogItem', $this->id);
+        return $pbox;
+    }
+
     //get picture fav list array
     public function getItemFavPictures()
     {
@@ -379,44 +380,13 @@ class CatItem extends ContentKitModel
     }
 
     //get path of one main picture, wich take from fav or common images list
-    public function getItemMainPicture($tag = null)
+    public function getItemMainPicture($tag = 'admin')
     {
 
         Yii::import("pictureBox.components.PBox");
         $PBox = new PBox("catalogItem", $this->id);
         $image = $PBox->getFirstImage($tag);
         return $image;
-
-        $imagesDataPath = Yii::getPathOfAlias('webroot') . '/files/pictureBox/catalogItem/' . $this->id;
-        $favFilePath = $imagesDataPath . '/favData.php';
-
-        $images = array();
-        $itemImage = '';
-
-        $images = $this->getItemFavPictures();
-        if (count($images) != 0) {
-            $imagesArray = array_values($images);
-            $itemImage = $imagesArray[0];
-        }
-        if (count($images) == 0) {
-
-            $images = $this->getItemPictures();
-            if (count($images) > 0) {
-                $imagesArray = array_values($images);
-                $itemImage = $imagesArray[0];
-            } else {
-                return '#';
-            }
-        }
-
-        if (is_null($tag)) {
-            return array_shift($itemImage);
-        } else {
-            if (isset($itemImage[$tag]))
-                return $itemImage[$tag];
-            else
-                return '#';
-        }
     }
 
     public function searchInModel($queryWord)

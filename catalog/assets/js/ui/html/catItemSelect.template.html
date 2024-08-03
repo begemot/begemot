@@ -6,7 +6,7 @@
 </style>
 <div class="row">
 
-    <div class="col-md-6">
+    <div class="col">
         <h3>Выберите позиции</h3>
         <div class="input-group mb-3">
             <input type="text" ng-model="filterText" class="form-control" placeholder="Фильтр"
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col" ng-if="!menuMode">
         <cat-item-list selected-items="selectedItems" on-deselect="deselectItem(item)"
             show-cats="showCats"></cat-item-list>
 
