@@ -301,7 +301,22 @@ class PBox
             return false;
         }
     }
-
+    public function setAlt($id,$alt)
+    {
+        if (isset($this->pictures[$id])) {
+             $this->pictures[$id]['alt'] = $alt;
+        } else {
+            return false;
+        }
+    }
+    public function setTitle($id,$title)
+    {
+        if (isset($this->pictures[$id])) {
+             $this->pictures[$id]['title'] = $title;
+        } else {
+            return false;
+        }
+    }
     /**
      *
      * Физическое удаление основного файла и всех его фильтрованных копий.

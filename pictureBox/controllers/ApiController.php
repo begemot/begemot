@@ -57,7 +57,7 @@ class ApiController extends Controller
                     $imageKey != 'title' &&
                     $imageKey != 'alt'
                 ) {
-                    $images[$key][$imageKey] = $image ;
+                    $images[$key][$imageKey] = $image;
                 }
             }
         }
@@ -140,7 +140,7 @@ class ApiController extends Controller
 
         // Путь к файлу конфигурации
         $filePath = $configDirectoryPath . DIRECTORY_SEPARATOR . 'config.json';
-        $resultList = ['default'=>['title'=>'Основная']];
+        $resultList = ['default' => ['title' => 'Основная']];
         if (file_exists($filePath)) {
             // Read the file contents
             $fileContents = file_get_contents($filePath);
@@ -152,17 +152,15 @@ class ApiController extends Controller
             if (json_last_error() === JSON_ERROR_NONE) {
                 // Successfully retrieved the configuration
                 // You can now use $config array as needed
-                if(isset($config['subGalleries'])) {
-                    $resultList = array_merge($resultList,$config['subGalleries']);
-                } 
-      
-
+                if (isset($config['subGalleries'])) {
+                    $resultList = array_merge($resultList, $config['subGalleries']);
+                }
             } else {
                 // Handle JSON decode error
                 $pBox = new PBox($galleryId, $id);
                 $wr = Yii::getPathOfAlias('webroot');
                 $filelist = glob($wr . '/' . $pBox->webDataFile . '/*', GLOB_ONLYDIR);
-                
+
 
                 foreach ($filelist as $dir) {
                     $resultList[] = basename($dir);
@@ -324,22 +322,45 @@ class ApiController extends Controller
         } else throw new Exception('$_FILES[\'croppedImage\'] - не существует');
     }
 
-    public function actionGetAllIds($gallery){
-       
+    public function actionGetAllIds($gallery)
+    {
+
         $path = Yii::getPathOfAlias('webroot.files.pictureBox');
-         $path = $path. DIRECTORY_SEPARATOR.$gallery;
+        $path = $path . DIRECTORY_SEPARATOR . $gallery;
         $directories = array_filter(glob($path . '/*'), 'is_dir');
         $numericDirectories = array();
-    
+
         foreach ($directories as $dir) {
             $dirName = basename($dir);
             if (ctype_digit($dirName)) {
                 $numericDirectories[] = (int) $dirName;
             }
         }
-    
+
         rsort($numericDirectories);
-        
+
         echo json_encode($numericDirectories);
+    }
+
+    public function actionUpdateAlt($gallery, $id, $imageId, $alt)
+    {
+        $pbox = new PBox($gallery, $id);
+        $pbox->setAlt($imageId,$alt);
+        $pbox->saveToFile();
+    }
+    
+    public function actionUpdateTitle($gallery, $id, $imageId, $title)
+    {
+        $pbox = new PBox($gallery, $id);
+        $pbox->setTitle($imageId,$title);
+        $pbox->saveToFile();
+    }
+
+    public function actionTitleAlrChangeMass($gallery, $id, $imageId, $title)
+    {
+        $postdata = json_decode(file_get_contents("php://input"));
+        $pbox = new PBox($gallery, $id);
+        $pbox->setTitle($imageId,$title);
+        $pbox->saveToFile();
     }
 }
