@@ -66,7 +66,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
                 <button class="btn btn-primary btn-sm" ng-click="submitData()"
                     ng-if="attachButtonVisible">Прикрепить</button>
                 <cat-item-select selected-items="selectedItems" on-select-change="onSelectAndUnselect(items)"
-                    selected-items-view='1' show-cats='true'>
+                    selected-items-view='1' show-cats='false' menu-mode='false'>
                     <div>{{item.name}}</div>
 
 

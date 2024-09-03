@@ -126,6 +126,14 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			scope.customComparator = function (item) {
 				return -parseInt(item.id);
 			};
+
+			scope.selectAll = ()=>{
+				console.log(scope.catItems)
+				angular.forEach(scope.catItems, (item) => {
+					scope.selectItem(item)
+				});
+			}
+
 			//scope.debouncedLoadData()
 		},
 	}

@@ -14,7 +14,12 @@
             <button class="btn btn-outline-secondary" type="button" id="button-addon2" ng-click="showCatSelectModal()">
                 <i class="bi bi-list"></i> <!-- Иконка выбора категории, используйте нужную иконку -->
             </button>
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2" ng-click="selectAll()">
+                Выбрать все
+            </button>
         </div>
+
+
         <div class="scrollable-list">
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="item in catItems | orderBy:customComparator"
