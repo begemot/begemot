@@ -64,7 +64,7 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
                     } catch (error) {
                         console.error('Error sending data element:', error);
                         alert('Error sending data element');
-                        break; // Stop sending further if there is an error
+                      
                     }
                 }
 

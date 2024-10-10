@@ -23,7 +23,9 @@ app.controller('FormController', ['$http', '$scope', function($http, $scope) {
     ctrl.formData = {};
     $scope.test = 111;
     $scope.inputData = [{
-            name: 'Название Field 1'
+            name: 'Название Field 1',
+            SUOM:'л',
+            SUOM_name:'Литры'
         },
         {
             name: 'Название Field 2'

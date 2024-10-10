@@ -662,7 +662,7 @@ class PBox
 
             move_uploaded_file($tmpname, $newOriginalFile);
         } else {
-            copy($tmpname, $newOriginalFile);
+            if (!@copy($tmpname, $newOriginalFile)) return;
         }
 
 

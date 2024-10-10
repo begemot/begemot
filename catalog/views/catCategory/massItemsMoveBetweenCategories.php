@@ -26,38 +26,38 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 
 <div ng-app="myApp" ng-controller="myCtrl">
     <style>
-    .scrollable-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
+        .scrollable-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
 
-    .list-group-item {
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+        .list-group-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    .list-group-item:hover {
-        background-color: #e0e0e0;
-    }
+        .list-group-item:hover {
+            background-color: #e0e0e0;
+        }
 
-    .selected-item {
-        background-color: #a8d5e2;
-        color: #ffffff;
-    }
+        .selected-item {
+            background-color: #a8d5e2;
+            color: #ffffff;
+        }
 
-    .schema-data-list {
-        list-style-type: none;
-        padding: 0;
-    }
+        .schema-data-list {
+            list-style-type: none;
+            padding: 0;
+        }
 
-    .schema-data-list li {
-        padding: 5px 0;
-        border-bottom: 1px solid #ddd;
-    }
+        .schema-data-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
 
-    .schema-data-list li:last-child {
-        border-bottom: none;
-    }
+        .schema-data-list li:last-child {
+            border-bottom: none;
+        }
     </style>
 
     <div class="container mt-5">
@@ -66,7 +66,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
                 <button class="btn btn-primary btn-sm" ng-click="submitData()"
                     ng-if="attachButtonVisible">Прикрепить</button>
                 <cat-item-select selected-items="selectedItems" on-select-change="onSelectAndUnselect(items)"
-                    selected-items-view='1' show-cats='true'>
+                    selected-items-view='1' show-cats='true' menu-mode='false'>
                     <div>{{item.name}}</div>
 
 
@@ -80,33 +80,20 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 
 
     <div class="container mt-5">
-        <h1>Status Switcher</h1>
-        <div class="btn-group" role="group" aria-label="Status Switcher">
-            <input type="radio" class="btn-check" name="status" id="status_stock" autocomplete="off"
-                ng-click='moveToStandartCat("stock")'>
-            <label class="btn btn-outline-success" for="status_stock">Stock</label>
-
-            <input type="radio" class="btn-check" name="status" id="status_catalog" autocomplete="off"
-                ng-click='moveToStandartCat("catalog")'>
-            <label class="btn btn-outline-primary" for="status_catalog">Catalog</label>
-
-            <input type="radio" class="btn-check" name="status" id="status_sold" autocomplete="off"
-                ng-click='moveToStandartCat("sold")'>
-            <label class="btn btn-outline-danger" for="status_sold">Sold</label>
-
-            <input type="radio" class="btn-check" name="status" id="status_archive" autocomplete="off"
-                ng-click='moveToStandartCat("archive")'>
-            <label class="btn btn-outline-secondary" for="status_archive">Archive</label>
-
-            <input type="radio" class="btn-check" name="status" id="status_clear" autocomplete="off"
-                ng-click='moveToStandartCat("clear")'>
-            <label class="btn btn-outline-danger" for="status_clear">убрать отовсюду</label>
-        </div>
+        <h1>Выбор раздела</h1>
 
         <div class="mt-3">
-            <button ng-click='moveToCat()'>Прикрепить элементы к категориям</button>
+            <button class="btn btn-primary" ng-click="moveToCat()">Прикрепить элементы к категориям</button>
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="deleteDirectoriesCheckbox" ng-model='deleteAllCats'>
+            <label  class="form-check-label" for="deleteDirectoriesCheckbox">
+                Удалить все директории, если есть
+            </label>
         </div>
     </div>
+
 
     <div class="container mt-5">
         <category-select selected-categories='selectedCategories' business-logic-enabled='true'></category-select>
@@ -117,12 +104,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 
 
     <script>
-    $(document).ready(function() {
-        $('input[name="status"]').change(function() {
-            var selectedStatus = $(this).next('label').text();
-            $('#selected_status').text(selectedStatus);
+        $(document).ready(function() {
+            $('input[name="status"]').change(function() {
+                var selectedStatus = $(this).next('label').text();
+                $('#selected_status').text(selectedStatus);
+            });
         });
-    });
     </script>
 
 </div>

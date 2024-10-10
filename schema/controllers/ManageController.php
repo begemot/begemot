@@ -83,36 +83,52 @@ class ManageController extends Controller
         $params = json_decode(file_get_contents('php://input'), true);
         $table = $params['data'];
 
-
-
-
-
-        // $table = $this->parseMdTable($params['data']);
         print_r($table);
         Yii::import('schema.models.SchemaField');
         $order = 0;
         foreach ($table as $row) {
 
 
-            foreach ($row as $key => $value) {
-                if ($value) {
-                    $fieldModekExist = SchemaField::model()->findByAttributes(['name' => $value]);
-                    if ($fieldModekExist) {
-                        $scemaField = $fieldModekExist;
+            // foreach ($row as $key => $value) {
+            if ($row['name']) {
+                if (isset($row['SUOM_name']) && $row['SUOM_name'] != '') {
+                    echo 'go';
+                    $SchemaUnitOfMeasurement = SchemaUnitOfMeasurement::model()->findAllByAttributes(['name' => $row['SUOM_name']]);
+                    if (!is_array($SchemaUnitOfMeasurement) || count($SchemaUnitOfMeasurement)==0) {
+                        $SchemaUnitOfMeasurement = new SchemaUnitOfMeasurement();
+                        $SchemaUnitOfMeasurement->name = $row['SUOM_name'];
+                        $SchemaUnitOfMeasurement->abbreviation = $row['SUOM'];
+                        if ($SchemaUnitOfMeasurement->save()) {
+                            $SuomId = $SchemaUnitOfMeasurement->id;
+                        } else {
+                            throw new Exception('Не удалось создать единицу измерения');
+                        }
                     } else {
-                        $scemaField = new SchemaField();
+                        $SchemaUnitOfMeasurement = array_shift($SchemaUnitOfMeasurement);
+                        $SuomId = $SchemaUnitOfMeasurement->id;
                     }
-
-                    $order++;
-                    $scemaField->schemaId = 1;
-                    $scemaField->name = $value;
-                    $scemaField->type = 'String';
-                    $scemaField->order = $order;
-                    $scemaField->save();
-                    // $CSchmVehicle = new CSchmVehicle(null, 'Название', $key);
-                    // $CSchmVehicle->set($fieldName, $value);
                 }
+
+
+                $fieldModekExist = SchemaField::model()->findByAttributes(['name' => $row['name']]);
+                if ($fieldModekExist) {
+                    $scemaField = $fieldModekExist;
+                } else {
+                    $scemaField = new SchemaField();
+                }
+
+                $order++;
+                $scemaField->schemaId = 1;
+                $scemaField->name = $row['name'];
+                $scemaField->type = 'String';
+                $scemaField->order = $order;
+                if (isset($SuomId))
+                    $scemaField->UoFId = $SuomId;
+                $scemaField->save();
+                // $CSchmVehicle = new CSchmVehicle(null, 'Название', $key);
+                // $CSchmVehicle->set($fieldName, $value);
             }
+            // }
         }
         return;
     }
@@ -147,12 +163,10 @@ class ManageController extends Controller
 
                 if ($value) {
 
-                    if ($value=='Рулевое управление'){
-                        $test=123;
-                    }
+
                     $CSchmVehicle = new CSchmVehicle(null, 'Название', $name, 'vehicle');
-                    $fieldName1=$fieldName;
-                    $value1=$value;
+                    $fieldName1 = $fieldName;
+                    $value1 = $value;
                     $CSchmVehicle->set($fieldName, $value);
                 }
             }

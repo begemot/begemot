@@ -9,7 +9,7 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			onSelectChange: '&',
 			selectedItemsView: '=',
 			showCats: '=?',
-			menuMode: '='
+			menuMode: '=?'
 		},
 		templateUrl:
 			'/protected/modules/catalog/assets/js/ui//html/catItemSelect.template.html',
@@ -40,10 +40,11 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			if (typeof scope.showCats === 'undefined') {
 				scope.showCats = false // Значение по умолчанию
 			}
+
 			if (typeof scope.menuMode === 'undefined') {
 				scope.menuMode = false // Значение по умолчанию
 			}
-
+			console.log(scope.menuMode)
 			scope.selectedSingleItemId = undefined
 
 			scope.modalCatFilter = false
@@ -55,6 +56,7 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			scope.selectListView = scope.selectedItemsView
 			scope.selectItem = function (item) {
 				var index = scope.catItems.indexOf(item)
+				console.log(scope.menuMode)
 				if (index !== -1) {
 					if (scope.menuMode == false){
 						scope.catItems.splice(index, 1)
@@ -63,8 +65,9 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 						scope.selectedItems = []
 					}
 
-				
+					
 					scope.selectedItems.push(item)
+					console.log(scope.selectedItems)
 				}
 				scope.onSelectChange({ items: scope.selectedItems })
 			}

@@ -26,7 +26,7 @@ class ApiController extends Controller
 
                 'actions' => array(
                     'GetOptionslist',
-                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport','DeleteOption'
                 ),
 
 
@@ -148,14 +148,25 @@ class ApiController extends Controller
         $rawPostData = file_get_contents("php://input");
         $data = CJSON::decode($rawPostData, true);
 
-        if (!isset($data['selectedCats']) && !isset($data['selectedItems'])) {
+        if (!isset($data['selectedCats']) || !isset($data['selectedItems'])) {
             throw new Exception('нет данных');
         } else {
+
+
 
             $itemsIds = array_column($data['selectedItems'], 'id');
             $catItems = CatItem::model()->findAllByAttributes(['id' => $itemsIds]);
             foreach ($catItems as $catItem) {
                 foreach ($data['selectedCats'] as $catId) {
+
+                    if (isset($data['deleteAllCats']) && $data['deleteAllCats']==true){
+                        $catitemsToCatModels = CatItemsToCat::model()->findAllByAttributes(['itemId'=>$catItem->id]);
+
+                        foreach ($catitemsToCatModels as $catitemsToCatModel){
+                            $catitemsToCatModel->delete();
+                        }
+                    }
+
                     $catItem->moveToCat($catId);
                 }
             }
@@ -206,7 +217,24 @@ class ApiController extends Controller
         }
     }
 
+    public function actionDeleteOption(){
+        $jsonoptions = file_get_contents("php://input");
+        $data = CJSON::decode($jsonoptions, true);
+        $data = $data['params'];
+        $itemId = $data['itemId'];
+        $optionId = $data['option']['itemId'];
 
+        Yii::import('catalog.models.*');
+        $catItemsToItems = CatItemsToItems::model()->findAllByAttributes(['itemId'=>$itemId,'toItemId'=>$optionId]);
+        $catItemOption = CatItem::model()->findByPk($optionId);
+        if ($catItemOption){
+            $catItemOption->delete();
+            foreach ($catItemsToItems as $catItemsToItem){
+                $catItemsToItem->delete();
+            }
+        }
+    }
+    
     public function actionMassOptionsImport()
     {
 
@@ -252,7 +280,7 @@ class ApiController extends Controller
                         $itemsToItems = new CatItemsToItems();
                         $itemsToItems->toItemId = $item->id;
                         $itemsToItems->itemId = $mainItem->id;
-                        if (isset($itemData['Standard']) && $itemData['Standard'] == 1) {
+                        if (isset($itemData['isbase']) && $itemData['isbase'] == 1) {
                             $itemsToItems->isBase = 1;
                         }
 
@@ -263,7 +291,7 @@ class ApiController extends Controller
 
                         $itemsToItems = array_shift($res2);
 
-                        if (isset($itemData['Standard']) && $itemData['Standard'] == 1) {
+                        if (isset($itemData['isbase']) && $itemData['isbase'] == 1) {
                             $itemsToItems->isBase = 1;
                             $itemsToItems->save();
                         }
@@ -284,6 +312,7 @@ class ApiController extends Controller
                 $item = new CatItem();
                 $item->name = $itemData['name'];
                 $item->price = $itemData['price'];
+                
 
                 $item->status = 1;
                 $item->data = json_encode($itemData);
@@ -322,6 +351,10 @@ class ApiController extends Controller
                     $itemsToItems = new CatItemsToItems();
                     $itemsToItems->toItemId = $item->id;
                     $itemsToItems->itemId = $mainItem->id;
+
+                    if (isset($itemData['isbase']) && $itemData['isbase'] == 1) {
+                        $itemsToItems->isBase = 1;
+                    }
 
                     if (!$itemsToItems->save()) {
                         throw new CHttpException(500, 'Failed to save item-to-item link.');
