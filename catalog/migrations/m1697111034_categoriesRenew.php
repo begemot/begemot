@@ -23,7 +23,7 @@ class m1697111034_categoriesRenew extends BaseMigration
             $catsArray[] = $catLine;
         }
         usort($catsArray, function ($a, $b) {
-            return $a['level'] > $b['level'];
+            return $a['level'] <=>$b['level'];
         });
         $currOrder = 0;
         foreach ($catsArray as &$item) {
@@ -124,7 +124,7 @@ function insertArrayToArrayByOrder(&$baseArray, $pidArray, $orderFromMustInsert)
     }
 
     usort($baseArray, function ($a, $b) {
-        return $a['order'] > $b['order'];
+        return $a['order'] <=> $b['order'];
     });
 }
 
