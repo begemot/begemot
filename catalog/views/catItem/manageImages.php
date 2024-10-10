@@ -81,7 +81,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 
     <div class="container mt-5">
         <div class="row mt-5">
-            <h2>Импорт данных JSON</h2>
+            <h2>Импорт данных JSON</h2> <button ng-if = 'itemSelected' ng-click='fetchImages()'>Загрузить изображения из выбранной позиции</button>
             <json-table input-data="inputData" output-data="outputData"
                 send-data-url='/catalog/api/massItemImageImport?XDEBUG_SESSION_START=1'
                 additional-data-for-send='selectedItem'></json-table>

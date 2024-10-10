@@ -60,7 +60,7 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
                         scope.progress = Math.round((sentItems / totalItems) * 100);
                         scope.$apply(); // Update scope changes
                         if (scope.stepBystepSend)
-                            await sleep(3000);
+                            await sleep(5000);
                     } catch (error) {
                         console.error('Error sending data element:', error);
                         alert('Error sending data element');
@@ -111,7 +111,7 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
             }
 
             scope.isImageUrl = function (url) {
-                return /^https?:\/\/.*\.(jpeg|jpg|gif|png)$/.test(url);
+                return /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp)$/.test(url);
             }
 
             // Watch for changes in inputData and update scope.data accordingly

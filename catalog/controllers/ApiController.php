@@ -26,7 +26,7 @@ class ApiController extends Controller
 
                 'actions' => array(
                     'GetOptionslist',
-                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport','DeleteOption'
+                    'itemListJson', 'GetCategoriesOfCatItem', 'MoveItemsToStandartCat', 'GetCatList', 'massItemsMoveToCats', 'MassOptionsImport', 'massItemImageImport','DeleteOption','ExportImagesOfCatItem'
                 ),
 
 
@@ -37,6 +37,20 @@ class ApiController extends Controller
                 'users' => array('*'),
             ),
         );
+    }
+    
+    public function actionExportImagesOfCatItem($id){
+        // $id = 513;
+       
+        Yii::import('pictureBox.components.PBox');
+        $pBox = new PBox('catalogItem',$id);
+        $array = array_column($pBox->getSortedImageList(),'original');
+        $resultArray = [];
+        $host = $_SERVER['HTTP_HOST'];
+        foreach ($array as $key=>$elem){
+            $resultArray[] = ['url'=>'https://'.$host.$elem];
+        }
+        echo json_encode($resultArray);
     }
 
     public function actionItemListJson()
