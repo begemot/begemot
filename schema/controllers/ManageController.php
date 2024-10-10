@@ -163,7 +163,6 @@ class ManageController extends Controller
 
                 if ($value) {
 
-
                     $CSchmVehicle = new CSchmVehicle(null, 'Название', $name, 'vehicle');
                     $fieldName1 = $fieldName;
                     $value1 = $value;
