@@ -11,7 +11,7 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
             '/protected/modules/begemot/ui/commonUiBs5/templates/jsonTable.commonUi.template.html',
         link: function (scope) {
             console.log(scope.additionalDataForSend)
-            scope.stepBystepSend = false;
+            scope.stepBystepSend = true;
             scope.data = angular.copy(scope.inputData); // Initialize with a copy of inputData
             scope.showModal = false;
             scope.modalJson = '';
@@ -60,7 +60,7 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
                         scope.progress = Math.round((sentItems / totalItems) * 100);
                         scope.$apply(); // Update scope changes
                         if (scope.stepBystepSend)
-                            await sleep(5000);
+                            await sleep(3000);
                     } catch (error) {
                         console.error('Error sending data element:', error);
                         alert('Error sending data element');
