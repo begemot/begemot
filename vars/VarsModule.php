@@ -50,7 +50,7 @@ class VarsModule extends CWebModule
         file_put_contents($dataFile, '<?php return ' . var_export($data, true) . '?>');
 }
 
-public static function getVar($varName, $silent = false)
+public static function getVar($varName, $silent = false, $default = '')
 {
 
 
@@ -73,9 +73,18 @@ self::$arrayid = $idArray;
 
 $editUrl = '';
 if (!Yii::app()->user->isGuest) {
-if (isset($arrayid[$varName])) {
+if (isset(self::$arrayid[$varName])) {
 $editUrl = '<a href="/vars/default/update/id/' . self::$arrayid[$varName] . '" target="_blank">редактировать </a>';
 } else {
+
+$data = VarsModule::getData();
+
+$dataItem = array();
+$dataItem['varname'] = $varName;
+$dataItem['vardata'] = $default;
+
+$data[] = $dataItem;
+VarsModule::setData($data);
 }
 }
 
