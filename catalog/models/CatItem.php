@@ -504,6 +504,7 @@ class CatItem extends ContentKitModel
     // }
     public function isInArchive()
     {
+       
         $result = CatItemsToCat::model()->findAllByAttributes(['itemId' => $this->id]);
 
         if ($result) {
@@ -511,6 +512,7 @@ class CatItem extends ContentKitModel
                 if ($catItemToCat->cat->name == 'archive') return true;
             }
         }
+        return false;
     }
 
     public function isInStock()
