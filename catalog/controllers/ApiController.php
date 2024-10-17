@@ -227,7 +227,7 @@ class ApiController extends Controller
                         'name' => $catItem->name,
                         'price' => $catItem->price,
                         'isBase' => $option->isBase,  // добавить isBase
-                        'url' => $catItem->getPbox()->getFirstImage('admin')
+                        'url' => 'https://'.$_SERVER['HTTP_HOST'].$catItem->getPbox()->getFirstImage('admin')
                     );
                 }
             }
