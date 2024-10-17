@@ -288,17 +288,28 @@ class ApiController extends Controller
         // Создание и связывание опций
         foreach ($data['data'] as $itemData) {
 
+
+            $isExist = false;
+
             if (isset($itemData['article']) || isset($itemData['itemId'])) {
 
-                if (isset($itemData['article']))
-                    $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
+                if (isset($itemData['article'])){
 
-                if (isset($itemData['itemId']))
+                    $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
+                }
+
+                if (isset($itemData['itemId'])){
+
                     $res = CatItem::model()->findAllByAttributes(['id' => $itemData['itemId']]);
+                }
+
+                if (is_array($res) && count($res) > 0) {
+                    $isExist=true;
+                }
+
             }
 
-            if (is_array($res) && count($res) > 0) {
-
+            if ($isExist) {
 
                 $item = array_shift($res);
                 $res2 = CatItemsToItems::model()->findAllByAttributes(['toItemId' => $item->id, 'itemId' => $mainItem->id]);
