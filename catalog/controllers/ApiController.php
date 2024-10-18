@@ -390,7 +390,7 @@ class ApiController extends Controller
                     $itemsToItems->toItemId = $item->id;
                     $itemsToItems->itemId = $mainItem->id;
 
-                    if (isset($itemData['isbase']) && $itemData['isbase'] == 1) {
+                    if (isset($itemData['isBase']) && $itemData['isBase'] === '1') {
                         $itemsToItems->isBase = 1;
                     }
 
