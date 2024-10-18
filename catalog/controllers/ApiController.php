@@ -34,7 +34,8 @@ class ApiController extends Controller
                     'MassOptionsImport',
                     'massItemImageImport',
                     'DeleteOption',
-                    'ExportImagesOfCatItem'
+                    'ExportImagesOfCatItem',
+                    'CatItemAttributesSet'
                 ),
 
 
@@ -293,20 +294,19 @@ class ApiController extends Controller
 
             if (isset($itemData['article']) || isset($itemData['itemId'])) {
 
-                if (isset($itemData['article'])){
+                if (isset($itemData['article'])) {
 
                     $res = CatItem::model()->findAllByAttributes(['article' => $itemData['article']]);
                 }
 
-                if (isset($itemData['itemId'])){
+                if (isset($itemData['itemId'])) {
 
                     $res = CatItem::model()->findAllByAttributes(['id' => $itemData['itemId']]);
                 }
 
                 if (is_array($res) && count($res) > 0) {
-                    $isExist=true;
+                    $isExist = true;
                 }
-
             }
 
             if ($isExist) {
@@ -452,6 +452,36 @@ class ApiController extends Controller
             $pBox->addImagefile($url['url']);
             $pBox->unLock();
             // sleep(1);
+        }
+    }
+
+    public function actionCatItemAttributesSet()
+    {
+        // Проверка, является ли запрос AJAX
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException(400, 'Invalid request.');
+        }
+
+        // Получение данных из POST-запроса
+        $rawData = file_get_contents('php://input');
+        $data = json_decode($rawData, true);
+        $data = json_decode($data['data'], true);
+
+        Yii::import('catalog.models.CatItemsToItems');
+        $model = CatItemsToItems::model()->findByAttributes([
+            'itemId'=>$data['baseItem']['id'],
+            'toItemId'=>$data['itemId']
+        ]);
+        print_r($data);
+        $model->isBase = $data['attributes']['isBase'];
+    
+        // Сохранение изменений в базе данных
+        if ($model->save()) {
+            // Успешное сохранение
+            echo CJSON::encode(['status' => 'success', 'message' => 'Attributes updated successfully.']);
+        } else {
+            // Ошибка при сохранении
+            throw new CHttpException(500, 'Failed to update attributes.');
         }
     }
 }

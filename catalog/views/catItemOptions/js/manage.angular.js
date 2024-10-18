@@ -2,7 +2,7 @@ var app = angular.module('myApp', ['uiCatalog', 'commonUi']);
 
 app.controller('myCtrl', function ($scope, $http) {
     $scope.selectedItems = [];
-    $scope.celectedItem = undefined
+   
     // Функция, которая будет вызываться при изменении selectedItems
     $scope.onSelectItem = function (item) {
         console.log('Первый элемент selectedItems:', item);
@@ -50,9 +50,41 @@ app.controller('myCtrl', function ($scope, $http) {
         })
     }
 
-    $scope.isBaseChange = function (option) {
-        console.log(option)
-    }
+    $scope.sendAttributes = function(itemId, attributes) {
+
+        $http.post('/catalog/api/CatItemAttributesSet', {
+            data: JSON.stringify({
+                itemId: itemId,
+                attributes: attributes,
+                baseItem:$scope.selectedItem
+            })
+        }, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Явно указываем, что это AJAX-запрос
+            }
+        })
+        .then(function(response) {
+            // Обработка успешного ответа
+            console.log('Response:', response.data);
+        }, function(error) {
+            // Обработка ошибок
+            console.error('Error:', error);
+        });
+    };
+
+    // Метод для изменения атрибута isBase
+    $scope.isBaseChange = function(option) {
+        console.log(option);
+
+        // Извлечение itemId и атрибутов из объекта option
+        const itemId = option.itemId;
+        const attributes = {
+            isBase: option.isBase // или любой другой атрибут, который вы хотите изменить
+        };
+
+        // Вызов метода отправки атрибутов
+        $scope.sendAttributes(itemId, attributes);
+    };
 
     // Пример входных данных
     $scope.inputData = [
