@@ -17,6 +17,11 @@
                 <th ng-repeat="(key, value) in data[0]">{{ key }}</th>
                 <th>Actions</th>
             </tr>
+            <tr>
+                <th></th> <!-- Добавленный столбец для нумерации строк -->
+                <th ng-repeat="(key, value) in data[0]"><span ng-click="deleteCol(key)">удалить</span></th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
             <tr ng-repeat="row in data">
