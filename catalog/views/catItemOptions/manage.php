@@ -75,7 +75,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
                 <div class="list-group" style="max-height: 400px; overflow-y: auto;">
                     <div href="#" class="list-group-item list-group-item-action" ng-repeat="option in optionsListOfSelected">
                         <div class="d-flex w-100 justify-content-between">
-                            <img ng-src="{{ option.image }}" class="img-thumbnail me-3" alt="{{ option.name }}" style="width: 50px; height: 50px;">
+                            <img ng-src="{{ option.url }}" class="img-thumbnail me-3" alt="{{ option.name }}" style="width: 50px; height: 50px;">
                             <div class="flex-grow-1">
                                 <h5 class="mb-1">{{ option.name }}</h5>
                                 <p class="mb-1">Price: {{ option.price | currency }}</p>
