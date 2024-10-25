@@ -121,6 +121,16 @@ angular.module('commonUi').directive('jsonTable', function ($http, $timeout) {
                     scope.data = angular.copy(newVal);
                 }
             }, true);
+
+            scope.deleteCol = function (index){
+                console.log('удаляем '+index)
+                
+
+                for (let item of scope.data) {
+                    delete item[index];
+                }
+            }
+
         },
     }
 });
