@@ -19,7 +19,7 @@ class VideoGalleryVideo extends CActiveRecord
             array('title_t, text, pub_date, create_time, update_time, published, authorId', 'required'),
             array('pub_date, create_time, update_time, published, authorId, top', 'numerical', 'integerOnly' => true),
             array('title_t', 'length', 'max' => 255),
-            array('title, url', 'length', 'max' => 255),
+            array('title, url,platform', 'length', 'max' => 255),
             array('id, title_t, title, text, url, pub_date, create_time, update_time, published, authorId, top', 'safe', 'on' => 'search'),
         );
     }
@@ -93,4 +93,39 @@ class VideoGalleryVideo extends CActiveRecord
     {
         return parent::model($className);
     }
+
+    public function beforeSave()
+    {
+        // Проверяем, если поле url не пустое, пытаемся извлечь платформу
+        if (!empty($this->url)) {
+            $this->platform = $this->extractPlatformFromUrl($this->url);
+        }
+
+        return parent::beforeSave();
+    }
+
+    /**
+     * Метод для извлечения платформы из URL.
+     * В данном примере предполагается, что платформа может быть извлечена на основе структуры URL.
+     * Например, для YouTube: "https://www.youtube.com/watch?v=xxxx" извлекаем "youtube".
+     */
+    private function extractPlatformFromUrl($url)
+    {
+        // Регулярное выражение для поиска платформы по URL
+        $platform = '';
+
+        // Пример извлечения платформы для популярных сайтов
+        if (strpos($url, 'youtube.com') !== false) {
+            $platform = 'YouTube';
+        } elseif (strpos($url, 'vimeo.com') !== false) {
+            $platform = 'Vimeo';
+        }  else {
+            // Здесь можно добавить дополнительные проверки для других платформ
+            $platform = 'Unknown';
+        }
+
+        return $platform;
+    }
+
 }
+
