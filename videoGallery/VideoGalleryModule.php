@@ -49,4 +49,9 @@ class VideoGalleryModule extends CWebModule
 		} else
 			return false;
 	}
+	
+	public function getAssetsUrl()
+	{
+		return Yii::app()->assetManager->publish(Yii::getPathOfAlias('application.modules.videoGallery.assets'));
+	}
 }
