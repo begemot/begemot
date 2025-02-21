@@ -75,6 +75,7 @@ class SchemaLinksController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
+		$this->layout = 'begemot.views.layouts.bs5clearLayout';
 		$model=$this->loadModel($id);
 
 		// Uncomment the following line if AJAX validation is needed
