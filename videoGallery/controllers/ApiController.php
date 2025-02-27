@@ -26,21 +26,9 @@ class ApiController extends Controller
     public function actionIndex()
     {
         $videos = VideoGalleryVideo::model()->findAll();
-        $videoList = [];
+
     
-        foreach ($videos as $video) {
-            Yii::import('application.modules.pictureBox.components.PBox');
-            $pbox = new PBox('videoGallery', $video->id);
-            $image = $pbox->getFirstImage('main'); // Получаем изображение
-    
-            $videoList[] = [
-                'id' => $video->id,
-                'title' => $video->title,
-                'thumbnail' => $image, // Добавляем ссылку на изображение
-            ];
-        }
-    
-        echo CJSON::encode($videoList);
+        echo CJSON::encode($videos);
     }
     
 

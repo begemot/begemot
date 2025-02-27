@@ -40,7 +40,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
         array('label' => 'Парсер', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/parser', 'active' => $tab == 'parser', 'visible' => isset(Yii::app()->modules['parsers'])),
         array('label' => 'Перемещение позиции', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/position', 'active' => $tab == 'position'),
         array('label' => 'Изображения', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/photo', 'active' => $tab == 'photo'),
-        array('label' => 'Видео', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/video', 'active' => $tab == 'video'),
+        array('label' => 'Видео', 'url' => '/catalog/catItem/videoToItem/id/'.$model->id.'/tab/video', 'active' => $tab == 'video'),
         array('label' => 'Модификации', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/modifications', 'active' => $tab == 'modifications'),
         array('label' => 'Цвета', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/colors', 'active' => $tab == 'colors'),
 
@@ -408,12 +408,12 @@ if ($tab == 'data')
 
     <?php
 
-    $picturesConfig = array();
-    $this->widget('application.modules.videoGallery.widgets.VideoRelationWidget', [
-        'entityType' => 'CatItem',
-        'entityId' => $model->id,
-    ]);
-
+    // $picturesConfig = array();
+    // $this->widget('application.modules.videoGallery.widgets.VideoRelationWidget', [
+    //     'entityType' => 'CatItem',
+    //     'entityId' => $model->id,
+    // ]);
+    // $this->renderPartial('manageVideo', []);
 
     ?>
 <?php } ?>

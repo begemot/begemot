@@ -45,7 +45,7 @@ class CatItemController extends Controller
                     'delete', 'createColor', 'deleteColor', 'setColor',
                     'setColorTo', 'unsetColorTo', 'ajaxCreate',
                     'deleteModifFromItem','MassImages',
-                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'Video'
+                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'Video','VideoToItem'
                 ),
 
 
@@ -149,6 +149,7 @@ class CatItemController extends Controller
      */
     public function actionUpdate($id, $tab = 'data')
     {
+
 
         $model = $this->loadModel($id);
 
@@ -577,5 +578,10 @@ class CatItemController extends Controller
     public function actionVideo(){
         $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('manageVideo');
+    }
+    public function actionVideoToItem($id,$tab){
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $model = $this->loadModel($id);
+        $this->render('videoToItem',['model'=>$model,'tab'=>$tab]);
     }
 }
