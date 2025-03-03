@@ -5,11 +5,12 @@ Yii::import('webroot.protected.jobs.*');
 class CatItemController extends Controller
 {
 
-    public function init() {
+    public function init()
+    {
         parent::init();
         // Ваш код инициализации
         $path = Yii::getPathOfAlias('catalog.views.catItem.commonMenu');
-        $this->menu = require $path.'.php';
+        $this->menu = require $path . '.php';
     }
     /**
      * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -42,10 +43,28 @@ class CatItemController extends Controller
 
 
                 'actions' => array(
-                    'delete', 'createColor', 'deleteColor', 'setColor',
-                    'setColorTo', 'unsetColorTo', 'ajaxCreate',
-                    'deleteModifFromItem','MassImages',
-                    'create', 'update', 'togglePublished', 'toggleTop', 'index', 'view', 'deleteItemToCat', 'tidyItemText', 'getItemsFromCategory', 'options', 'Video','VideoToItem'
+                    'delete',
+                    'createColor',
+                    'deleteColor',
+                    'setColor',
+                    'setColorTo',
+                    'unsetColorTo',
+                    'ajaxCreate',
+                    'deleteModifFromItem',
+                    'MassImages',
+                    'create',
+                    'update',
+                    'togglePublished',
+                    'toggleTop',
+                    'index',
+                    'view',
+                    'deleteItemToCat',
+                    'tidyItemText',
+                    'getItemsFromCategory',
+                    'options',
+                    'Video',
+                    'VideoToItem',
+                    'ModifToItem'
                 ),
 
 
@@ -571,17 +590,28 @@ class CatItemController extends Controller
         $this->redirect(array('/catalog/catItem/update', 'id' => $model->id,));
     }
 
-    public function actionMassImages(){
+    public function actionMassImages()
+    {
         $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('manageImages');
     }
-    public function actionVideo(){
+    public function actionVideo()
+    {
         $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $this->render('manageVideo');
     }
-    public function actionVideoToItem($id,$tab){
+
+    public function actionVideoToItem($id, $tab)
+    {
         $this->layout = 'begemot.views.layouts.bs5clearLayout';
         $model = $this->loadModel($id);
-        $this->render('videoToItem',['model'=>$model,'tab'=>$tab]);
+        $this->render('videoToItem', ['model' => $model, 'tab' => $tab]);
+    }
+
+    public function actionModifToItem($id, $tab)
+    {
+        $this->layout = 'begemot.views.layouts.bs5clearLayout';
+        $model = $this->loadModel($id);
+        $this->render('modifToItem', ['model' => $model, 'tab' => $tab]);
     }
 }

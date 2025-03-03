@@ -40,6 +40,10 @@ class CatalogModule extends CWebModule
             'catalog.components.*',
         ));
 
+
+
+
+
         $this->registerScripts();
     }
 
@@ -72,14 +76,19 @@ class CatalogModule extends CWebModule
             'catalogAndSchema' => ['*'], // Все действия контроллера 'catalogAndSchema'
             'catCategory' => ['massItemsMoveBetweenCategories'], // Определенные действия другого контроллера
             'catItemOptions' => ['*'], // Определенные действия другого контроллера
-            'catItem'=>['massImages','video','videoToItem'],
-            'mass'=>['titleAlt']
+            'catItem' => ['massImages', 'video', 'videoToItem', 'modifToItem'],
+            'mass' => ['titleAlt']
         ];
 
         // Проверка исключений
         $controllerId = $controller->id;
         $actionId = $action->id;
 
+
+        $component = Yii::createComponent([
+            'class' => 'application.modules.catalog.components.CategoryManager'
+        ]);
+        Yii::app()->setComponent('categoryManager', $component);
         if (isset($exclusions[$controllerId])) {
             if (in_array('*', $exclusions[$controllerId]) || in_array($actionId, $exclusions[$controllerId])) {
                 return true; // Исключение, не подключаем Bootstrap

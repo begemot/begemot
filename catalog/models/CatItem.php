@@ -102,12 +102,23 @@ class CatItem extends ContentKitModel
 
 
             'options' => array(
-                self::MANY_MANY, 'CatItem', 'catItemsToItems(itemId, toItemId)',
+                self::MANY_MANY,
+                'CatItem',
+                'catItemsToItems(itemId, toItemId)',
                 'joinType' => 'INNER JOIN',
                 'order' => '`options_options`.`order`',
-
+                'condition' => '`options_options`.type = :optionType',
+                'params' => array(':optionType' => 'option')
             ),
-
+            'modifications' => array(
+                self::MANY_MANY,
+                'CatItem',
+                'catItemsToItems(itemId, toItemId)',
+                'joinType' => 'INNER JOIN',
+                'order' => '`options_options`.`order`',
+                'condition' => '`options_options`.type = :optionType',
+                'params' => array(':optionType' => 'modification')
+            ),
 
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
             'categories' => array(self::MANY_MANY, 'CatCategory', 'catItemsToCat(itemId, catId)'),
@@ -140,10 +151,10 @@ class CatItem extends ContentKitModel
         Yii::import('videoGallery.models.*');
 
 
-        $VideoEntityLinkModels = VideoEntityLink::model()->findAllByAttributes(['entity_model'=>'CatItem','entity_id'=>$this->id]);
+        $VideoEntityLinkModels = VideoEntityLink::model()->findAllByAttributes(['entity_model' => 'CatItem', 'entity_id' => $this->id]);
 
         $result_videos = [];
-        foreach ($VideoEntityLinkModels as $VideoEntityLinkModel){
+        foreach ($VideoEntityLinkModels as $VideoEntityLinkModel) {
             $result_videos[] = $VideoEntityLinkModel->video;
         }
         return $result_videos;
@@ -504,7 +515,7 @@ class CatItem extends ContentKitModel
     // }
     public function isInArchive()
     {
-       
+
         $result = CatItemsToCat::model()->findAllByAttributes(['itemId' => $this->id]);
 
         if ($result) {
@@ -515,9 +526,7 @@ class CatItem extends ContentKitModel
         return false;
     }
 
-    public function isInStock()
-    {
-    }
+    public function isInStock() {}
     public function isInSold()
     {
 

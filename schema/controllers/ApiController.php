@@ -20,7 +20,7 @@ class ApiController extends Controller
 		return array(
 			array(
 				'allow',
-				'actions' => array('updateField','schemaLinks', 'getSchemaData', 'geLineSchemaData'), // Добавили новый метод
+				'actions' => array('updateField', 'schemaLinks', 'getSchemaData', 'geLineSchemaData'), // Добавили новый метод
 				'users' => array('@'), // Только авторизованные пользователи
 			),
 			array(
@@ -29,77 +29,117 @@ class ApiController extends Controller
 			),
 		);
 	}
+	/**
+	 * Action to return the list of SchemaLinks models in JSON format
+	 */
+	public function actionSchemaLinks($except = null)
+	{
+		// Create a criteria to exclude the specified linkType
+		$criteria = new CDbCriteria();
+		if ($except !== null && $except !== 'null') {
+			$criteria->addNotInCondition('linkType', explode(',', $except));
+		}
 
-	
-    /**
-     * Обновляет поле в зависимости от его типа.
-     * Ожидает POST-запрос с параметрами:
-     * - schemaId (ID схемы)
-     * - fieldId (ID поля)
-     * - value (новое значение)
-     * - linkType (тип связи)
-     * - groupId (ID группы, ранее linkId)
-     */
-    public function actionUpdateField()
-    {
+		// Fetch records from SchemaLinks model based on the criteria
+		$schemaLinks = SchemaLinks::model()->findAll($criteria);
+
+		// Transform records to an array for JSON output, keeping only the required fields
+		$result = [];
+		foreach ($schemaLinks as $link) {
+			$result[] = [
+				'id' => $link->id,
+				'name' => $link->name,
+				'linkType' => $link->linkType,
+				'linkId' => $link->linkId,
+				'schemaId' => $link->schemaId
+				// Add other fields if necessary
+			];
+		}
+
+		// Output the result as JSON
+		header('Content-Type: application/json');
+		echo CJSON::encode($result);
+		Yii::app()->end();
+	}
+	public function actionGetSchemaData($linkType, $linkId)
+	{
+		$data = ApiFunctions::getSchemaData($linkType, $linkId);
+
+		// Выводим результат в формате JSON
+		header('Content-Type: application/json');
+		echo CJSON::encode($data);
+		Yii::app()->end();
+	}
+
+	/**
+	 * Обновляет поле в зависимости от его типа.
+	 * Ожидает POST-запрос с параметрами:
+	 * - schemaId (ID схемы)
+	 * - fieldId (ID поля)
+	 * - value (новое значение)
+	 * - linkType (тип связи)
+	 * - groupId (ID группы, ранее linkId)
+	 */
+	public function actionUpdateField()
+	{
 		Yii::import('schema.models.types.*');
-        if (!Yii::app()->request->isPostRequest) {
-            echo json_encode(['success' => false, 'message' => 'Метод не поддерживается']);
-            Yii::app()->end();
-        }
+		if (!Yii::app()->request->isPostRequest) {
+			echo json_encode(['success' => false, 'message' => 'Метод не поддерживается']);
+			Yii::app()->end();
+		}
 
-        $schemaId = Yii::app()->request->getPost('schemaId');
-        $fieldId = Yii::app()->request->getPost('fieldId');
-        $newValue = Yii::app()->request->getPost('value');
-        $linkType = Yii::app()->request->getPost('linkType');
-        $groupId = Yii::app()->request->getPost('groupId'); // Было linkId, теперь groupId
+		$schemaId = Yii::app()->request->getPost('schemaId');
+		$fieldId = Yii::app()->request->getPost('fieldId');
+		$newValue = Yii::app()->request->getPost('value');
+		$linkType = Yii::app()->request->getPost('linkType');
+		$groupId = Yii::app()->request->getPost('groupId'); // Было linkId, теперь groupId
 
-        // Находим запись в SchemaData
-        $schemaData = SchemaData::model()->findByAttributes([
-            'schemaId' => $schemaId,
-            'fieldId' => $fieldId,
-            'linkType' => $linkType,
-            'groupId' => $groupId // Было linkId, теперь groupId
-        ]);
+		// Находим запись в SchemaData
+		$schemaData = SchemaData::model()->findByAttributes([
+			'schemaId' => $schemaId,
+			'fieldId' => $fieldId,
+			'linkType' => $linkType,
+			'groupId' => $groupId // Было linkId, теперь groupId
+		]);
 
-        if (!$schemaData) {
-            echo json_encode(['success' => false, 'message' => 'Запись в SchemaData не найдена']);
-            Yii::app()->end();
-        }
+		if (!$schemaData) {
+			echo json_encode(['success' => false, 'message' => 'Запись в SchemaData не найдена']);
+			Yii::app()->end();
+		}
 
-        // Определяем таблицу по типу
-        $fieldType = $schemaData->fieldType;
-        $valueId = $schemaData->valueId;
+		// Определяем таблицу по типу
+		$fieldType = $schemaData->fieldType;
+		$valueId = $schemaData->valueId;
 
-        if (!$fieldType || !$valueId) {
-            echo json_encode(['success' => false, 'message' => 'Тип данных или valueId не определен']);
-            Yii::app()->end();
-        }
+		if (!$fieldType || !$valueId) {
+			echo json_encode(['success' => false, 'message' => 'Тип данных или valueId не определен']);
+			Yii::app()->end();
+		}
 
-        // Определяем имя модели
-        $modelClass = 'SchmType' . ucfirst($fieldType);
+		// Определяем имя модели
+		$modelClass = 'SchmType' . ucfirst($fieldType);
 
-        if (!class_exists($modelClass)) {
-            echo json_encode(['success' => false, 'message' => 'Модель для данного типа не найдена']);
-            Yii::app()->end();
-        }
+		if (!class_exists($modelClass)) {
+			echo json_encode(['success' => false, 'message' => 'Модель для данного типа не найдена']);
+			Yii::app()->end();
+		}
 
-        // Ищем значение в таблице типа
-        $valueModel = $modelClass::model()->findByPk($valueId);
+		// Ищем значение в таблице типа
+		$valueModel = $modelClass::model()->findByPk($valueId);
 
-        if (!$valueModel) {
-            echo json_encode(['success' => false, 'message' => 'Запись в таблице типа не найдена']);
-            Yii::app()->end();
-        }
+		if (!$valueModel) {
+			echo json_encode(['success' => false, 'message' => 'Запись в таблице типа не найдена']);
+			Yii::app()->end();
+		}
 
-        // Обновляем значение
-        $valueModel->value = $newValue;
-        if ($valueModel->save()) {
-            echo json_encode(['success' => true, 'message' => 'Значение успешно обновлено']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Ошибка при сохранении']);
-        }
-    }
+		// Обновляем значение
+		$valueModel->value = $newValue;
+		if ($valueModel->save()) {
+			echo json_encode(['success' => true, 'message' => 'Значение успешно обновлено']);
+		} else {
+			echo json_encode(['success' => false, 'message' => 'Ошибка при сохранении']);
+		}
+	}
 
 
 

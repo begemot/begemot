@@ -213,7 +213,7 @@ class ApiController extends Controller
     public function actionGetOptionslist($itemId)
     {
         // Найти все записи, где itemId равен переданному значению
-        $options = CatItemsToItems::model()->findAllByAttributes(array('itemId' => $itemId));
+        $options = CatItemsToItems::model()->findAllByAttributes(array('itemId' => $itemId, 'type' => 'option'));
 
         // Если записи найдены, подготовить данные для вывода
         if ($options) {
@@ -228,7 +228,7 @@ class ApiController extends Controller
                         'name' => $catItem->name,
                         'price' => $catItem->price,
                         'isBase' => $option->isBase,  // добавить isBase
-                        'url' => 'https://'.$_SERVER['HTTP_HOST'].$catItem->getPbox()->getFirstImage('admin')
+                        'url' => 'https://' . $_SERVER['HTTP_HOST'] . $catItem->getPbox()->getFirstImage('admin')
                     );
                 }
             }
@@ -318,6 +318,7 @@ class ApiController extends Controller
                     $itemsToItems = new CatItemsToItems();
                     $itemsToItems->toItemId = $item->id;
                     $itemsToItems->itemId = $mainItem->id;
+                    $itemsToItems->type = 'option';
                     if (isset($itemData['isbase']) && $itemData['isbase'] == 1) {
                         $itemsToItems->isBase = 1;
                     }
@@ -389,6 +390,7 @@ class ApiController extends Controller
                     $itemsToItems = new CatItemsToItems();
                     $itemsToItems->toItemId = $item->id;
                     $itemsToItems->itemId = $mainItem->id;
+                    $itemsToItems->type = 'option';
 
                     if (isset($itemData['isBase']) && $itemData['isBase'] === '1') {
                         $itemsToItems->isBase = 1;
@@ -469,12 +471,12 @@ class ApiController extends Controller
 
         Yii::import('catalog.models.CatItemsToItems');
         $model = CatItemsToItems::model()->findByAttributes([
-            'itemId'=>$data['baseItem']['id'],
-            'toItemId'=>$data['itemId']
+            'itemId' => $data['baseItem']['id'],
+            'toItemId' => $data['itemId']
         ]);
         print_r($data);
         $model->isBase = $data['attributes']['isBase'];
-    
+
         // Сохранение изменений в базе данных
         if ($model->save()) {
             // Успешное сохранение

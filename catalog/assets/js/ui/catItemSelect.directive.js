@@ -9,13 +9,20 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 			onSelectChange: '&',
 			selectedItemsView: '=',
 			showCats: '=?',
-			menuMode: '=?'
+			menuMode: '=?',
+			selectedListTitle: '@?',
+			hideId: '@?',
 		},
 		templateUrl:
 			'/protected/modules/catalog/assets/js/ui//html/catItemSelect.template.html',
 		link: function (scope) {
+			scope.catItems = []
+			console.log(scope.hideId)
 
-
+			if (!angular.isDefined(scope.selectedListTitle)) {
+				console.log('выставляем заголовок по умолчанию.')
+				scope.selectedListTitle = 'Выбрано'
+			}
 
 			scope.categoriesFilterCallBack = function (data) {
 				scope.filterCategories = data
@@ -58,14 +65,13 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 				var index = scope.catItems.indexOf(item)
 				console.log(scope.menuMode)
 				if (index !== -1) {
-					if (scope.menuMode == false){
+					if (scope.menuMode == false) {
 						scope.catItems.splice(index, 1)
-					}else{
+					} else {
 						scope.selectedSingleItemId = item.id
 						scope.selectedItems = []
 					}
 
-					
 					scope.selectedItems.push(item)
 					console.log(scope.selectedItems)
 				}
@@ -77,7 +83,7 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 				var index = scope.selectedItems.indexOf(item)
 
 				if (index !== -1) {
-					if(scope.menuMode==false){
+					if (scope.menuMode == false) {
 						scope.selectedItems.splice(index, 1)
 						scope.catItems.push(item)
 					} else {
@@ -121,20 +127,26 @@ angular.module('uiCatalog').directive('catItemSelect', function ($http) {
 								return selectedItem.id === item.id
 							})
 						})
+
+						if (scope.hideId != undefined) {
+							scope.catItems = scope.catItems.filter(item => {
+								return item.id != scope.hideId
+							})
+						}
 					})
 					.catch(function (error) {
 						console.error('Error loading catalog data:', error)
 					})
 			}
 			scope.customComparator = function (item) {
-				return -parseInt(item.id);
-			};
+				return -parseInt(item.id)
+			}
 
-			scope.selectAll = ()=>{
+			scope.selectAll = () => {
 				console.log(scope.catItems)
-				angular.forEach(scope.catItems, (item) => {
+				angular.forEach(scope.catItems, item => {
 					scope.selectItem(item)
-				});
+				})
 			}
 
 			//scope.debouncedLoadData()

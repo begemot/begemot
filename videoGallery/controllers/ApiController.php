@@ -13,11 +13,13 @@ class ApiController extends Controller
     public function accessRules()
     {
         return array(
-            array('allow',  // allow all users to perform these actions
-                'actions' => array('index', 'create', 'update', 'delete','EntityLinks','AddEntityLink','DeleteEntityLink'),
+            array(
+                'allow',  // allow all users to perform these actions
+                'actions' => array('index', 'create', 'update', 'delete', 'EntityLinks', 'AddEntityLink', 'DeleteEntityLink'),
                 'users' => array('*'),
             ),
-            array('deny',  // deny all users
+            array(
+                'deny',  // deny all users
                 'users' => array('*'),
             ),
         );
@@ -27,10 +29,10 @@ class ApiController extends Controller
     {
         $videos = VideoGalleryVideo::model()->findAll();
 
-    
+
         echo CJSON::encode($videos);
     }
-    
+
 
     public function actionCreate()
     {
@@ -91,11 +93,13 @@ class ApiController extends Controller
 
     protected function loadModel($id)
     {
+
         $model = VideoGalleryVideo::model()->findByPk($id);
         if ($model === null)
             throw new CHttpException(404, 'The requested page does not exist.');
         return $model;
     }
+
     public function actionEntityLinks()
     {
         $modelName = Yii::app()->request->getParam('modelName');
@@ -115,7 +119,7 @@ class ApiController extends Controller
 
         $rawData = file_get_contents('php://input');
         $postData = json_decode($rawData, true);
-        print_r($postData);
+
         if (isset($postData['VideoEntityLink'])) {
             $entityLink->attributes = $postData['VideoEntityLink'];
             if ($entityLink->save()) {
@@ -136,5 +140,4 @@ class ApiController extends Controller
             echo CJSON::encode(array('status' => 'failure'));
         }
     }
-
 }
