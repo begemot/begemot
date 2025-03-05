@@ -106,7 +106,7 @@ class CatItem extends ContentKitModel
                 'CatItem',
                 'catItemsToItems(itemId, toItemId)',
                 'joinType' => 'INNER JOIN',
-                'order' => '`options_options`.`order`',
+                // 'order' => '`options_options`.`order`',
                 'condition' => '`options_options`.type = :optionType',
                 'params' => array(':optionType' => 'option')
             ),
@@ -115,9 +115,10 @@ class CatItem extends ContentKitModel
                 'CatItem',
                 'catItemsToItems(itemId, toItemId)',
                 'joinType' => 'INNER JOIN',
-                'order' => '`options_options`.`order`',
-                'condition' => '`options_options`.type = :optionType',
+                // 'order' => '`options_options`.`order`',
+                'condition' => '`modifications_modifications`.type = :optionType',
                 'params' => array(':optionType' => 'modification')
+
             ),
 
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
