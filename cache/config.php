@@ -8,9 +8,9 @@ return [
             'class' => 'CMemCache',
             'servers' => array(
                 array(
-                    'host' => 'localhost',
+                    'host' => 'memcached',
                     'port' => 11211,
-                    'weight' => 60,
+                    // 'weight' => 60,
                 ),
             ),
         ),
