@@ -30,7 +30,7 @@ class SchmGroup extends CActiveRecord
      *
      * @param array $complectIds groupId которые разбиваем по этим параметрам
      */
-    public static function groupClusterize($fieldsIdArray, $complectIds = [],$linkType)
+    public static function groupClusterize($fieldsIdArray, $complectIds = [], $linkType = null)
     {
 
         Yii::import('cache.models.Cache');
@@ -45,13 +45,13 @@ class SchmGroup extends CActiveRecord
             $complectIdsCaheKeys = implode('_', $complectIds);
         }
 
-//        if (!($result = $cache->getValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_'))) {
+        //        if (!($result = $cache->getValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_'))) {
         $dataBySchemaField = [];
 
-//        $wheresql = '';
-//        if (count($complectIds) > 0) {
-//            $wheresql = ' and groupId in(' . implode(',', $complectIds) . ')';
-//        }
+        //        $wheresql = '';
+        //        if (count($complectIds) > 0) {
+        //            $wheresql = ' and groupId in(' . implode(',', $complectIds) . ')';
+        //        }
 
         Yii::import('schema.components.SchemaLists');
         foreach ($fieldsIdArray as $schemaId => $fieldName) {
@@ -66,10 +66,7 @@ class SchmGroup extends CActiveRecord
             if (!$tmpArray) {
 
                 $typeTableName = 'SchmType' . $fieldType . ' tb1';
-                $tmpArray = Yii::app()->db->createCommand()->select('groupId,value')->
-                from($typeTableName)->
-                where('`fieldId`=' . $schemaId.' and linkType="catItem"')->
-                leftJoin('SchemaData tb2', 'tb2.id=tb1.fieldDataId')
+                $tmpArray = Yii::app()->db->createCommand()->select('groupId,value')->from($typeTableName)->where('`fieldId`=' . $schemaId . ' and linkType="catItem"')->leftJoin('SchemaData tb2', 'tb2.id=tb1.fieldDataId')
                     ->queryAll();
 
                 $cache->setValue($cacheGroup, $cacheKey, $tmpArray);
@@ -98,8 +95,7 @@ class SchmGroup extends CActiveRecord
                         'params' => [
                             $fieldId => $value
                         ],
-                        'ids' => $ids
-                        ,
+                        'ids' => $ids,
                     ];
                 }
 
@@ -112,17 +108,16 @@ class SchmGroup extends CActiveRecord
                 $newGroups = array_merge(self::groupWithArrayIntersect($fieldId, $groupData, $group), $newGroups);
             }
             $groups = $newGroups;
-
         }
 
 
-//            $cache->setValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_', $groups);
+        //            $cache->setValue('SchmGroup.groupClusterize', $fieldsCaheKey . '_' . $complectIdsCaheKeys . '_', $groups);
 
-//        } else {
-//
-//            $groups = $result;
-//
-//        }
+        //        } else {
+        //
+        //            $groups = $result;
+        //
+        //        }
 
 
         return $groups;
@@ -138,7 +133,6 @@ class SchmGroup extends CActiveRecord
             $schmGroupList[] = self::assignGroup($group);
         }
         return $schmGroupList;
-
     }
 
     public function getAssinedCatalogCategory($parentCategoryId = -1)
@@ -157,7 +151,6 @@ class SchmGroup extends CActiveRecord
             } else {
                 throw new Exception('Ошибка сохранения CatCategory');
             }
-
         } else {
             $catCategory = CatCategory::model()->findByPk($this->assignedId);
         }
@@ -211,12 +204,12 @@ class SchmGroup extends CActiveRecord
                     return self::createSchmGroup($group);
                 }
 
-//            формируем массивы для дальнейшей работы
+                //            формируем массивы для дальнейшей работы
 
                 $paramArray = array_column($paramLists[$paramId], 'groupId');
-//            foreach ($paramLists[$paramId] as $paramModel) {
-//                $paramArray[] = $paramModel['groupId'];
-//            }
+                //            foreach ($paramLists[$paramId] as $paramModel) {
+                //                $paramArray[] = $paramModel['groupId'];
+                //            }
                 $arrayForIntersect[$paramId] = $paramArray;
             }
 
@@ -252,13 +245,9 @@ class SchmGroup extends CActiveRecord
                     } else {
                         return false;
                     }
-
                 }
             }
-
         }
-
-
     }
 
     public static function extractTreeData($dataArray, $arrayOfKeys)
@@ -319,13 +308,9 @@ class SchmGroup extends CActiveRecord
 
                     $schmGroupDataParam->setData($paramValue, $schemaFieldType);
                 }
-
-
             }
             return $schemaGroup;
         } else throw new Exception('ну удалось создать группу в ' . __FILE__ . ' ' . __FUNCTION__);
-
-
     }
 
 
@@ -350,8 +335,6 @@ class SchmGroup extends CActiveRecord
                     'ids' => $resultIds
                 ];
             }
-
-
         }
 
         return $resultGroups;
@@ -465,7 +448,6 @@ class SchmGroup extends CActiveRecord
         if (is_array($fieldIds) && count($fieldIds) > 0) {
             $fieldIds = implode(',', $fieldIds);
             $fieldIdsSqlPart = "AND `sd`.`fieldId` IN (:fieldIds)";
-
         }
         $limitSqlString = '';
         if ($limit != 0) {
