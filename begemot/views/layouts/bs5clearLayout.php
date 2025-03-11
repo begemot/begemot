@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <base href="<?= $_SERVER['HTTP_HOST'] ?>" />
+    <base href="https://<?= $_SERVER['HTTP_HOST'] ?>" />
 
     <title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
