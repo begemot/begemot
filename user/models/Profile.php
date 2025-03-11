@@ -5,7 +5,11 @@ class Profile extends UActiveRecord
 
 	public  function getDbConnection()
 	{
-		return Yii::app()->commonDb; // Используем второе соединение
+		if (!Yii::app()->hasComponent('commonDb')) {
+			return Yii::app()->db;
+		} else {
+			return Yii::app()->commonDb; // Используем второе соединение
+		}
 	}
 	/**
 	 * The followings are the available columns in table 'profiles':

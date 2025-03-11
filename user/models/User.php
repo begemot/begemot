@@ -26,7 +26,12 @@ class User extends CActiveRecord
 
 	public  function getDbConnection()
 	{
-		return Yii::app()->commonDb; // Используем второе соединение
+
+		if (!Yii::app()->hasComponent('commonDb')) {
+			return Yii::app()->db;
+		} else {
+			return Yii::app()->commonDb; // Используем второе соединение
+		}
 	}
 
 	/**
