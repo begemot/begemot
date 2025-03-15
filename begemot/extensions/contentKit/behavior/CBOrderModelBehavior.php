@@ -54,4 +54,3 @@ class CBOrderModelBehavior extends CActiveRecordBehavior {
 }
 
 ?>
-
