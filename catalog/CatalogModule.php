@@ -4,6 +4,7 @@ class CatalogModule extends CWebModule
 {
     const PROMO_CONFIG_FILE_ALIAS = 'webroot.protected.config.catalog.promoImagesConfigFile';
     const CAT_ITEM_CONFIG_FILE_ALIAS = 'webroot.protected.config.catalog.categoryItemPictureSettings';
+    const CAT_CONFIG_FILE_ALIAS = 'webroot.protected.config.catalog.categoryPictureSettings';
     static public $catalogLayout = 'application.views.layouts.catalogLayout';
     static public $catalogCategoryViewFile = 'rCategoryView';
     static public $catalogCategoryViewLayout = 'application.views.layouts.catalogCategoryViewLayout';
