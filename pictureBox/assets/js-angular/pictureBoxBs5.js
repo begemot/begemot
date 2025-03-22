@@ -5,7 +5,7 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
     return {
         restrict: 'E',
         scope: {},
-        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tiles.html?1223',
+        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tilesBs5.html?1223',
         link: function (scope, element, attrs) {
 
 
@@ -192,92 +192,6 @@ app.directive('tiles', ['$http', 'galleryControl', function ($http, galleryContr
 }])
 
 app.directive('upload', ['Upload', '$timeout', 'galleryControl', function (Upload, $timeout, galleryControl) {
-    return {
-        restrict: 'E',
-
-        templateUrl: '/protected/modules/pictureBox/assets/js-angular/tpl/tilesUpload.html?123',
-        link: function (scope, element, attrs) {
-
-
-            scope.galId = attrs.galleryId;
-            scope.id = attrs.id;
-
-
-            scope.uploadFiles = function (files, errFiles) {
-                console.log(files)
-                scope.files = files;
-                scope.errFiles = errFiles;
-
-
-                scope.filePointer = 0
-                scope.uploadFile = function () {
-
-                    file = scope.files[scope.filePointer]
-                    //scope.files = _.drop(scope.files)
-                    console.log('Загружаем файл')
-                    console.log(scope.filePointer)
-                    console.log(galleryControl.dataCollection)
-                    imageId = 0;
-                    imageId = parseInt(galleryControl.dataCollection[galleryControl.activeSubGallery].lastImageId);
-                    imageId++;
-                    galleryControl.dataCollection[galleryControl.activeSubGallery].lastImageId = imageId;
-                    images = galleryControl.dataCollection[galleryControl.activeSubGallery].images;
-                    file.upload = Upload.upload({
-                        url: '/pictureBox/api/upload',
-                        data: {
-                            file: file,
-                            galleryId: scope.galId,
-                            id: scope.id,
-
-                            lastId: imageId,
-                            //  lastId: scope.lastImageId,
-                            subGallery: galleryControl.activeSubGallery
-                        }
-                    });
-
-                    file.upload.then(function (response) {
-                        console.log('Закончили загрузку');
-
-
-                        response.data[0].order = images.length
-                        response.data[0].params = { show: true, fav: false }
-                        images.push(response.data[0])
-                        console.log(response.data);
-
-                        if (scope.filePointer < files.length - 1) {
-                            scope.filePointer++
-                            scope.uploadFile()
-                        } else {
-                            galleryControl.dataCollection[galleryControl.activeSubGallery].sendData();
-                        }
-
-                        $timeout(function () {
-
-                            file.result = response.data;
-
-                        });
-
-                    }, function (response) {
-                        if (response.status > 0)
-                            scope.errorMsg = response.status + ': ' + response.data;
-                    }, function (evt) {
-
-                        file.progress = Math.min(100, parseInt(100.0 *
-                            evt.loaded / evt.total));
-
-                    });
-                }
-                scope.uploadFile()
-
-
-            }
-
-
-        }
-    }
-}])
-
-app.directive('uploadbs5', ['Upload', '$timeout', 'galleryControl', function (Upload, $timeout, galleryControl) {
     return {
         restrict: 'E',
 

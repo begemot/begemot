@@ -1,0 +1,48 @@
+<!-- Модальное окно для загрузки файлов -->
+<div class="modal fade" id="FileUploadModal" tabindex="-1" aria-labelledby="FileUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Заголовок модального окна -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="FileUploadModalLabel">Загрузка файлов</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Тело модального окна -->
+            <div class="modal-body">
+        <div ngf-drop="uploadFiles($files)" ngf-drag-over-class="'dragover'" ngf-multiple="true"
+            ngf-pattern="'image/*,application/pdf'" class="upload">
+            <p>Drag files here or <span class="upload__button" ngf-select="uploadFiles($files, $invalidFiles)" multiple
+                    accept="image/*" ngf-max-height="12000" ngf-max-size="20MB">Browse</span></p>
+        </div>
+
+
+
+
+        <div class="uploaded uploaded--one" ng-repeat="f in files">
+            <img ngf-src="f" ngf-resize="{width: 100, height: 100, quality: 0.9}">
+            <div class="file">
+                <div class="file__name">
+                    <p>{{f.name}} {{f.$errorParam}}</p>
+                    <i class="fas fa-times"></i>{{f.progress}}
+                </div>
+                <div class="progress" ng-show="f.progress >= 0">
+                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                        style="width:{{f.progress}}%"></div>
+                </div>
+            </div>
+        </div>
+        <div ng-repeat="f in errFiles" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}
+
+        </div>
+
+            </div>
+
+            <!-- Футер модального окна -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" ng-click="startUpload()">Загрузить</button>
+            </div>
+        </div>
+    </div>
+</div>
