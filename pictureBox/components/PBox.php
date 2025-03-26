@@ -18,6 +18,7 @@ Yii::import('begemot.extensions.vault.FileVault');
 class PBox
 {
 
+
     public $pictures;
     public $favPictures;
 
@@ -37,7 +38,7 @@ class PBox
     public $subGalleriesList = null;
 
 
-    public function __construct($galleryId, $id, $subGallery = 'default')
+    public function __construct($galleryId, $id, $subGallery = 'default', $vaultType = 'files')
     {
 
 
@@ -301,18 +302,18 @@ class PBox
             return false;
         }
     }
-    public function setAlt($id,$alt)
+    public function setAlt($id, $alt)
     {
         if (isset($this->pictures[$id])) {
-             $this->pictures[$id]['alt'] = $alt;
+            $this->pictures[$id]['alt'] = $alt;
         } else {
             return false;
         }
     }
-    public function setTitle($id,$title)
+    public function setTitle($id, $title)
     {
         if (isset($this->pictures[$id])) {
-             $this->pictures[$id]['title'] = $title;
+            $this->pictures[$id]['title'] = $title;
         } else {
             return false;
         }
@@ -644,7 +645,7 @@ class PBox
 
             $imageId = $lastImageIdParam;
         }
-        echo $imageId;
+        // echo $imageId;
         if (!$this->saveLastImageId($imageId)) {
             throw new Exception('Не удалось сохранить');
             return;
@@ -699,8 +700,8 @@ class PBox
         if (!$this->saveToFile()) throw new Exception('Ошибка');
         if (!$this->updateSortData()) throw new Exception('Ошибка');
         $pictureForAdd['id'] = $imageId;
-        print_r($this->pictures);
-        print_r($this->getImages());
+        // print_r($this->pictures);
+        // print_r($this->getImages());
 
         return $pictureForAdd;
     }
@@ -722,9 +723,7 @@ class PBox
         return $this->upload($fileArray, $lastImageIdParam, false);
     }
 
-    public function addImagesFromArray()
-    {
-    }
+    public function addImagesFromArray() {}
 
 
     private function getNewImageId()
