@@ -4,14 +4,17 @@ class SchemaModule extends CWebModule
 {
     public function init()
     {
-        // this method is called when the module is being created
-        // you may place code here to customize the module or the application
-
-        // import the module-level models and components
         $this->setImport(array(
             'schema.models.*',
             'schema.components.*',
         ));
+        Yii::import('webroot.protected.modules.schema.components.MysqlToMongo');
+
+        MysqlToMongo::migrate();
+        //тут делаем миграцию
+
+
+
     }
 
     public function beforeControllerAction($controller, $action)

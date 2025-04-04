@@ -148,4 +148,51 @@
             $mongoData[] = $mongoDataLine;
         }
     }
+    public static function checkTableExists($tableName)
+    {
+        $db = Yii::app()->db;
+
+        $tables = $db->schema->getTables();
+        return isset($tables[$tableName]);
+    }
+    public static function migrate()
+    {
+        $tablesMaria = [
+            'Schema',
+            'SchemaData',
+            'SchemaField',
+            'SchemaLinks',
+            'SchmGroup',
+            'SchmTypeInt',
+            'SchmTypeString',
+            'SchmTypeText',
+            'SchemaUnitOfMeasurement'
+        ];
+
+        // Инициализируем пустой массив для хранения результатов
+        $tableMariaStatus = [];
+
+        foreach ($tablesMaria as $table) {
+            // Проверяем существование таблицы и добавляем результат в массив
+            $exists = self::checkTableExists($table);
+            $tableMariaStatus[$table] = $exists;
+        }
+
+        $tablesMongo = [
+            'schemaUnitOfMeasurement',
+            'schema',
+            'schemaData',
+            'schemaGroup',
+            'schemaField'
+        ];
+
+        $tableMongoStatus = [];
+
+        foreach ($tablesMongo as $table) {
+            $exists = self::checkCollection($table);
+            $tableMongoStatus[$table] = $exists;
+        }
+
+        $result = ['1' => $tableMariaStatus, '2' => $tableMongoStatus];
+    }
 }
