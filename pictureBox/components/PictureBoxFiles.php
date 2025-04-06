@@ -42,7 +42,7 @@ class PictureBoxFiles extends CWidget
     
         // Проверка существования и создание директории, если её нет
         if (!is_dir($directoryPath)) {
-            mkdir($directoryPath, 0777, true);
+            mkdir($directoryPath, 0755, true);
         }
     
         // Путь к файлу конфигурации
@@ -88,13 +88,13 @@ class PictureBoxFiles extends CWidget
 
     protected function renderContent()
     {
-        $theme  =   'pictureBox.components.view.angularTiles';
+        // $theme  =   'pictureBox.components.view.angularTiles';
         //        if ($this->theme=='default'){
         //            $theme = 'pictureBox.components.view.pictureBoxView';
         //        } else {
         //            $theme = 'pictureBox.components.view.'.$this->theme;
         //        }
 
-        $this->render($theme, array('id' => $this->id, 'elementId' => $this->elementId, 'config' => $this->config));
+        $this->render('pictureBox.components.view.'.$this->theme, array('id' => $this->id, 'elementId' => $this->elementId, 'config' => $this->config));
     }
 }

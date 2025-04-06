@@ -66,7 +66,10 @@ class FileVault implements Vault
         if (file_exists($fileName)) {
             $data =  require($fileName);
             $_SESSION['fileValut'][$fileName] = $data;
-            return $data;
+            if (is_array($data)) {
+
+                return $data;
+            } else return [];
         } else {
             return [];
         }

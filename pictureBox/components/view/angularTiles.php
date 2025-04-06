@@ -1,5 +1,8 @@
 <?php
 $pbPath = Yii::getPathOfAlias('pictureBox');
+
+Yii::app()->clientScript->registerScriptFile( '/bower_components/jquery/dist/jquery.min.js', 0);
+Yii::app()->clientScript->registerScriptFile( '/bower_components/angular/angular.min.js', 0);
 Yii::app()->clientScript->registerScriptFile('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js');
 Yii::app()->clientScript->registerCssFile('/protected/modules/pictureBox/assets/css/tiles.css');
 Yii::app()->clientScript->registerCssFile('/protected/modules/pictureBox/assets/css/js-angular.css');

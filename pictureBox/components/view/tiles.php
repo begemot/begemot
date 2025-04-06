@@ -1,12 +1,19 @@
+<!-- Подключение CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css">
+
+<!-- Подключение JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
 <?php
+
+
 $pbPath = Yii::getPathOfAlias('pictureBox');
 Yii::app()->clientScript->registerCssFile('/protected/modules/pictureBox/assets/css/tiles.css');
 
 
-$dropZoneAssetDir = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('begemot.extensions.dropzone.assets'));
+// $dropZoneAssetDir = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('begemot.extensions.dropzone.assets'));
 
-Yii::app()->clientScript->registerCssFile($dropZoneAssetDir . '/dropzone.css');
-Yii::app()->clientScript->registerScriptFile($dropZoneAssetDir . '/dropzone.js', 1);
+// Yii::app()->clientScript->registerCssFile($dropZoneAssetDir . '/dropzone.css');
+// Yii::app()->clientScript->registerScriptFile($dropZoneAssetDir . '/dropzone.js', 1);
 
 Yii::app()->clientScript->registerScriptFile('https://code.jquery.com/ui/1.12.0/jquery-ui.js');
 

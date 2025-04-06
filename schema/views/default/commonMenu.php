@@ -6,7 +6,7 @@ $menuPart1 = array(
     array('label' => 'Данные', 'url' => array('/schema/schemaLinks/admin')),
     array('label' => 'Импорт данных из MD', 'url' => array('/schema/manage/newSchemaInstance')),
     array('label' => 'Импорт полец из MD', 'url' => array('/schema/manage/newFieldFromMd')),
-
+    array('label' => 'Schema groups', 'url' => array('/schema/schemaGroup/index')),
     //    array(
     //        'label' => 'Создать позицию',
     //        'url' => array('/catalog/catItem/create'),
