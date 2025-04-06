@@ -3,15 +3,15 @@
 class SiteController extends Controller
 {
 
-//    public function filters() {
-//        return array(
-//            array(
-//                'COutputCache + index',
-//                'duration' => 60,
-//             //   'varyByParam' => array('id'),
-//            ),
-//        );
-//    }
+    //    public function filters() {
+    //        return array(
+    //            array(
+    //                'COutputCache + index',
+    //                'duration' => 60,
+    //             //   'varyByParam' => array('id'),
+    //            ),
+    //        );
+    //    }
     public $layout = 'clearNoAnimate';
 
 
@@ -34,7 +34,6 @@ class SiteController extends Controller
             'CaptchaExtendedAction' => Yii::getPathOfAlias('begemot.extensions.capcha') . DIRECTORY_SEPARATOR . 'CaptchaExtendedAction.php',
             'CaptchaExtendedValidator' => Yii::getPathOfAlias('begemot.extensions.capcha') . DIRECTORY_SEPARATOR . 'CaptchaExtendedValidator.php'
         ));
-
     }
 
     public function actionIndex()
@@ -63,24 +62,26 @@ class SiteController extends Controller
     }
 
 
-    public function actionItemView($item=0,$catId=0)
+    public function actionItemView($item = 0, $catId = 0, $modifid = 0)
     {
 
         if (!is_null($this->module->itemLayout)) {
             $this->layout = $this->module->itemLayout;
         } else {
             $this->layout = $this->module->baseLayout;
-
         }
 
         $uri = $_SERVER['REQUEST_URI'];
-        
         $item = CatItem::model()->findByPk($item);
+        $modifItem = null;
+        if ($modifid != 0) {
+            $modifItem = CatItem::model()->findByPk($modifid);
+        } 
 
         $this->pageTitle = $item->seo_title;
-//        $this->layout = CatalogModule::$catalogItemViewLayout;
+        //        $this->layout = CatalogModule::$catalogItemViewLayout;
         $category = CatCategory::model()->findByPk($item->catId);
-        if ($category){
+        if ($category) {
             if ($category->layout) {
                 $this->layout = $category->layout;
             }
@@ -91,7 +92,7 @@ class SiteController extends Controller
                 'itemName' => $item->name_t,
                 'item' => $item->id,
             );
-            if ($category->itemViewFile){
+            if ($category->itemViewFile) {
 
                 $itemViewFile = $category->itemViewFile;
             } else {
@@ -110,14 +111,13 @@ class SiteController extends Controller
 
         $itemHref = Yii::app()->urlManager->createUrl('catalog/site/itemView', $hrefParams);
 
-        if ($itemHref !== $uri) {
+        if ($itemHref !== $uri && $modifid == 0) {
             $this->redirect($itemHref, true, 301);
         }
-    
 
 
-        $this->render($itemViewFile, array('item' => $item, 'category' => $category));
 
+        $this->render($itemViewFile, array('item' => $item, 'category' => $category,'modifItem'=>$modifItem));
     }
 
 
@@ -162,16 +162,17 @@ class SiteController extends Controller
         $this->render('categoryView', array('categoryItems' => $dataProvider->getData(), 'category' => $category, 'maximalPriceValue' => $maximalPriceValue));
 
 
-        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` = ' . $catId . '', 'with' =>array( 'item'=>array('condition'=>'published=1')), 'order' => 't.order'),'pagination'=>array( 'pageSize'=>1000)));
-       // $dataProvider=CatItemsToCat::model()->published()->with('item')->findAll();
+        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` = ' . $catId . '', 'with' => array('item' => array('condition' => 'published=1')), 'order' => 't.order'), 'pagination' => array('pageSize' => 1000)));
+        // $dataProvider=CatItemsToCat::model()->published()->with('item')->findAll();
         $this->render('categoryView', array('categoryItems' => $dataProvider->getData(), 'category' => $category));
     }
 
 
-    public function actionRCategoryView($catId = 0,$page=0) {
+    public function actionRCategoryView($catId = 0, $page = 0)
+    {
 
 
-//        $this->layout = CatalogModule::$catalogCategoryViewLayout;
+        //        $this->layout = CatalogModule::$catalogCategoryViewLayout;
 
         $this->layout = $this->module->baseLayout;
 
@@ -181,7 +182,7 @@ class SiteController extends Controller
         $maximalPriceValue = CatItem::model()->getItemWithMaximalPrice($catId);
         $parentCategory = null;
 
-        if ($category && $category->pid != "-1"){
+        if ($category && $category->pid != "-1") {
 
             $parentCategory = CatCategory::model()->findByPk($category->pid);
         }
@@ -197,7 +198,7 @@ class SiteController extends Controller
             $iDsArray[] = $catData['id'];
         }
 
-         $iDsStr = '(' . implode(',', $iDsArray) . ')';
+        $iDsStr = '(' . implode(',', $iDsArray) . ')';
 
         $criteria = new CDbCriteria;
 
@@ -235,22 +236,21 @@ class SiteController extends Controller
         }
 
 
-        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` in ' . $iDsStr . '', 'with' => 'item', 'order' => '`item`.`top` desc,`item`.`price`', 'distinct' => true, 'group'=>'`t`.`itemId`')));
+        $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` in ' . $iDsStr . '', 'with' => 'item', 'order' => '`item`.`top` desc,`item`.`price`', 'distinct' => true, 'group' => '`t`.`itemId`')));
 
-        if ($this->module->pagination){
+        if ($this->module->pagination) {
 
 
-            $pagination = array('pageSize'=>$this->module->perPage,'currentPage'=>$page);
+            $pagination = array('pageSize' => $this->module->perPage, 'currentPage' => $page);
         } else {
-            $pagination = array('pageSize'=>1000,);
+            $pagination = array('pageSize' => 1000,);
         }
 
         $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => $criteria, 'pagination' => $pagination));
 
         $viewFile = $category->viewFile ? $category->viewFile : CatalogModule::$catalogCategoryViewFile;
 
-        $this->render($viewFile, array('categoryItems' => $dataProvider->getData(),'category'=>$category,'parentCat'=>$parentCategory, 'maximalPriceValue' => $maximalPriceValue,'pagination'=>$dataProvider->pagination));
-
+        $this->render($viewFile, array('categoryItems' => $dataProvider->getData(), 'category' => $category, 'parentCat' => $parentCategory, 'maximalPriceValue' => $maximalPriceValue, 'pagination' => $dataProvider->pagination));
     }
 
     public function actionPromoView($promoId)
@@ -291,7 +291,6 @@ class SiteController extends Controller
                 CallbackModule::addMessage($_SERVER['SERVER_NAME'] . ' - заказ', $msg, 'order', true);
                 $this->render('buyOk', array('id' => $itemId, 'item' => $item, 'buyFormModel' => $buyFormModel));
             }
-
         }
 
         $this->render('buy', array('id' => $itemId, 'item' => $item, 'buyFormModel' => $buyFormModel));
