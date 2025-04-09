@@ -16,6 +16,7 @@ class MongoToTable
             ]);
 
             if (!$schemaData) {
+                MysqlToMongo::migrate();
                 throw new CHttpException(404, 'Данные не найдены');
             }
 
