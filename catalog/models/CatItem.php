@@ -123,6 +123,7 @@ class CatItem extends ContentKitModel
 
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
             'categories' => array(self::MANY_MANY, 'CatCategory', 'catItemsToCat(itemId, catId)'),
+
         );
     }
 
@@ -559,4 +560,13 @@ class CatItem extends ContentKitModel
         $catItemsToCat->catId = $catId;
         $catItemsToCat->save();
     }
+
+    public function getMainItem(){
+        
+        $result = CatItemsToItems::model()->findByAttributes(['toItemId'=> $this->id,'type'=>'modification']);
+        if (!is_null($result)) {
+            return $result->item;
+        } else return null;
+    }
+
 }

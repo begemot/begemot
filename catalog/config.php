@@ -27,8 +27,9 @@ return [
                 
            
                 'catalog/<catName:[\w-]+>_<catId:\d+>' => 'catalog/site/rCategoryView',
+                'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.]+>_<item:\d+>/modif/<modifid:\d+>' => 'catalog/site/itemView',
                 'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>' => 'catalog/site/itemView',
-                'catalog/<title:[\w-]+>_<catId:\d+>/<itemName:[\w\-\"\'\.\"]+>_<item:\d+>/modif/<modifid:\d+>' => 'catalog/site/itemView',
+                
             ]
         ]
     ]
