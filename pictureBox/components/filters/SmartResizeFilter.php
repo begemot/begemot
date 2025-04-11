@@ -1,7 +1,9 @@
 <?php
-class SmartResizeFilter extends BaseFilter{
-       
-    public function make (){
+class SmartResizeFilter extends BaseFilter
+{
+
+    public function make()
+    {
 
         if ($this->checkImageformat($this->fileName)) {
 
@@ -25,7 +27,7 @@ class SmartResizeFilter extends BaseFilter{
             $resizeHeight = ($newWidth / $originalWidth) * $originalHeight;
 
             // Изменяем размер изображения пропорционально
-            $image->resizeImage($newWidth, $resizeHeight, Imagick::FILTER_LANCZOS, 1);
+            $image->resizeImage((int)$newWidth, (int)$resizeHeight, Imagick::FILTER_LANCZOS, 1);
 
             // Определяем параметры кропа
             $cropHeight = $newHeight;
@@ -52,21 +54,15 @@ class SmartResizeFilter extends BaseFilter{
 
 
         // Кроп изображения
-        if(!$image->cropImage($cropWidth, $cropHeight, $cropX, $cropY)){
+        if (!$image->cropImage((int)$cropWidth, (int)$cropHeight, (int)$cropX, (int)$cropY)) {
             throw new Exception();
         }
-        
 
-        // Сохраняем измененное изображение
+
+            // Сохраняем измененное изображение
         ;
-        if(!$image->writeImage($this->newFileName)){
+        if (!$image->writeImage($this->newFileName)) {
             throw new Exception();
         }
-
-
-
-
     }
-    
 }
-?>
