@@ -2,7 +2,8 @@
 
 class DefaultController extends Controller
 {
-    public $layout = 'begemot.views.layouts.column2';
+    public $layout = 'begemot.views.layouts.bs5clearLayout';
+
 
 
     /**
@@ -18,7 +19,8 @@ class DefaultController extends Controller
     {
         return array(
 
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+            array(
+                'allow', // allow admin user to perform 'admin' and 'delete' actions
 
                 'actions' => array('index'),
 
@@ -26,13 +28,14 @@ class DefaultController extends Controller
 
 
             ),
-            array('deny', // deny all users
+            array(
+                'deny', // deny all users
                 'users' => array('*'),
             ),
         );
     }
-	public function actionIndex()
-	{
-		$this->render('index');
-	}
+    public function actionIndex()
+    {
+        $this->render('index');
+    }
 }

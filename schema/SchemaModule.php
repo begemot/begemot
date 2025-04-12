@@ -22,7 +22,8 @@ class SchemaModule extends CWebModule
             'manage' => ['*'], // Все действия контроллера 'site'
             'schemaLinks' => ['update'], // Все действия контроллера 'site'
             'schemaGroup' => ['*'],
-            'schemaData' => ['*']
+            'schemaData' => ['*'],
+            'default' => ['*']
 
         ];
 

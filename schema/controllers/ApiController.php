@@ -20,7 +20,16 @@ class ApiController extends Controller
 		return array(
 			array(
 				'allow',
-				'actions' => array('updateField', 'schemaLinks', 'getSchemaData', 'geLineSchemaData'), // Добавили новый метод
+				'actions' => array(
+					'updateField',
+					'schemaLinks',
+					'getSchemaData',
+					'geLineSchemaData',
+					'schemaList',
+					'schemaFieldList',
+					'SUoMList',
+					'saveFieldsList'
+				), // Добавили новый метод
 				'users' => array('@'), // Только авторизованные пользователи
 			),
 			array(
@@ -29,11 +38,69 @@ class ApiController extends Controller
 			),
 		);
 	}
+
+	public function actionSchemaList()
+	{
+		$collection = Yii::app()->mongoDb->getCollection('schema');
+		$result = $collection->find()->toArray();
+		echo json_encode($result);
+	}
+	public function actionSchemaFieldList($schemaId)
+	{
+		$collection = Yii::app()->mongoDb->getCollection('schemaField');
+		$result = $collection->find(['schemaId' => (int)$schemaId])->toArray();
+		echo json_encode($result);
+	}
+	public function actionSUoMList()
+	{
+		$collection = Yii::app()->mongoDb->getCollection('schemaUnitOfMeasurement');
+		$result = $collection->find()->toArray();
+		echo json_encode($result);
+	}
+	public function actionSaveFieldsList()
+	{
+		$data = json_decode(file_get_contents('php://input'));
+		print_r($data);
+
+		$collection = Yii::app()->mongoDb->getCollection('schemaField');
+
+		try {
+			// Вставляем данные (если _id существует, будет обновление)
+			foreach ($data as $item) {
+				$collection->updateOne(
+					['_id' => (int)$item->_id], // Критерий поиска
+					[
+						'$set' => [
+							'name'     => $item->name,
+							// 'schemaId' => $item['schemaId'],
+							'type'     => $item->type,
+							'order'    => $item->order,
+							'UoFId'    => $item->UoFId
+						]
+					],                         // Данные для сохранения
+					// ['upsert' => true]            // Опция "вставить или обновить"
+				);
+			}
+
+			// Возвращаем успешный ответ
+			echo CJSON::encode([
+				'success' => true,
+				'message' => 'Data saved successfully',
+				'count' => count($data)
+			]);
+		} catch (Exception $e) {
+			// Логируем ошибку
+
+			throw new CHttpException(500, 'Database error occurred.' . $e->getMessage());
+		}
+	}
+
 	/**
 	 * Action to return the list of SchemaLinks models in JSON format
 	 */
 	public function actionSchemaLinks($except = null)
 	{
+		return;
 		// Create a criteria to exclude the specified linkType
 		$criteria = new CDbCriteria();
 		if ($except !== null && $except !== 'null') {
@@ -183,6 +250,7 @@ class ApiController extends Controller
 	 */
 	public function actionGetSchema()
 	{
+		return;
 		$schemaId = Yii::app()->request->getQuery('schemaId');
 
 		if (!$schemaId) {
@@ -206,6 +274,8 @@ class ApiController extends Controller
 	 */
 	public function actionUpdateMultipleFields()
 	{
+		//уходим на mongodb
+		return;
 		if (Yii::app()->request->isPostRequest) {
 			$fields = Yii::app()->request->getPost('fields');
 
