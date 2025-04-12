@@ -98,6 +98,12 @@
 
         return null;
     }
+    public static function getNamById($id)
+    {
+        $model = self::findById($id);
+        return $model->name;
+    }
+
     // Поиск записи по Name
     public static function findByName($name)
     {

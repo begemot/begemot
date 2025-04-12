@@ -1,11 +1,11 @@
 <style>
-.is-changed {
-    background-color: #fff3cd;
-    /* легкий желтый фон */
-    border-color: #ffecb5;
-    transition: background-color 0.3s ease;
-    /* плавный переход */
-}
+    .is-changed {
+        background-color: #fff3cd;
+        /* легкий желтый фон */
+        border-color: rgb(238, 163, 25);
+        transition: background-color 0.3s ease;
+        /* плавный переход */
+    }
 </style>
 <?php
 
@@ -15,24 +15,32 @@ Yii::app()->clientScript->registerScriptFile('https://cdnjs.cloudflare.com/ajax/
 Yii::app()->clientScript->registerScriptFile('/protected/modules/schema/assets/js/schema.angular.js', 1);
 
 
-Yii::import('schema.components.*');
+$mongoId = new MongoDB\BSON\ObjectId($id);
+
+
+// Yii::import('schema.components.*');
 Yii::import('begemot.extensions.vault.FileVault');
-$link = new CSchemaLink($model->linkType, $model->linkId);
+// $link = new CSchemaLink($model->linkType, $model->linkId);
+$collection = Yii::app()->mongoDb->getCollection('schemaData');
+$model = $collection->findOne(['_id' => $mongoId]);
+
 ?>
 
 <script>
-// Глобальные переменные для передачи данных в AngularJS
-window.schemaRawData = <?= json_encode($link->getData(true)) ?>;
-window.schemaLinkType = <?= json_encode($model->linkType) ?>;
-window.schemaGroupId = <?= json_encode($model->linkId) ?>;
+    // Глобальные переменные для передачи данных в AngularJS
+    window.schemaRawData = <?= json_encode($model) ?>;
+    window.schemaLinkType = <?= json_encode($model->linkType) ?>;
+    window.schemaGroupId = <?= json_encode($model->groupId) ?>;
 </script>
 
 <div class="container mt-4">
-    <h1 class="mb-4">Редактирование SchemaLinks #<?php echo $model->id; ?></h1>
+    <h1 class="mb-4">Редактирование SchemaLinks #<?php echo $model->_id; ?></h1>
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <?php $this->renderPartial('_form', array('model' => $model)); ?>
+            <?php
+            // $this->renderPartial('_form', array('model' => $model)); 
+            ?>
         </div>
     </div>
 
@@ -42,7 +50,7 @@ window.schemaGroupId = <?= json_encode($model->linkId) ?>;
                 <h5 class="mb-0">Данные схемы: {{ allData[0].name }}</h5>
             </div>
             <div class="card-body">
-                <table class="table table-bordered" ng-if="allData.length > 0 && allData[0].data.length > 0">
+                <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
                             <th>
@@ -58,25 +66,23 @@ window.schemaGroupId = <?= json_encode($model->linkId) ?>;
                             <th>Действие</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr ng-repeat="field in allData[0].data | filter: { name: searchName, value: searchValue }">
-                            <td>{{ field.name }}</td>
+                    <tbody> | filter: { name: searchName, value: searchValue }
+                        <tr ng-repeat="(key,value) in allData['fields']">
+                            <td>{{ key }}</td>
                             <td>
-                                <input type="text" class="form-control" ng-model="field.value"
-                                    ng-class="{'is-changed': isChanged(allData[0], field)}">
+                                <input type="text" class="form-control" ng-model="value.value"
+                                    ng-class="{'is-changed': isChanged(value.value, key)}">
                             </td>
                             <td>
-                                <button class="btn btn-sm" ng-class="buttonState[field.id].class || 'btn-primary'"
-                                    ng-click="updateField(allData[0], field)">
+                                <button class="btn btn-sm" ng-class="buttonState[key].class || 'btn-primary'"
+                                    ng-click="updateField(value, key)">
                                     {{ buttonState[field.id].text || "Сохранить" }}
                                 </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <p class="text-muted" ng-if="allData.length === 0 || allData[0].data.length === 0">
-                    Нет данных для отображения.
-                </p>
+
             </div>
         </div>
     </div>

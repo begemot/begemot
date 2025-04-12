@@ -87,13 +87,46 @@ class ApiController extends Controller
 			echo json_encode(['success' => false, 'message' => 'Метод не поддерживается']);
 			Yii::app()->end();
 		}
+		// Получаем сырые данные из тела запроса
+		$json = file_get_contents('php://input');
+		// Декодируем JSON в ассоциативный массив
+		$data = json_decode($json, true);
+		extract($data);
+		// $schemaId = Yii::app()->request->getPost('schemaId');
+		// $fieldId = Yii::app()->request->getPost('fieldId');
+		$newValue = $value;
+		// $linkType = Yii::app()->request->getPost('linkType');
+		// $groupId = Yii::app()->request->getPost('groupId'); // Было linkId, теперь groupId
 
-		$schemaId = Yii::app()->request->getPost('schemaId');
-		$fieldId = Yii::app()->request->getPost('fieldId');
-		$newValue = Yii::app()->request->getPost('value');
-		$linkType = Yii::app()->request->getPost('linkType');
-		$groupId = Yii::app()->request->getPost('groupId'); // Было linkId, теперь groupId
+		$collection = Yii::app()->mongoDb->getCollection('schemaData');
 
+
+		$filter = [
+			'groupId' => (int)$groupId,
+			'linkType' => $linkType,
+			'schemaId' => (int)$schemaId
+		];
+
+		Yii::import('schema.mongoModels.MngSchemaFieldModel');
+		$fieldName = MngSchemaFieldModel::getNamById($fieldId);
+
+		// Обновление конкретного поля внутри объекта fields
+		$update = [
+			'$set' => [
+				"fields.{$fieldName}.value" => $newValue
+			]
+		];
+
+		// Выполнение обновления (обновляем только один документ)
+		$result = $collection->updateOne($filter, $update);
+
+		// Проверка результата
+		if ($result) {
+			echo json_encode(['success' => true, 'message' => 'Значение успешно обновлено']);
+		} else {
+			echo json_encode(['success' => false, 'message' => 'Документ не найден или значение не изменилось']);
+		}
+		die();
 		// Находим запись в SchemaData
 		$schemaData = SchemaData::model()->findByAttributes([
 			'schemaId' => $schemaId,

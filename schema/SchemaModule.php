@@ -21,7 +21,8 @@ class SchemaModule extends CWebModule
         $exclusions = [
             'manage' => ['*'], // Все действия контроллера 'site'
             'schemaLinks' => ['update'], // Все действия контроллера 'site'
-            'schemaGroup' => ['*']
+            'schemaGroup' => ['*'],
+            'schemaData' => ['*']
 
         ];
 
