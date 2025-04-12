@@ -29,38 +29,38 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 <h1>Массовая загрузка изображений</h1>
 <div ng-app="myApp" ng-controller="myCtrl">
     <style>
-    .scrollable-list {
-        max-height: 300px;
-        overflow-y: auto;
-    }
+        .scrollable-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
 
-    .list-group-item {
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+        .list-group-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    .list-group-item:hover {
-        background-color: #e0e0e0;
-    }
+        .list-group-item:hover {
+            background-color: #e0e0e0;
+        }
 
-    .selected-item {
-        background-color: #a8d5e2;
-        color: #ffffff;
-    }
+        .selected-item {
+            background-color: #a8d5e2;
+            color: #ffffff;
+        }
 
-    .schema-data-list {
-        list-style-type: none;
-        padding: 0;
-    }
+        .schema-data-list {
+            list-style-type: none;
+            padding: 0;
+        }
 
-    .schema-data-list li {
-        padding: 5px 0;
-        border-bottom: 1px solid #ddd;
-    }
+        .schema-data-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
 
-    .schema-data-list li:last-child {
-        border-bottom: none;
-    }
+        .schema-data-list li:last-child {
+            border-bottom: none;
+        }
     </style>
 
     <div class="container mt-5">
@@ -81,9 +81,9 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/protected/modules/catalog/views/
 
     <div class="container mt-5">
         <div class="row mt-5">
-            <h2>Импорт данных JSON</h2> <button ng-if = 'itemSelected' ng-click='fetchImages()'>Загрузить изображения из выбранной позиции</button>
+            <h2>Импорт данных JSON</h2> <button ng-if='itemSelected' ng-click='fetchImages()'>Загрузить изображения из выбранной позиции</button>
             <json-table input-data="inputData" output-data="outputData"
-                send-data-url='/catalog/api/massItemImageImport?XDEBUG_SESSION_START=1'
+                send-data-url='/catalog/api/massItemImageImport'
                 additional-data-for-send='selectedItem'></json-table>
 
 
