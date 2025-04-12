@@ -444,11 +444,11 @@ class ApiController extends Controller
 
         foreach ($data['data'] as $url) {
             $pBox = new PBox('catalogItem', $itemId);
-            while ($pBox->isLock()) {
-                sleep(1);
-                $pBox = new PBox('catalogItem', $itemId);
-            }
-            $pBox->setLock();
+            // while ($pBox->isLock()) {
+            // sleep(1);
+            // $pBox = new PBox('catalogItem', $itemId);
+            // }
+            // $pBox->setLock();
 
             $pBox->filters = $picturesConfig;
             $pBox->addImagefile($url['url']);
