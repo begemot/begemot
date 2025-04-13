@@ -21,9 +21,9 @@ class CropResizeUpdateFilter extends BaseFilter
 
         // crop the image
         if (($geo['width'] / $width) < ($geo['height'] / $height)) {
-            $im->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
+            $im->cropImage((int)$geo['width'], (int)floor($height * $geo['width'] / $width), 0, (int)(($geo['height'] - ($height * $geo['width'] / $width)) / 2));
         } else {
-            $im->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+            $im->cropImage((int)ceil($width * $geo['height'] / $height), (int)$geo['height'], (int)(($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
         }
         // thumbnail the image
 
@@ -33,9 +33,5 @@ class CropResizeUpdateFilter extends BaseFilter
         $im->writeImage($this->newFileName);
         $im->clear();
         $im->destroy();
-
     }
-
 }
-
-?>

@@ -100,24 +100,26 @@ class ApiController extends Controller
 	 */
 	public function actionSchemaLinks($except = null)
 	{
-		return;
+		// return;
 		// Create a criteria to exclude the specified linkType
-		$criteria = new CDbCriteria();
-		if ($except !== null && $except !== 'null') {
-			$criteria->addNotInCondition('linkType', explode(',', $except));
-		}
+		// $criteria = new CDbCriteria();
+		// if ($except !== null && $except !== 'null') {
+		// 	$criteria->addNotInCondition('linkType', explode(',', $except));
+		// }
 
-		// Fetch records from SchemaLinks model based on the criteria
-		$schemaLinks = SchemaLinks::model()->findAll($criteria);
+		// // Fetch records from SchemaLinks model based on the criteria
+		// $schemaLinks = SchemaLinks::model()->findAll($criteria);
 
+		$collection = Yii::app()->mongoDb->getCollection('schemaData');
+		$res = $collection->find(['linkType' => ['$ne' => 'CatItem']]);
 		// Transform records to an array for JSON output, keeping only the required fields
 		$result = [];
-		foreach ($schemaLinks as $link) {
+		foreach ($res as $link) {
 			$result[] = [
-				'id' => $link->id,
-				'name' => $link->name,
+				'id' => $link->groupId,
+				'name' => $link->fields['Название']['value'],
 				'linkType' => $link->linkType,
-				'linkId' => $link->linkId,
+				'linkId' => $link->groupId,
 				'schemaId' => $link->schemaId
 				// Add other fields if necessary
 			];
@@ -128,9 +130,26 @@ class ApiController extends Controller
 		echo CJSON::encode($result);
 		Yii::app()->end();
 	}
+
 	public function actionGetSchemaData($linkType, $linkId)
 	{
-		$data = ApiFunctions::getSchemaData($linkType, $linkId);
+
+		$collection = Yii::app()->mongoDb->getCollection('schemaData');
+		$res = $collection->findOne(['linkType' => $linkType, 'groupId' => (int)$linkId]);
+		$data = [];
+
+		foreach ($res->fields as $fieldName => $field) {
+
+			$dataLine = [
+				'id' => $field['fieldId'],
+				'name' => $fieldName,
+				'value' => $field['value']
+
+			];
+			$data[] = $dataLine;
+		}
+
+		// $data = ApiFunctions::getSchemaData($linkType, $linkId);
 
 		// Выводим результат в формате JSON
 		header('Content-Type: application/json');
