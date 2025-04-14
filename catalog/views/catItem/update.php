@@ -41,7 +41,7 @@ $this->menu = require dirname(__FILE__) . '/commonMenu.php';
         array('label' => 'Перемещение позиции', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/position', 'active' => $tab == 'position'),
         array('label' => 'Изображения', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/photo', 'active' => $tab == 'photo'),
         array('label' => 'Видео', 'url' => '/catalog/catItem/videoToItem/id/'.$model->id.'/tab/video', 'active' => $tab == 'video'),
-        array('label' => 'Модификации', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/modifications', 'active' => $tab == 'modifications'),
+        array('label' => 'Модификации', 'url' => '/catalog/catItem/modifToItem/id/' . $model->id . '/tab/modifications', 'active' => $tab == 'modifications'),
         array('label' => 'Цвета', 'url' => '/catalog/catItem/update/id/' . $model->id . '/tab/colors', 'active' => $tab == 'colors'),
 
     ),
