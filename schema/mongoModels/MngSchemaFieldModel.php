@@ -123,4 +123,10 @@
     {
         return $this->_collection->remove(array('_id' => $this->_id));
     }
+
+    public static function getAllFields()
+    {
+        $collection = Yii::app()->mongoDb->getCollection('schemaField');
+        return $collection->find()->toArray();
+    }
 }
