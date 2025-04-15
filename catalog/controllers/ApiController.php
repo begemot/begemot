@@ -369,17 +369,20 @@ class ApiController extends Controller
 
 
                     $picturesConfig = array();
-
-                    $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
-                    if (file_exists($configFile)) {
-                        Yii::import('pictureBox.components.PictureBoxFiles');
-                        $defConf = PictureBoxFiles::getDefaultConfig();
-                        $picturesConfig = require($configFile);
-                        $picturesConfig = array_merge_recursive($defConf, $picturesConfig);
+                    if (isset($itemData['url'])){
+                        $configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
+                        if (file_exists($configFile)) {
+                            Yii::import('pictureBox.components.PictureBoxFiles');
+                            $defConf = PictureBoxFiles::getDefaultConfig();
+                            $picturesConfig = require($configFile);
+                            $picturesConfig = array_merge_recursive($defConf, $picturesConfig);
+                        }
+    
+                        $pBox->filters = $picturesConfig;
+                        $pBox->addImagefile($itemData['url']);
                     }
 
-                    $pBox->filters = $picturesConfig;
-                    $pBox->addImagefile($itemData['url']);
+
                     // Связывание опции с категорией (предполагаем, что категория "options" уже существует)
                     $category = CatCategory::model()->find('name=:name', array(':name' => 'options'));
                     if ($category) {
