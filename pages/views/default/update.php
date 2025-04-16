@@ -108,7 +108,8 @@ crPhpArr($pagesFilesList, $filesIndexPath);
 
 
 $picturesConfig = array();
-$configFile = Yii::getPathOfAlias('webroot') . '/protected/config/catalog/categoryItemPictureSettings.php';
+Yii::import('application.modules.catalog.CatalogModule');
+$configFile = Yii::getPathOfAlias(CatalogModule::CAT_ITEM_CONFIG_FILE_ALIAS) . '.php';
 if (file_exists($configFile)) {
 
 	$picturesConfig = require($configFile);
@@ -119,10 +120,10 @@ if (file_exists($configFile)) {
 			'id' => 'htmlPage',
 			'elementId' => $fileId,
 			'config' => $picturesConfig,
-			'theme' => 'tiles'
+			'theme' => 'angularTiles'
 		)
 	);
 } else {
-	Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
+	// Yii::app()->user->setFlash('error', 'Отсутствует конфигурационный файл:' . $configFile);
 }
 ?>
