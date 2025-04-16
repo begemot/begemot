@@ -123,6 +123,7 @@ class CatItem extends ContentKitModel
 
             'colors' => array(self::HAS_MANY, 'CatColorToCatItem', 'catItemId'),
             'categories' => array(self::MANY_MANY, 'CatCategory', 'catItemsToCat(itemId, catId)'),
+
         );
     }
 
@@ -279,7 +280,7 @@ class CatItem extends ContentKitModel
 
         $this->name_t = $this->mb_transliterate($this->name);
         //$this->Video = $_REQUEST['CatItem']['Video'];
-        $this->delivery_date = strtotime($this->delivery_date);
+        // $this->delivery_date = strtotime($this->delivery_date);
         $itemAdditionalRows = CatItemsRow::model()->findAll();
         if (is_array($itemAdditionalRows)) {
 
@@ -307,7 +308,7 @@ class CatItem extends ContentKitModel
     protected function afterSave()
     {
         parent::afterSave();
-        $this->delivery_date = date('m/d/Y', $this->delivery_date);
+        // $this->delivery_date = date('m/d/Y', $this->delivery_date);
 
         return true;
     }
@@ -558,5 +559,14 @@ class CatItem extends ContentKitModel
         $catItemsToCat->itemId = $this->id;
         $catItemsToCat->catId = $catId;
         $catItemsToCat->save();
+    }
+
+    public function getMainItem()
+    {
+
+        $result = CatItemsToItems::model()->findByAttributes(['toItemId' => $this->id, 'type' => 'modification']);
+        if (!is_null($result)) {
+            return $result->item;
+        } else return null;
     }
 }

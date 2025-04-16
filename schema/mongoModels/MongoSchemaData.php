@@ -130,4 +130,33 @@ class MongoSchemaData
         }
         return $resData;
     }
+
+    public function getSortedData($limit = 0)
+    {
+        if (isset($this->data['fields'])) {
+            Yii::import('schema.mongoModels.MngSchemaFieldModel');
+            $fields = MngSchemaFieldModel::getAllFields();
+
+            foreach ($fields as $field) {
+
+                if (isset($this->data['fields'][$field['name']])) {
+                    $this->data['fields'][$field['name']]['order'] = $field['order'];
+                }
+            }
+            // Создаем копию массива для сортировки
+            $sortedFields = $this->data['fields']->getArrayCopy();
+
+            // Сортируем массив по полю order
+            uasort($sortedFields, function ($a, $b) {
+                $orderA = $a->order ?? 0;
+                $orderB = $b->order ?? 0;
+                return $orderA <=> $orderB;
+            });
+
+            // Выводим отсортированный результат
+
+            return $sortedFields;
+        }
+        return false;
+    }
 }

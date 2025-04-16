@@ -8,7 +8,7 @@ app.controller('myCtrl', function ($scope, $http) {
 	$scope.schemaLinkData = null
 	$scope.attachButtonVisible = false
 	$scope.updateAttachButtonVisibility = function () {
-	    $scope.attachButtonVisible = $scope.selectedItems.length > 0 && $scope.selectedSchemaLink !=null;
+		$scope.attachButtonVisible = $scope.selectedItems.length > 0 && $scope.selectedSchemaLink != null;
 	};
 
 	$scope.$watch('selectedItems', $scope.updateAttachButtonVisibility, true);
@@ -36,8 +36,8 @@ app.controller('myCtrl', function ($scope, $http) {
 				params: { linkType: item.linkType, linkId: item.linkId },
 			})
 			.then(function (response) {
-				console.log(response.data[1].data)
-				$scope.schemaLinkData = response.data[1].data
+				console.log(response)
+				$scope.schemaLinkData = response.data
 			})
 			.catch(function (error) {
 				console.error('Error loading schemaLink data:', error)

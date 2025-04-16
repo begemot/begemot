@@ -98,6 +98,12 @@
 
         return null;
     }
+    public static function getNamById($id)
+    {
+        $model = self::findById($id);
+        return $model->name;
+    }
+
     // Поиск записи по Name
     public static function findByName($name)
     {
@@ -116,5 +122,11 @@
     public function delete()
     {
         return $this->_collection->remove(array('_id' => $this->_id));
+    }
+
+    public static function getAllFields()
+    {
+        $collection = Yii::app()->mongoDb->getCollection('schemaField');
+        return $collection->find()->toArray();
     }
 }

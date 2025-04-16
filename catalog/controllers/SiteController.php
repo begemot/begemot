@@ -62,7 +62,9 @@ class SiteController extends Controller
     }
 
 
-    public function actionItemView($item = 0, $catId = 0)
+
+    public function actionItemView($item = 0, $catId = 0, $modifid = 0)
+
     {
 
         if (!is_null($this->module->itemLayout)) {
@@ -74,6 +76,10 @@ class SiteController extends Controller
         $uri = $_SERVER['REQUEST_URI'];
 
         $item = CatItem::model()->findByPk($item);
+        $modifItem = null;
+        if ($modifid != 0) {
+            $modifItem = CatItem::model()->findByPk($modifid);
+        } 
 
         $this->pageTitle = $item->seo_title;
         //        $this->layout = CatalogModule::$catalogItemViewLayout;
@@ -108,13 +114,17 @@ class SiteController extends Controller
 
         $itemHref = Yii::app()->urlManager->createUrl('catalog/site/itemView', $hrefParams);
 
-        if ($itemHref !== $uri) {
+        if ($itemHref !== $uri && $modifid == 0) {
             $this->redirect($itemHref, true, 301);
         }
 
         $modifItems = $item->modifications;
 
+
         $this->render($itemViewFile, array('item' => $item, 'category' => $category, 'modifItem' => $modifItems));
+
+
+
     }
 
 
@@ -235,7 +245,7 @@ class SiteController extends Controller
 
         $dataProvider = new CActiveDataProvider('CatItemsToCat', array('criteria' => array('select' => 't.itemId', 'condition' => '`t`.`catId` in ' . $iDsStr . '', 'with' => 'item', 'order' => '`item`.`top` desc,`item`.`price`', 'distinct' => true, 'group' => '`t`.`itemId`')));
 
-        if ($this->module->pagination) {
+        if ($this->module->pagination)  {
 
 
             $pagination = array('pageSize' => $this->module->perPage, 'currentPage' => $page);

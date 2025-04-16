@@ -23,7 +23,8 @@ class CatalogAndSchemaController extends Controller
 
 
                 'actions' => array(
-                    'Index', 'attachSchema'
+                    'Index',
+                    'attachSchema'
                 ),
 
 
@@ -45,63 +46,91 @@ class CatalogAndSchemaController extends Controller
 
     public function actionAttachSchema()
     {
+
+
+
         Yii::import('schema.models.SchemaLinks');
         Yii::import('schema.components.ApiFunctions');
         // Assuming you're using PHP
         $data = json_decode(file_get_contents('php://input'), true);
         $catItemsdata = $data['selectedItems'];
+        $schema = $data['selectedSchemaLink'];
         print_r($data);
 
-        foreach ($catItemsdata as $itemData) {
+        $collection = Yii::app()->mongoDb->getCollection('schemaData');
+        $schemaForAtach = $collection->findOne(['linkType' => $schema['linkType'], 'groupId' => $schema['linkId']]);
+        // print_r($schemaForAtach);
+        // print_r($schemaForAtach->toArray());
+        // return;
+        $catItemElemData = array_shift($catItemsdata);
 
-            $res = SchemaLinks::model()->findAllByAttributes([
-                'linkId' => $itemData['id'],
+        $filter = ['linkType' => 'CatItem', 'groupId' => (int)$catItemElemData['id']];
+        $update = [
+            '$set' => [
                 'linkType' => 'CatItem',
-                'schemaId' => $data['selectedSchemaLink']['schemaId']
-            ]);
-
-            if (!$res) {
-                $newSchema = new SchemaLinks();
-                $newSchema->linkId = $itemData['id'];
-                $newSchema->linkType = 'CatItem';
-                $newSchema->schemaId = $data['selectedSchemaLink']['schemaId'];
-                if (!$newSchema->save()) {
-                    throw new Exception('Не удалось создать схему!');
-                } else {
-                    $res = $newSchema;
-                }
-            } else {
-                $res = array_shift($res);
-            }
-
-            Yii::import('schema.components.CSchemaLink');
-
-            $CSchemaLinks = new CSchemaLink('CatItem', $res->linkId, $data['selectedSchemaLink']['schemaId']);
-
-            $url = Yii::app()->createAbsoluteUrl('/schema/api/GetSchemaData');
-            $schemaData = ApiFunctions::getLineSchemaData($data['selectedSchemaLink']['linkType'], $data['selectedSchemaLink']['linkId']);
-
-            foreach ($schemaData as $fieldName => $schemaDataAndValue) {
-                //  print_r($fieldName);
-                //  $res->set($fieldName, $schemaDataAndValue['value']);
-                $CSchemaLInk = new CSchemaLink($res->linkType, $res->linkId, $res->schemaId);
-                $CSchemaLInk->set($fieldName, $schemaDataAndValue['value'], $res->linkType, $schemaDataAndValue['type']);
-            }
+                'groupId' => (int)$catItemElemData['id'],
+                'schemaId' => $schema['schemaId'],
+                'fields' => $schemaForAtach['fields']
+                // другие поля для обновления/создания
+            ]
+        ];
+        $options = ['upsert' => true]; // создаст документ, если не найден
 
 
-
-            // Use file_get_contents to fetch the JSON data
-            // $json = file_get_contents($url . '?linkType=' . $data['selectedSchemaLink']['linkType'] . '&linkId=' . $data['selectedSchemaLink']['linkId']);
+        $collection->updateOne($filter, $update, $options);
 
 
-        }
+        return;
+        // foreach ($catItemsdata as $itemData) {
 
-        // SchemaLinks::model()->findAllByAttributes($data);
-        // $selectedItems = $data['selectedItems'];
-        // $selectedSchemaLink = $data['selectedSchemaLink'];
+        //     $res = SchemaLinks::model()->findAllByAttributes([
+        //         'linkId' => $itemData['id'],
+        //         'linkType' => 'CatItem',
+        //         'schemaId' => $data['selectedSchemaLink']['schemaId']
+        //     ]);
 
-        // Now you can use $selectedItems and $selectedSchemaLink as needed
+        //     if (!$res) {
+        //         $newSchema = new SchemaLinks();
+        //         $newSchema->linkId = $itemData['id'];
+        //         $newSchema->linkType = 'CatItem';
+        //         $newSchema->schemaId = $data['selectedSchemaLink']['schemaId'];
+        //         if (!$newSchema->save()) {
+        //             throw new Exception('Не удалось создать схему!');
+        //         } else {
+        //             $res = $newSchema;
+        //         }
+        //     } else {
+        //         $res = array_shift($res);
+        //     }
 
-        // $this->renderPartial('attachSchema', ['data' => $data]);
+        //     Yii::import('schema.components.CSchemaLink');
+
+        //     $CSchemaLinks = new CSchemaLink('CatItem', $res->linkId, $data['selectedSchemaLink']['schemaId']);
+
+        //     $url = Yii::app()->createAbsoluteUrl('/schema/api/GetSchemaData');
+        //     $schemaData = ApiFunctions::getLineSchemaData($data['selectedSchemaLink']['linkType'], $data['selectedSchemaLink']['linkId']);
+
+        //     foreach ($schemaData as $fieldName => $schemaDataAndValue) {
+        //         //  print_r($fieldName);
+        //         //  $res->set($fieldName, $schemaDataAndValue['value']);
+        //         $CSchemaLInk = new CSchemaLink($res->linkType, $res->linkId, $res->schemaId);
+        //         $CSchemaLInk->set($fieldName, $schemaDataAndValue['value'], $res->linkType, $schemaDataAndValue['type']);
+        //     }
+
+
+
+        //     // Use file_get_contents to fetch the JSON data
+        //     // $json = file_get_contents($url . '?linkType=' . $data['selectedSchemaLink']['linkType'] . '&linkId=' . $data['selectedSchemaLink']['linkId']);
+
+
+        // }
+
+        // // SchemaLinks::model()->findAllByAttributes($data);
+        // // $selectedItems = $data['selectedItems'];
+        // // $selectedSchemaLink = $data['selectedSchemaLink'];
+
+        // // Now you can use $selectedItems and $selectedSchemaLink as needed
+
+        // // $this->renderPartial('attachSchema', ['data' => $data]);
     }
 }
